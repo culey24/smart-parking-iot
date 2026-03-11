@@ -1,0 +1,50 @@
+[
+  {
+    "id": "ph-000",
+    "entryTime": "2025-03-06T14:00:00.000Z",
+    "exitTime": null,
+    "licensePlate": "59A1-12345",
+    "fee": 0,
+    "status": "ongoing"
+  },
+  {
+    "id": "ph-001",
+    "entryTime": "2025-03-06T08:15:00.000Z",
+    "exitTime": "2025-03-06T10:45:00.000Z",
+    "licensePlate": "59A1-12345",
+    "fee": 22500,
+    "status": "completed"
+  },
+  {
+    "id": "ph-002",
+    "entryTime": "2025-03-05T14:30:00.000Z",
+    "exitTime": "2025-03-05T16:00:00.000Z",
+    "licensePlate": "59A1-12345",
+    "fee": 15000,
+    "status": "completed"
+  },
+  {
+    "id": "ph-003",
+    "entryTime": "2025-03-04T07:00:00.000Z",
+    "exitTime": "2025-03-04T09:30:00.000Z",
+    "licensePlate": "59A1-12345",
+    "fee": 30000,
+    "status": "completed"
+  },
+  {
+    "id": "ph-004",
+    "entryTime": "2025-03-03T11:20:00.000Z",
+    "exitTime": "2025-03-03T12:50:00.000Z",
+    "licensePlate": "59A1-12345",
+    "fee": 22500,
+    "status": "completed"
+  },
+  {
+    "id": "ph-005",
+    "entryTime": "2025-03-02T08:45:00.000Z",
+    "exitTime": "2025-03-02T11:15:00.000Z",
+    "licensePlate": "59A1-12345",
+    "fee": 37500,
+    "status": "completed"
+  }
+]

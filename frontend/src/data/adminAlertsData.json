@@ -1,0 +1,6 @@
+[
+  {"id": "A01", "deviceId": "GW-02", "deviceType": "gateway", "message": "Gateway B connection lost", "severity": "critical", "timestamp": "2025-03-06T15:30:00.000Z", "status": "pending"},
+  {"id": "A02", "deviceId": "CAM-02", "deviceType": "camera", "message": "Camera South offline", "severity": "error", "timestamp": "2025-03-06T15:25:00.000Z", "status": "pending"},
+  {"id": "A03", "deviceId": "S05", "deviceType": "sensor", "message": "Sensor S05 no response", "severity": "warning", "timestamp": "2025-03-06T15:20:00.000Z", "status": "resolved"},
+  {"id": "A04", "deviceId": "S19", "deviceType": "sensor", "message": "Sensor S19 intermittent", "severity": "warning", "timestamp": "2025-03-06T15:15:00.000Z", "status": "pending"}
+]

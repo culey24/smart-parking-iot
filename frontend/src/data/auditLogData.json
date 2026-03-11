@@ -1,0 +1,10 @@
+[
+  {"id": "AL01", "actor": "Admin A", "action": "changed ticket price", "target": "Pricing config", "timestamp": "2025-03-06T14:30:00.000Z"},
+  {"id": "AL02", "actor": "Operator B", "action": "manually opened barrier", "target": "Gate A", "timestamp": "2025-03-06T14:25:00.000Z"},
+  {"id": "AL03", "actor": "IT Team", "action": "updated firmware", "target": "Gateway GW-01", "timestamp": "2025-03-06T14:15:00.000Z"},
+  {"id": "AL04", "actor": "Admin A", "action": "assigned role", "target": "User U04 → IT_TEAM", "timestamp": "2025-03-06T13:50:00.000Z"},
+  {"id": "AL05", "actor": "Operator B", "action": "disabled linked card", "target": "Card 59A-12345", "timestamp": "2025-03-06T13:20:00.000Z"},
+  {"id": "AL06", "actor": "IT Team", "action": "updated firmware", "target": "Gateway GW-02", "timestamp": "2025-03-06T12:00:00.000Z"},
+  {"id": "AL07", "actor": "Admin A", "action": "changed ticket price", "target": "Pricing config", "timestamp": "2025-03-05T16:00:00.000Z"},
+  {"id": "AL08", "actor": "Operator B", "action": "manually opened barrier", "target": "Gate B", "timestamp": "2025-03-05T15:45:00.000Z"}
+]

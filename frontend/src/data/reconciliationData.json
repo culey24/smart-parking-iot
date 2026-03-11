@@ -1,0 +1,60 @@
+{
+  "requests": [
+    {
+      "id": "R001",
+      "sessionId": "ph-001",
+      "userId": "U01",
+      "userName": "Nguyễn Văn A",
+      "licensePlate": "59A1-12345",
+      "reportedAt": "2025-03-06T11:00:00.000Z",
+      "description": "Fee calculated 22,500 VND but BKPay charged 25,000 VND",
+      "status": "pending"
+    },
+    {
+      "id": "R002",
+      "sessionId": "ph-002",
+      "userId": "U01",
+      "userName": "Nguyễn Văn A",
+      "licensePlate": "59A1-12345",
+      "reportedAt": "2025-03-05T16:30:00.000Z",
+      "description": "Double charge for same session",
+      "status": "pending"
+    }
+  ],
+  "spmsBySession": {
+    "ph-001": {
+      "entryTime": "2025-03-06T08:15:00.000Z",
+      "exitTime": "2025-03-06T10:45:00.000Z",
+      "licensePlate": "59A1-12345",
+      "cardId": "CARD-001",
+      "calculatedAmount": 22500
+    },
+    "ph-002": {
+      "entryTime": "2025-03-05T14:30:00.000Z",
+      "exitTime": "2025-03-05T16:00:00.000Z",
+      "licensePlate": "59A1-12345",
+      "cardId": "CARD-001",
+      "calculatedAmount": 15000
+    }
+  },
+  "bkpayBySession": {
+    "ph-001": {
+      "transactionId": "BK-20250306-001",
+      "transactionStatus": "completed",
+      "actualAmount": 25000
+    },
+    "ph-002": {
+      "transactionId": "BK-20250305-002",
+      "transactionStatus": "completed",
+      "actualAmount": 30000
+    }
+  },
+  "relatedSessionsByUser": {
+    "U01": [
+      {"id": "ph-001", "entryTime": "2025-03-06T08:15:00.000Z", "exitTime": "2025-03-06T10:45:00.000Z", "licensePlate": "59A1-12345", "fee": 22500},
+      {"id": "ph-002", "entryTime": "2025-03-05T14:30:00.000Z", "exitTime": "2025-03-05T16:00:00.000Z", "licensePlate": "59A1-12345", "fee": 15000},
+      {"id": "ph-003", "entryTime": "2025-03-04T07:00:00.000Z", "exitTime": "2025-03-04T09:30:00.000Z", "licensePlate": "59A1-12345", "fee": 30000},
+      {"id": "ph-004", "entryTime": "2025-03-03T11:20:00.000Z", "exitTime": "2025-03-03T12:50:00.000Z", "licensePlate": "59A1-12345", "fee": 22500}
+    ]
+  }
+}

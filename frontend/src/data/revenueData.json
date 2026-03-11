@@ -1,0 +1,17 @@
+{
+  "byPeriod": [
+    {"label": "01/03", "revenue": 1250000, "date": "2025-03-01"},
+    {"label": "02/03", "revenue": 1420000, "date": "2025-03-02"},
+    {"label": "03/03", "revenue": 980000, "date": "2025-03-03"},
+    {"label": "04/03", "revenue": 1680000, "date": "2025-03-04"},
+    {"label": "05/03", "revenue": 1950000, "date": "2025-03-05"},
+    {"label": "06/03", "revenue": 2100000, "date": "2025-03-06"}
+  ],
+  "byAudience": [
+    {"audience": "Learners", "amount": 2850000, "percent": 52},
+    {"audience": "Faculty/Staff", "amount": 1680000, "percent": 31},
+    {"audience": "Visitors", "amount": 947000, "percent": 17}
+  ],
+  "bkpayTotal": 4520000,
+  "cashTotal": 958000
+}

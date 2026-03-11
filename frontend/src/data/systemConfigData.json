@@ -1,0 +1,10 @@
+{
+  "occupancyThresholdPercent": 85,
+  "iotDeviceTimeoutSeconds": 30,
+  "syncIntervalSeconds": 60,
+  "enableOccupancyAlerts": true,
+  "enableIotTimeoutMonitoring": true,
+  "hotlineSupport": "028-3865-1234",
+  "alertEmail": "parking-alerts@hcmut.edu.vn",
+  "enableEmailAlerts": true
+}

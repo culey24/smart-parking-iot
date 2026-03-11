@@ -1,0 +1,8 @@
+[
+  {"id": "U01", "name": "Nguyễn Văn A", "email": "nguyenvana@hcmut.edu.vn", "mssvMscb": "MSCB001", "faculty": "IT", "country": "Việt Nam", "province": "HCM", "timezone": "Asia/Ho_Chi_Minh", "role": "ADMIN"},
+  {"id": "U02", "name": "Trần Thị B", "email": "tranthib@hcmut.edu.vn", "mssvMscb": "MSCB002", "faculty": "ME", "country": "Việt Nam", "province": "HCM", "timezone": "Asia/Ho_Chi_Minh", "role": "OPERATOR"},
+  {"id": "U03", "name": "Lê Văn C", "email": "levanc@hcmut.edu.vn", "mssvMscb": "MSCB003", "faculty": "EE", "country": "Việt Nam", "province": "HCM", "timezone": "Asia/Ho_Chi_Minh", "role": "OPERATOR"},
+  {"id": "U04", "name": "Phạm Thị D", "email": "phamthid@hcmut.edu.vn", "mssvMscb": "MSCB004", "faculty": "IT", "country": "Việt Nam", "province": "HCM", "timezone": "Asia/Ho_Chi_Minh", "role": "IT_TEAM"},
+  {"id": "U05", "name": "Hoàng Văn E", "email": "hoangvane@hcmut.edu.vn", "mssvMscb": "2012345", "faculty": "IT", "country": "Việt Nam", "province": "HCM", "timezone": "Asia/Ho_Chi_Minh", "role": "LEARNER"},
+  {"id": "U06", "name": "Võ Thị F", "email": "vothif@hcmut.edu.vn", "mssvMscb": "MSCB006", "faculty": "CE", "country": "Việt Nam", "province": "HCM", "timezone": "Asia/Ho_Chi_Minh", "role": "FACULTY"}
+]

@@ -1,0 +1,6 @@
+[
+  {"id": "gate-a-entry", "label": "Gate A - Entry", "barrierStatus": "closed"},
+  {"id": "gate-a-exit", "label": "Gate A - Exit", "barrierStatus": "open"},
+  {"id": "gate-b-entry", "label": "Gate B - Entry", "barrierStatus": "closed"},
+  {"id": "gate-b-exit", "label": "Gate B - Exit", "barrierStatus": "closed"}
+]

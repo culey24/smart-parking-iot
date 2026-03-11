@@ -1,0 +1,25 @@
+{
+  "learner": {
+    "unitPriceVnd": 5000,
+    "pricingUnit": "per_trip",
+    "paymentCycle": "monthly",
+    "specialSlots": [
+      {"startTime": "22:00", "endTime": "06:00", "discountPercent": 0, "label": "Night free"},
+      {"startTime": "12:00", "endTime": "13:30", "discountPercent": 50, "label": "Lunch discount"}
+    ]
+  },
+  "facultyStaff": {
+    "unitPriceVnd": 3000,
+    "pricingUnit": "per_trip",
+    "paymentCycle": "monthly",
+    "specialSlots": [
+      {"startTime": "22:00", "endTime": "06:00", "discountPercent": 0, "label": "Night free"}
+    ]
+  },
+  "visitor": {
+    "unitPriceVnd": 15000,
+    "pricingUnit": "per_hour",
+    "paymentCycle": "daily",
+    "specialSlots": []
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "name": "smart-parking-iot",
+  "version": "1.0.0",
+  "description": "```bash cd frontend npm install npm run dev ```",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "db:generate": "cd backend && npm run db:generate",
+    "db:push": "cd backend && npm run db:push",
+    "db:migrate": "cd backend && npm run db:migrate",
+    "db:studio": "cd backend && npm run db:studio"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/culey24/smart-parking-iot.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/culey24/smart-parking-iot/issues"
+  },
+  "homepage": "https://github.com/culey24/smart-parking-iot#readme"
+}

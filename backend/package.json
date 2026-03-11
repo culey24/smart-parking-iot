@@ -1,0 +1,19 @@
+{
+  "name": "smart-parking-iot-backend",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "db:generate": "prisma generate",
+    "db:push": "prisma db push",
+    "db:migrate": "prisma migrate dev",
+    "db:studio": "prisma studio",
+    "api": "uvicorn app.main:app --reload --host 0.0.0.0 --port 8000",
+    "api:prod": "uvicorn app.main:app --host 0.0.0.0 --port 8000"
+  },
+  "devDependencies": {
+    "prisma": "^5.22.0"
+  },
+  "dependencies": {
+    "@prisma/client": "^5.22.0"
+  }
+}
