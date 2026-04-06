@@ -65,14 +65,6 @@ export function ProfilePage() {
             </div>
             <div className="space-y-2">
               <label className="text-sm font-medium text-muted-foreground">
-                Registered Vehicle Type
-              </label>
-              <p className="rounded-md border bg-muted/50 px-3 py-2 font-medium">
-                {profile.registeredVehicleType}
-              </p>
-            </div>
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-muted-foreground">
                 Country
               </label>
               <p className="rounded-md border bg-muted/50 px-3 py-2 font-medium">

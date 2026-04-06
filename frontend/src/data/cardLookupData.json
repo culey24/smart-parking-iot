@@ -1,4 +1,16 @@
 {
+  "51B-67890": {
+    "vehicleType": "Motorcycle",
+    "licensePlate": "51B-67890",
+    "session": {
+      "entryTime": "2025-03-06T13:15:00.000Z",
+      "platePhotoUrl": null
+    },
+    "linkedCard": {
+      "lastFourDigits": "3342",
+      "status": "Active"
+    }
+  },
   "59A1-12345": {
     "vehicleType": "Motorcycle",
     "licensePlate": "59A1-12345",

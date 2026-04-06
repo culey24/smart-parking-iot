@@ -102,6 +102,25 @@ export function CardProcessingPage() {
       </div>
 
       <div className="max-w-2xl space-y-4">
+        <div className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
+          <span>Demo:</span>
+          {["59A1-12345", "30A-12345", "51B-67890"].map((plate) => (
+            <Button
+              key={plate}
+              type="button"
+              variant="outline"
+              size="sm"
+              className="h-7 text-xs"
+              onClick={() => {
+                setLicensePlate(plate);
+                setError("");
+                setResult(null);
+              }}
+            >
+              {plate}
+            </Button>
+          ))}
+        </div>
         <form onSubmit={handleSearch} className="flex gap-2">
           <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
@@ -182,20 +201,46 @@ export function CardProcessingPage() {
                 </CardTitle>
                 <CardDescription>Last 4 digits only (security)</CardDescription>
               </CardHeader>
-              <CardContent className="space-y-2">
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Card ID (last 4)</span>
-                  <span className="font-mono font-medium">****{result.linkedCard.lastFourDigits}</span>
+              <CardContent className="space-y-4">
+                {/* Card mockup */}
+                <div className="flex justify-center">
+                  <div className="relative w-64 overflow-hidden rounded-xl border-2 border-slate-300 bg-gradient-to-br from-slate-100 to-slate-200 p-6 shadow-lg">
+                    <div className="absolute right-4 top-4">
+                      <div className="h-8 w-8 rounded-lg bg-amber-500/80" title="RFID chip" />
+                    </div>
+                    <p className="text-sm font-medium text-slate-500">Smart Parking</p>
+                    <p className="mt-2 font-mono text-lg font-bold tracking-[0.3em] text-slate-700">
+                      ****{result.linkedCard.lastFourDigits}
+                    </p>
+                    <p className="mt-1 text-xs text-slate-500">Card ID</p>
+                    <div className="mt-4 flex items-center justify-between">
+                      <Badge
+                        variant={
+                          result.linkedCard.status === "Active" ? "success" : "danger"
+                        }
+                        className="text-xs"
+                      >
+                        {result.linkedCard.status}
+                      </Badge>
+                      <span className="text-[10px] text-slate-400">HCMUT</span>
+                    </div>
+                  </div>
                 </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-muted-foreground">Status</span>
-                  <Badge
-                    variant={
-                      result.linkedCard.status === "Active" ? "success" : "danger"
-                    }
-                  >
-                    {result.linkedCard.status}
-                  </Badge>
+                <div className="space-y-2">
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Card ID (last 4)</span>
+                    <span className="font-mono font-medium">****{result.linkedCard.lastFourDigits}</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-muted-foreground">Status</span>
+                    <Badge
+                      variant={
+                        result.linkedCard.status === "Active" ? "success" : "danger"
+                      }
+                    >
+                      {result.linkedCard.status}
+                    </Badge>
+                  </div>
                 </div>
               </CardContent>
             </Card>

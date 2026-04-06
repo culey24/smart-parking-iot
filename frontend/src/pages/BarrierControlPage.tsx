@@ -61,7 +61,7 @@ function GatewayDisplayPanel({
               variant={item.barrierStatus === "open" ? "success" : "danger"}
               className="shrink-0 text-xs"
             >
-              {item.barrierStatus === "open" ? "Mở" : "Đóng"}
+              {item.barrierStatus === "open" ? "Open" : "Closed"}
             </Badge>
           </div>
           <p className="text-xs text-muted-foreground">{item.licensePlate}</p>
@@ -74,7 +74,7 @@ function GatewayDisplayPanel({
             onClick={onOpenBarrier}
           >
             <Maximize2 className="mr-2 h-4 w-4" />
-            Phóng to màn hình
+            Expand view
           </Button>
         </CardContent>
       </Card>
@@ -100,12 +100,12 @@ function GatewayDisplayPanel({
             variant={item.barrierStatus === "open" ? "success" : "danger"}
             className="shrink-0"
           >
-            {item.barrierStatus === "open" ? "Mở" : "Đóng"}
+            {item.barrierStatus === "open" ? "Open" : "Closed"}
           </Badge>
         </div>
         <p className="text-xs text-muted-foreground">
           {formatTime(item.timestamp)} •{" "}
-          {isEntry ? "Xe vào" : `Xe ra${entrySession ? " (đã quét thẻ)" : ""}`}
+          {isEntry ? "Entry" : `Exit${entrySession ? " (card scanned)" : ""}`}
         </p>
       </CardHeader>
       <CardContent className="space-y-4 p-4">
@@ -116,18 +116,18 @@ function GatewayDisplayPanel({
             <div className="space-y-3 rounded-lg border border-green-200 bg-green-50/80 p-4">
               <div className="flex items-center gap-2 text-sm font-medium text-green-700">
                 <CreditCard className="h-4 w-4" />
-                Phiên đỗ xe (lúc vào)
+                Entry session
               </div>
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-[1fr_auto]">
                 <div className="space-y-2">
                   <div className="flex items-center gap-2 text-xs font-medium text-muted-foreground">
                     <Camera className="h-3.5 w-3.5" />
-                    Biển số lúc vào
+                    License plate (entry)
                   </div>
                   <div className="overflow-hidden rounded-lg border bg-muted/50 shadow-inner">
                     <img
                       src={entrySession.licensePlateImageUrl}
-                      alt="Biển số lúc vào"
+                      alt="License plate (entry)"
                       className="h-24 w-full object-cover object-top sm:h-28"
                       onError={(e) => {
                         const el = e.target as HTMLImageElement;
@@ -149,12 +149,12 @@ function GatewayDisplayPanel({
                 <div className="space-y-2">
                   <div className="flex items-center gap-2 text-xs font-medium text-muted-foreground">
                     <User className="h-3.5 w-3.5" />
-                    Khuôn mặt lúc vào
+                    Driver face (entry)
                   </div>
                   <div className="overflow-hidden rounded-lg border bg-muted/50 shadow-inner">
                     <img
                       src={entrySession.driverFaceImageUrl}
-                      alt="Khuôn mặt lúc vào"
+                      alt="Driver face (entry)"
                       className="h-36 w-36 object-cover object-top"
                       onError={(e) => {
                         const el = e.target as HTMLImageElement;
@@ -171,19 +171,19 @@ function GatewayDisplayPanel({
               </div>
               <div className="space-y-2 border-t pt-3 text-sm">
                 <div className="flex justify-between">
-                  <span className="text-muted-foreground">Giờ vào</span>
+                  <span className="text-muted-foreground">Entry time</span>
                   <span className="font-mono">{formatTime(entrySession.entryTime)}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-muted-foreground">Cổng vào</span>
+                  <span className="text-muted-foreground">Entry gate</span>
                   <span>{entrySession.entryGateLabel}</span>
                 </div>
                 {entrySession.durationMinutes != null && (
                   <div className="flex justify-between">
-                    <span className="text-muted-foreground">Thời gian đỗ</span>
+                    <span className="text-muted-foreground">Duration</span>
                     <span className="flex items-center gap-1">
                       <Clock className="h-3.5 w-3.5" />
-                      {entrySession.durationMinutes} phút
+                      {entrySession.durationMinutes} min
                     </span>
                   </div>
                 )}
@@ -195,12 +195,12 @@ function GatewayDisplayPanel({
               <div className="space-y-2">
                 <div className="flex items-center gap-2 text-xs font-medium text-muted-foreground">
                   <Camera className="h-3.5 w-3.5" />
-                  Biển số xe ra
+                  License plate (exit)
                 </div>
                 <div className="overflow-hidden rounded-lg border bg-muted/50 shadow-inner">
                   <img
                     src={item.licensePlateImageUrl}
-                    alt="Biển số xe"
+                    alt="License plate"
                     className="h-24 w-full object-cover object-top sm:h-28"
                     onError={(e) => {
                       const el = e.target as HTMLImageElement;
@@ -222,12 +222,12 @@ function GatewayDisplayPanel({
               <div className="space-y-2">
                 <div className="flex items-center gap-2 text-xs font-medium text-muted-foreground">
                   <User className="h-3.5 w-3.5" />
-                  Khuôn mặt
+                  Driver face
                 </div>
                 <div className="overflow-hidden rounded-lg border bg-muted/50 shadow-inner">
                   <img
                     src={item.driverFaceImageUrl}
-                    alt="Khuôn mặt lái xe"
+                    alt="Driver face"
                     className="h-36 w-36 object-cover object-top"
                     onError={(e) => {
                       const el = e.target as HTMLImageElement;
@@ -248,19 +248,19 @@ function GatewayDisplayPanel({
           <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
             <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-amber-300 bg-amber-50/80 p-8">
               <CreditCard className="mb-2 h-12 w-12 text-amber-600" />
-              <p className="text-center text-sm text-amber-700">Chờ quét thẻ...</p>
-              <p className="mt-1 text-center text-xs text-muted-foreground">Thông tin phiên vào sẽ hiển thị tại đây</p>
+              <p className="text-center text-sm text-amber-700">Waiting for card scan...</p>
+              <p className="mt-1 text-center text-xs text-muted-foreground">Entry session info will appear here</p>
             </div>
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-[1fr_auto]">
               <div className="space-y-2">
                 <div className="flex items-center gap-2 text-xs font-medium text-muted-foreground">
                   <Camera className="h-3.5 w-3.5" />
-                  Biển số xe ra
+                  License plate (exit)
                 </div>
                 <div className="overflow-hidden rounded-lg border bg-muted/50 shadow-inner">
                   <img
                     src={item.licensePlateImageUrl}
-                    alt="Biển số xe"
+                    alt="License plate"
                     className="h-24 w-full object-cover object-top sm:h-28"
                     onError={(e) => {
                       const el = e.target as HTMLImageElement;
@@ -282,12 +282,12 @@ function GatewayDisplayPanel({
               <div className="space-y-2">
                 <div className="flex items-center gap-2 text-xs font-medium text-muted-foreground">
                   <User className="h-3.5 w-3.5" />
-                  Khuôn mặt
+                  Driver face
                 </div>
                 <div className="overflow-hidden rounded-lg border bg-muted/50 shadow-inner">
                   <img
                     src={item.driverFaceImageUrl}
-                    alt="Khuôn mặt lái xe"
+                    alt="Driver face"
                     className="h-36 w-36 object-cover object-top"
                     onError={(e) => {
                       const el = e.target as HTMLImageElement;
@@ -309,12 +309,12 @@ function GatewayDisplayPanel({
             <div className="space-y-2">
               <div className="flex items-center gap-2 text-xs font-medium text-muted-foreground">
                 <Camera className="h-3.5 w-3.5" />
-                Biển số xe
+                License plate
               </div>
               <div className="overflow-hidden rounded-lg border bg-muted/50 shadow-inner">
                 <img
                   src={item.licensePlateImageUrl}
-                  alt="Biển số xe"
+                  alt="License plate"
                   className="h-24 w-full object-cover object-top sm:h-28"
                   onError={(e) => {
                     const el = e.target as HTMLImageElement;
@@ -341,7 +341,7 @@ function GatewayDisplayPanel({
               <div className="overflow-hidden rounded-lg border bg-muted/50 shadow-inner">
                 <img
                   src={item.driverFaceImageUrl}
-                  alt="Khuôn mặt lái xe"
+                  alt="Driver face"
                   className="h-36 w-36 object-cover object-top"
                   onError={(e) => {
                     const el = e.target as HTMLImageElement;
@@ -365,7 +365,7 @@ function GatewayDisplayPanel({
             className="flex-1 bg-green-600 hover:bg-green-700"
             onClick={onOpenBarrier}
           >
-            Mở barrier
+            Open barrier
           </Button>
           <Button
             size="sm"
@@ -373,7 +373,7 @@ function GatewayDisplayPanel({
             className="flex-1"
             onClick={onCloseBarrier}
           >
-            Đóng barrier
+            Close barrier
           </Button>
         </div>
       </CardContent>
@@ -449,10 +449,10 @@ export function BarrierControlPage() {
           </Button>
           <div>
             <h1 className="text-2xl font-bold text-[#003087]">
-              Màn hình Gateway – Điều khiển Barrier
+              Gateway Display – Barrier Control
             </h1>
             <p className="text-sm text-muted-foreground">
-              Mỗi cổng 1 màn hình. Bấm &quot;Phóng to&quot; để xem chi tiết và điều khiển barrier.
+              One gateway per display. Click &quot;Expand view&quot; to see details and control barrier.
             </p>
           </div>
         </div>
@@ -479,17 +479,17 @@ export function BarrierControlPage() {
           <div
             className="fixed inset-0 z-50 flex flex-col bg-background"
             role="dialog"
-            aria-label="Màn hình gateway phóng to"
+            aria-label="Gateway display expanded"
           >
             <div className="flex shrink-0 items-center justify-between border-b bg-muted/50 px-4 py-3">
               <h2 className="text-lg font-semibold">
-                {item.gateLabel} – Màn hình điều khiển
+                {item.gateLabel} – Control display
               </h2>
               <Button
                 variant="ghost"
                 size="icon"
                 onClick={() => setExpandedGateId(null)}
-                title="Thu nhỏ (Esc)"
+                title="Minimize (Esc)"
               >
                 <X className="h-5 w-5" />
               </Button>
@@ -510,9 +510,9 @@ export function BarrierControlPage() {
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Mở barrier thủ công – Chọn lý do</DialogTitle>
+            <DialogTitle>Manual barrier open – Select reason</DialogTitle>
             <DialogDescription>
-              Vui lòng chọn lý do mở barrier thủ công.
+              Please select the reason for manually opening the barrier.
             </DialogDescription>
           </DialogHeader>
           <div className="grid gap-2 py-4">
@@ -533,14 +533,14 @@ export function BarrierControlPage() {
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={handleCancelDialog}>
-              Hủy
+              Cancel
             </Button>
             <Button
               className="bg-[#003087] hover:bg-[#003087]/90"
               onClick={handleConfirmManualOpen}
               disabled={!selectedReason}
             >
-              Xác nhận
+              Confirm
             </Button>
           </DialogFooter>
         </DialogContent>

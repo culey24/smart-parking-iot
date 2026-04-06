@@ -12,7 +12,7 @@ import {
 import { useAuth } from "@/contexts/AuthContext";
 
 export function LoginPage() {
-  const [email, setEmail] = useState("");
+  const [userId, setUserId] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -29,10 +29,10 @@ export function LoginPage() {
     setLoading(true);
 
     try {
-      await login(email, password);
+      await login(userId, password);
       navigate(from, { replace: true });
     } catch {
-      setError("Invalid email or password");
+      setError("Invalid ID or password");
     } finally {
       setLoading(false);
     }
@@ -52,18 +52,18 @@ export function LoginPage() {
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
-              <label htmlFor="email" className="text-sm font-medium">
-                Email
+              <label htmlFor="userId" className="text-sm font-medium">
+                ID
               </label>
               <Input
-                id="email"
-                type="email"
-                placeholder="you@example.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                id="userId"
+                type="text"
+                placeholder="MSSV / MSCB"
+                value={userId}
+                onChange={(e) => setUserId(e.target.value)}
                 required
                 className="focus-visible:ring-[#003087]"
-                autoComplete="email"
+                autoComplete="username"
               />
             </div>
             <div className="space-y-2">
@@ -92,7 +92,7 @@ export function LoginPage() {
             </Button>
           </form>
           <p className="mt-4 text-center text-xs text-muted-foreground">
-            Demo: quachgiabao@example.com, faculty@example.com, operator@example.com, admin@example.com, it@hcmut.edu.vn, finance@hcmut.edu.vn, super@hcmut.edu.vn
+            Demo (ID): quachgiabao@example.com, faculty@example.com, operator@example.com, admin@example.com, it@hcmut.edu.vn, finance@hcmut.edu.vn, super@hcmut.edu.vn
           </p>
         </CardContent>
       </Card>

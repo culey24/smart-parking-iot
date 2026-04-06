@@ -37,7 +37,7 @@ const FACE_PLACEHOLDER = "https://placehold.co/140x180/e2e8f0/64748b?text=DRIVER
 export const GATEWAY_DISPLAY_ITEMS: GatewayDisplayItem[] = [
   {
     gateId: "gate-a-entry",
-    gateLabel: "Cổng A - Vào",
+    gateLabel: "Gate A - Entry",
     direction: "entry",
     licensePlate: "30A-12345",
     licensePlateImageUrl: PLATE_PLACEHOLDER,
@@ -47,7 +47,7 @@ export const GATEWAY_DISPLAY_ITEMS: GatewayDisplayItem[] = [
   },
   {
     gateId: "gate-a-exit",
-    gateLabel: "Cổng A - Ra",
+    gateLabel: "Gate A - Exit",
     direction: "exit",
     licensePlate: "51B-67890",
     licensePlateImageUrl: PLATE_PLACEHOLDER,
@@ -57,7 +57,7 @@ export const GATEWAY_DISPLAY_ITEMS: GatewayDisplayItem[] = [
     entrySession: {
       entryTime: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
       licensePlate: "51B-67890",
-      entryGateLabel: "Cổng A - Vào",
+      entryGateLabel: "Gate A - Entry",
       durationMinutes: 120,
       licensePlateImageUrl: PLATE_PLACEHOLDER,
       driverFaceImageUrl: FACE_PLACEHOLDER,
@@ -65,7 +65,7 @@ export const GATEWAY_DISPLAY_ITEMS: GatewayDisplayItem[] = [
   },
   {
     gateId: "gate-b-entry",
-    gateLabel: "Cổng B - Vào",
+    gateLabel: "Gate B - Entry",
     direction: "entry",
     licensePlate: "—",
     licensePlateImageUrl: PLATE_PLACEHOLDER,
@@ -75,7 +75,7 @@ export const GATEWAY_DISPLAY_ITEMS: GatewayDisplayItem[] = [
   },
   {
     gateId: "gate-b-exit",
-    gateLabel: "Cổng B - Ra",
+    gateLabel: "Gate B - Exit",
     direction: "exit",
     licensePlate: "59A-11111",
     licensePlateImageUrl: PLATE_PLACEHOLDER,
@@ -85,7 +85,7 @@ export const GATEWAY_DISPLAY_ITEMS: GatewayDisplayItem[] = [
     entrySession: {
       entryTime: new Date(Date.now() - 45 * 60 * 1000).toISOString(),
       licensePlate: "59A-11111",
-      entryGateLabel: "Cổng B - Vào",
+      entryGateLabel: "Gate B - Entry",
       durationMinutes: 45,
       licensePlateImageUrl: PLATE_PLACEHOLDER,
       driverFaceImageUrl: FACE_PLACEHOLDER,

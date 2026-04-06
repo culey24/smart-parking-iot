@@ -7,6 +7,8 @@ import {
   ShieldAlert,
   Layers,
   Gauge,
+  LogIn,
+  LogOut,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -22,7 +24,6 @@ import type {
   InfrastructureAlert,
 } from "@/types/monitoring";
 
-const GRID_COLS = 8;
 const SLOT_ROWS = 5;
 
 function formatAlertTime(iso: string) {
@@ -32,23 +33,27 @@ function formatAlertTime(iso: string) {
   });
 }
 
-function SensorDot({ slot }: { slot: Slot }) {
+function ParkingSlot({ slot }: { slot: Slot }) {
   const isError = slot.deviceStatus === "error";
   const isEmpty = slot.status === "empty";
 
-  const dotColor = isError
-    ? "bg-red-500"
+  const bgColor = isError
+    ? "bg-red-400"
     : isEmpty
-      ? "bg-green-500"
-      : "bg-red-500";
+      ? "bg-green-400/80"
+      : "bg-red-500/90";
 
   return (
     <div
-      className={`h-2 w-2 shrink-0 rounded-full transition-all duration-200 ${
+      className={`flex min-w-[2.5rem] flex-col items-center justify-center rounded border-2 border-white/90 py-1 shadow-sm transition-all duration-200 ${
         isError ? "animate-pulse ring-2 ring-red-500 ring-offset-1" : ""
-      } ${dotColor}`}
+      } ${bgColor}`}
       title={`${slot.id}: ${slot.status}${isError ? " (Sensor error)" : ""}`}
-    />
+    >
+      <span className="text-[10px] font-bold text-white drop-shadow-sm">
+        {slot.id.replace("S", "")}
+      </span>
+    </div>
   );
 }
 
@@ -106,7 +111,7 @@ export function MonitoringPage() {
   }, []);
 
   const slotGrid = Array.from({ length: SLOT_ROWS }, (_, r) =>
-    slots.filter((s) => s.row === r)
+    slots.filter((s) => s.row === r).sort((a, b) => a.col - b.col)
   );
   const topDevices = devices.filter((d) => d.row === 0);
   const bottomDevices = devices.filter((d) => d.row >= 5);
@@ -150,7 +155,7 @@ export function MonitoringPage() {
           </div>
         </div>
 
-        <div className="relative flex flex-1 flex-col gap-2 overflow-auto rounded-xl border bg-muted/30 p-4">
+        <div className="relative flex flex-1 flex-col overflow-auto rounded-xl border bg-muted/30 p-4">
           <Popover>
             <PopoverTrigger asChild>
               <Button
@@ -211,47 +216,140 @@ export function MonitoringPage() {
             </PopoverContent>
           </Popover>
 
-          <div className="flex flex-wrap gap-4 text-xs">
-            <span className="flex items-center gap-1.5">
-              <span className="h-2 w-2 rounded-full bg-green-500" /> Empty
-            </span>
-            <span className="flex items-center gap-1.5">
-              <span className="h-2 w-2 rounded-full bg-red-500" /> Occupied
-            </span>
-            <span className="flex items-center gap-1.5">
-              <span className="h-2 w-2 animate-pulse rounded-full bg-red-500" /> Error
-            </span>
+          <div className="mb-4 flex flex-wrap items-center justify-between gap-4">
+            <div className="flex flex-wrap gap-4 text-xs">
+              <span className="flex items-center gap-1.5">
+                <span className="h-2.5 w-2.5 rounded bg-green-500" /> Trống
+              </span>
+              <span className="flex items-center gap-1.5">
+                <span className="h-2.5 w-2.5 rounded bg-red-500" /> Có xe
+              </span>
+              <span className="flex items-center gap-1.5">
+                <span className="h-2.5 w-2.5 animate-pulse rounded bg-red-500" /> Lỗi
+              </span>
+            </div>
+            {(showGateways || showSignage || showCameras) && (
+              <div className="flex flex-wrap gap-2">
+                {filteredTopDevices.map((dev) => (
+                  <DeviceIcon key={dev.id} device={dev} size={20} />
+                ))}
+              </div>
+            )}
           </div>
 
-          {(showGateways || showSignage || showCameras) && (
-            <div className="flex flex-wrap justify-center gap-4 py-2 transition-opacity duration-200">
-              {filteredTopDevices.map((dev) => (
-                <DeviceIcon key={dev.id} device={dev} size={28} />
-              ))}
-            </div>
-          )}
-
-          <div className="flex flex-col gap-0.5">
+          {/* Bản đồ bãi đỗ xe mockup */}
+          <div className="flex flex-1 flex-col items-center justify-center">
             {showSensors ? (
-              slotGrid.map((rowSlots, r) => (
-                <div key={r} className="flex justify-center gap-1">
-                  {Array.from({ length: GRID_COLS }, (_, col) => {
-                    const slot = rowSlots.find((s) => s.col === col);
-                    return (
-                      <div
-                        key={`${r}-${col}`}
-                        className="flex h-4 w-4 items-center justify-center"
-                      >
-                        {slot ? (
-                          <SensorDot slot={slot} />
-                        ) : (
-                          <div className="h-2 w-2" />
-                        )}
-                      </div>
-                    );
-                  })}
+              <div className="w-full max-w-2xl overflow-hidden rounded-lg border-2 border-slate-300 bg-slate-500/40 shadow-lg">
+                {/* Khu vực vào */}
+                <div className="flex items-center justify-center gap-2 border-b-2 border-dashed border-slate-400 bg-slate-600/50 py-2">
+                  <LogIn className="h-4 w-4 text-white" />
+                  <span className="text-sm font-semibold text-white">LỐI VÀO</span>
                 </div>
-              ))
+
+                {/* Làn xe chính */}
+                <div className="flex gap-1 py-1">
+                  <div className="h-2 flex-1 bg-slate-400/60" title="Làn xe" />
+                </div>
+
+                {/* Hàng 1: Trái | Làn | Phải */}
+                <div className="flex gap-2 px-2 py-1">
+                  <div className="flex flex-1 gap-1">
+                    {(slotGrid[0] ?? []).slice(0, 4).map((s) => (
+                      <ParkingSlot key={s.id} slot={s} />
+                    ))}
+                  </div>
+                  <div className="w-8 shrink-0 border-x-2 border-dashed border-slate-400 bg-slate-500/60" />
+                  <div className="flex flex-1 gap-1">
+                    {(slotGrid[0] ?? []).slice(4, 8).map((s) => (
+                      <ParkingSlot key={s.id} slot={s} />
+                    ))}
+                  </div>
+                </div>
+
+                <div className="flex gap-1 py-0.5">
+                  <div className="h-1.5 flex-1 bg-slate-400/50" />
+                </div>
+
+                <div className="flex gap-2 px-2 py-1">
+                  <div className="flex flex-1 gap-1">
+                    {(slotGrid[1] ?? []).slice(0, 4).map((s) => (
+                      <ParkingSlot key={s.id} slot={s} />
+                    ))}
+                  </div>
+                  <div className="w-8 shrink-0 border-x-2 border-dashed border-slate-400 bg-slate-500/60" />
+                  <div className="flex flex-1 gap-1">
+                    {(slotGrid[1] ?? []).slice(4, 8).map((s) => (
+                      <ParkingSlot key={s.id} slot={s} />
+                    ))}
+                  </div>
+                </div>
+
+                <div className="flex gap-1 py-0.5">
+                  <div className="h-1.5 flex-1 bg-slate-400/50" />
+                </div>
+
+                <div className="flex gap-2 px-2 py-1">
+                  <div className="flex flex-1 gap-1">
+                    {(slotGrid[2] ?? []).slice(0, 4).map((s) => (
+                      <ParkingSlot key={s.id} slot={s} />
+                    ))}
+                  </div>
+                  <div className="w-8 shrink-0 border-x-2 border-dashed border-slate-400 bg-slate-500/60" />
+                  <div className="flex flex-1 gap-1">
+                    {(slotGrid[2] ?? []).slice(4, 8).map((s) => (
+                      <ParkingSlot key={s.id} slot={s} />
+                    ))}
+                  </div>
+                </div>
+
+                <div className="flex gap-1 py-0.5">
+                  <div className="h-1.5 flex-1 bg-slate-400/50" />
+                </div>
+
+                <div className="flex gap-2 px-2 py-1">
+                  <div className="flex flex-1 gap-1">
+                    {(slotGrid[3] ?? []).slice(0, 4).map((s) => (
+                      <ParkingSlot key={s.id} slot={s} />
+                    ))}
+                  </div>
+                  <div className="w-8 shrink-0 border-x-2 border-dashed border-slate-400 bg-slate-500/60" />
+                  <div className="flex flex-1 gap-1">
+                    {(slotGrid[3] ?? []).slice(4, 8).map((s) => (
+                      <ParkingSlot key={s.id} slot={s} />
+                    ))}
+                  </div>
+                </div>
+
+                <div className="flex gap-1 py-0.5">
+                  <div className="h-1.5 flex-1 bg-slate-400/50" />
+                </div>
+
+                <div className="flex gap-2 px-2 py-1">
+                  <div className="flex flex-1 gap-1">
+                    {(slotGrid[4] ?? []).slice(0, 4).map((s) => (
+                      <ParkingSlot key={s.id} slot={s} />
+                    ))}
+                  </div>
+                  <div className="w-8 shrink-0 border-x-2 border-dashed border-slate-400 bg-slate-500/60" />
+                  <div className="flex flex-1 gap-1">
+                    {(slotGrid[4] ?? []).slice(4, 8).map((s) => (
+                      <ParkingSlot key={s.id} slot={s} />
+                    ))}
+                  </div>
+                </div>
+
+                {/* Làn xe */}
+                <div className="flex gap-1 py-1">
+                  <div className="h-2 flex-1 bg-slate-400/60" />
+                </div>
+
+                {/* Khu vực ra */}
+                <div className="flex items-center justify-center gap-2 border-t-2 border-dashed border-slate-400 bg-slate-600/50 py-2">
+                  <LogOut className="h-4 w-4 text-white" />
+                  <span className="text-sm font-semibold text-white">LỐI RA</span>
+                </div>
+              </div>
             ) : (
               <div className="flex flex-1 items-center justify-center py-12 text-muted-foreground">
                 Sensors layer is hidden
@@ -260,9 +358,9 @@ export function MonitoringPage() {
           </div>
 
           {(showGateways || showSignage || showCameras) && (
-            <div className="flex flex-wrap justify-center gap-4 py-2 transition-opacity duration-200">
+            <div className="mt-4 flex flex-wrap justify-center gap-2">
               {filteredBottomDevices.map((dev) => (
-                <DeviceIcon key={dev.id} device={dev} size={28} />
+                <DeviceIcon key={dev.id} device={dev} size={24} />
               ))}
             </div>
           )}
