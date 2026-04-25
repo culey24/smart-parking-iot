@@ -1,10 +1,10 @@
 import { Router } from 'express';
+import { AuthController } from '../controllers/AuthController';
+import { authMiddleware } from '../middlewares/authMiddleware';
 
 const router = Router();
 
-// TODO: Define authentication routes
-router.post('/login', (req, res) => {
-  res.json({ message: 'Login endpoint' });
-});
+router.post('/login', AuthController.login);
+router.get('/profile', authMiddleware, AuthController.getProfile);
 
 export default router;

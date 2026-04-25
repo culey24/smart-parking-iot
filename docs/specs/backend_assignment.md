@@ -1,105 +1,92 @@
 # Smart Parking System (IoT-SPMS1) - Backend Assignment Spec
 
 ## 1. Tổng quan dự án (Overview)
-Hệ thống bãi đỗ xe thông minh (Smart Parking System) cho trường Đại học Bách Khoa (HCMUT) nhằm tự động hóa kiểm soát ra vào, quản lý phí gửi xe, đồng thời tích hợp thiết bị IoT để theo dõi tình trạng các slot đỗ xe và tích hợp toàn diện hệ thống quản trị Dashboard (Admin Panel).
-Đây là một dự án mô phỏng cho bài tập lớn môn **Công nghệ phần mềm (SE252)**.
+Hệ thống bãi đỗ xe thông minh (Smart Parking System) mô phỏng với các luồng giao tiếp ngoại vi (IoT, Thanh toán BKPay, Xác thực SSO) được tinh gọn dưới dạng **Mockup**.
+Dự án phục vụ bài tập lớn môn **Công nghệ phần mềm (SE252)**.
 
 ## 2. Công nghệ và Ngôn ngữ (Tech Stack)
-- **Ngôn ngữ**: TypeScript (Node.js)
-- **Framework**: ExpressJS
-- **Database**: MongoDB (sử dụng Mongoose)
-- **Testing**: Jest
-- **Tools**: ESLint, Prettier, Swagger (để làm API docs - Bonus)
+- **Framework**: ExpressJS (TypeScript)
+- **Database**: MongoDB (Mongoose)
+- **Testing**: Jest & Supertest
+- **Tools**: ESLint, Prettier, Makefile
 
-## 3. Kiến trúc hệ thống (Architecture)
-Hệ thống tuân theo mô hình **MVC kết hợp Service Pattern**:
-- `models/`: Chứa các Mongoose Schema định nghĩa cấu trúc dữ liệu.
-- `controllers/`: Nhận HTTP request, gọi các Service để xử lý và trả về HTTP response.
-- `services/`: Chứa logic nghiệp vụ cốt lõi.
-- `routes/`: Định nghĩa các API endpoint và trỏ đến Controller tương ứng.
-- `middlewares/`: Kiểm tra Authentication (JWT), Authorization (Role), Error Handling.
+## 3. Phân chia 7 Task cho 7 thành viên
+Dự án được chia làm 7 module độc lập. Mỗi thành viên sẽ phụ trách logic, API và **viết Unit Test** cho module của mình.
 
-## 4. Các Entity Classes Chính
-Dựa trên yêu cầu mới nhất (bao gồm cả Admin Dashboard, IoT, và Reports), hệ thống bao gồm:
-1. **User, TemporaryCard, ParkingSession, Zone**: Các thực thể cốt lõi cho việc đỗ xe.
-2. **SystemConfig, PricingPolicy, AuditLog, InfrastructureAlert, ReconciliationRequest, Gate, IoTDevice**: Các thực thể phục vụ hệ thống Dashboard, báo cáo và đối soát. *(Chi tiết các class bổ sung xem tại `docs/specs/class-1.md`)*.
-
-## 5. Phân chia 8 Task cho 8 thành viên
-
-Để hoàn thành toàn bộ hệ thống (kể cả phần Admin), mã nguồn backend được chia thành **8 Task** độc lập có khối lượng tương đương.
+---
 
 ### Task 1: Core Database Models & Seeding (Data Layer)
-- **Mục tiêu**: Xây dựng toàn bộ cấu trúc DB và script khởi tạo dữ liệu.
-- **Chi tiết các file**:
-  - `src/config/db.ts`: Cấu hình Mongoose để kết nối tới MongoDB Atlas hoặc Local.
-  - `src/models/*.ts`: Định nghĩa Mongoose Schema (Data types, Validation) cho các thực thể User, Card, Session, Zone, Config, v.v.
-  - `src/utils/seed.ts`: Viết script nạp dữ liệu giả lập (Mock data) cho toàn bộ 11 Models để các Task khác có dữ liệu làm việc.
+- **Mục tiêu**: Thiết lập bộ khung Database và script nạp dữ liệu.
+- **Chi tiết các file**: `src/config/db.ts`, `src/models/*.ts`, `src/utils/seed.ts`.
+- **💻 Hướng dẫn cách code**:
+  - Mở thư mục `src/models/`, tham khảo cấu trúc file `User.ts` đã có sẵn.
+  - Định nghĩa kiểu dữ liệu Mongoose cho các thuộc tính (VD: `String`, `Number`, `Date`). Nhớ thêm `timestamps: true` để tự động có ngày tạo.
+  - Mở `src/utils/seed.ts`, viết các mảng Object (Mock Data) và dùng lệnh `Model.insertMany()` để tự động bơm dữ liệu giả vào Database khi gõ lệnh `make seed`.
+- **🧪 Hướng dẫn viết Test Case (Jest)**:
+  - Viết test kiểm tra tính hợp lệ của Schema (Validation rules).
+  - Test xem tạo một `User` bị trùng userId có ném lỗi không.
 
-### Task 2: User Authentication, Profile & Role (AuthService)
-- **Mục tiêu**: Quản lý truy cập, định danh và phân quyền người dùng.
-- **Chi tiết các file**:
-  - `src/middlewares/authMiddleware.ts`: Lấy JWT từ Header, kiểm tra tính hợp lệ và đính kèm `user` vào request object.
-  - `src/middlewares/roleMiddleware.ts`: Chặn các request nếu user không có quyền tương ứng (VD: Chỉ ADMIN mới được sửa giá).
-  - `src/services/AuthService.ts`: Logic xử lý mật khẩu (bcrypt), tạo mã JWT và mô phỏng xác thực qua HCMUT_SSO.
-  - `src/controllers/AuthController.ts`: Nhận request login, gọi service và trả về Token hoặc Profile.
-  - `src/routes/auth.routes.ts`: Khai báo endpoint `/api/auth/login`.
-  - `src/routes/users.routes.ts`: Khai báo các endpoint lấy danh sách user, xem profile và cập nhật Role.
+### Task 2: User Authentication & Role Management
+- **Mục tiêu**: Xử lý định danh và bảo mật API.
+- **Chi tiết các file**: `src/services/AuthService.ts`, `src/controllers/AuthController.ts`, `auth.routes.ts`, `authMiddleware.ts`, `roleMiddleware.ts`.
+- **💻 Hướng dẫn cách code**:
+  - **Dịch vụ**: Tại `AuthService.ts`, viết hàm `login(userId)`. Dùng `User.findOne({ userId })` tìm trong DB. Nếu có, dùng thư viện `jsonwebtoken` để `jwt.sign(...)` tạo token rồi trả về.
+  - **Middleware**: Mở `authMiddleware.ts`, đọc token từ `req.headers.authorization`. Dùng `jwt.verify` để giải mã. Nếu đúng thì nhét data vào `req.user` và gọi `next()`.
+- **🧪 Hướng dẫn viết Test Case**:
+  - Test gọi API `/api/auth/login` với user đúng -> kì vọng trả về JWT Token.
+  - Test gọi API cần quyền nhưng token sai -> kì vọng HTTP 401 Unauthorized.
 
-### Task 3: Access Control & Gate Management (EntryExitController)
-- **Mục tiêu**: Xử lý logic tại cổng kiểm soát (Barrier) và quản lý thẻ.
-- **Chi tiết các file**:
-  - `src/controllers/EntryExitController.ts`: Logic quẹt thẻ (Check-in: kiểm tra bãi trống, tạo session; Check-out: đóng session, gọi service tính phí).
-  - `src/routes/gate.routes.ts`: API điều khiển cổng `/api/gates` (xem danh sách cổng, mở cổng thủ công).
-  - `src/routes/cards.routes.ts`: API tra cứu thông tin thẻ qua biển số xe và vô hiệu hóa thẻ bị mất.
+### Task 3: Access Control & Gate Management
+- **Mục tiêu**: Điều khiển logic kiểm soát Barrier và Thẻ.
+- **Chi tiết các file**: `src/controllers/EntryExitController.ts`, `gate.routes.ts`, `cards.routes.ts`.
+- **💻 Hướng dẫn cách code**:
+  - **Check-in**: Nhận `plateNumber` từ `req.body`. Dùng hàm `new ParkingSession({...}).save()` để lưu một phiên đỗ xe trạng thái `ACTIVE` vào DB. Phải kiểm tra bảng `Zone` xem còn chỗ (`currentUsage < capacity`) không.
+  - **Check-out**: Nhận `sessionId`. Tìm session bằng `ParkingSession.findOne()`. Đổi trạng thái thành `COMPLETED`, cập nhật `endTime = Date.now()`.
+- **🧪 Hướng dẫn viết Test Case**:
+  - Test flow Check-in: Gửi payload hợp lệ -> kì vọng trong DB có thêm 1 `ParkingSession` `ACTIVE`.
+  - Test lỗi Check-in khi bãi đỗ đã đầy (Mock DB Zone max capacity).
 
-### Task 4: Parking Fee, Billing & Reconciliation (Billing & Reconciliation)
-- **Mục tiêu**: Tính toán tài chính và đối soát dữ liệu thanh toán.
-- **Chi tiết các file**:
-  - `src/services/BillingService.ts`: Thực hiện logic tính tiền dựa trên thời gian gửi và `PricingPolicy` (Strategy Pattern).
-  - `src/services/ReconciliationService.ts`: Logic so khớp dữ liệu giữa hệ thống bãi xe và lịch sử giao dịch từ BKPay.
-  - `src/controllers/PaymentController.ts`: API trả về lịch sử hóa đơn, tổng nợ của sinh viên.
-  - `src/controllers/ReconciliationController.ts`: API liệt kê và xử lý các yêu cầu đối soát bị lệch.
-  - `src/routes/billing.routes.ts`: Routes liên quan đến hóa đơn và thanh toán.
-  - `src/routes/reconciliation.routes.ts`: Routes phục vụ công tác đối soát.
+### Task 4: Parking Fee & Bank Reconciliation (BKPay)
+- **Mục tiêu**: Tính toán tài chính và đối soát dữ liệu (Mock).
+- **Chi tiết các file**: `src/services/BillingService.ts`, `src/controllers/PaymentController.ts`, `ReconciliationController.ts`.
+- **💻 Hướng dẫn cách code**:
+  - **Tính phí**: Tại `BillingService.ts`, nhận đầu vào là thời gian đỗ. Dùng lệnh IF/ELSE nhân số giờ đỗ với `hourlyRate` lấy từ bảng `PricingPolicy`. Trả về con số VNĐ.
+  - **Đối soát**: API đối soát trong `ReconciliationController.ts` không cần gọi DB, chỉ cần `res.json()` trả về một mảng tĩnh chứa số tiền giả (Mockup) để Frontend có dữ liệu hiển thị.
+- **🧪 Hướng dẫn viết Test Case**:
+  - Đưa đầu vào đỗ 2 tiếng xe máy -> Kì vọng `BillingService` tính ra đúng số tiền.
 
-### Task 5: IoT Sensor, Device Tracking & Alerts (IoTDataController)
-- **Mục tiêu**: Quản lý thiết bị phần cứng và các cảnh báo hệ thống.
-- **Chi tiết các file**:
-  - `src/controllers/IoTDataController.ts`: Xử lý Webhook từ cảm biến để cập nhật trạng thái Slot, quản lý danh sách thiết bị và alerts.
-  - `src/routes/iot.routes.ts`: API `/api/devices/iot-list` trả về danh sách kèm trạng thái Online/Offline.
-  - `src/routes/alerts.routes.ts`: API quản lý các cảnh báo hạ tầng (Infrastructure Alerts).
+### Task 5: IoT Webhook & Infrastructure Alerts
+- **Mục tiêu**: Nhận dữ liệu thiết bị và quản lý trạng thái hạ tầng.
+- **Chi tiết các file**: `src/controllers/IoTDataController.ts`, `iot.routes.ts`, `alerts.routes.ts`.
+- **💻 Hướng dẫn cách code**:
+  - **Webhook**: API `/api/iot/webhook` sẽ nhận tín hiệu giả lập. Trong controller, lấy `req.body.status` và dùng `Zone.updateOne` để cộng/trừ số `currentUsage`.
+  - **Alerts**: API tạo Alert đơn giản là tạo ra 1 document mới bằng `InfrastructureAlert.create({ message: "Lỗi thiết bị" })`.
+- **🧪 Hướng dẫn viết Test Case**:
+  - Test API Webhook: Gửi payload xe đi ra -> Kì vọng `currentUsage` của Zone trong DB bị giảm đi 1.
 
-### Task 6: Navigation, Live Monitoring & Dashboard Stats (Dashboard & Navigation)
-- **Mục tiêu**: Cung cấp dữ liệu trực quan thời gian thực cho người dùng và quản lý.
-- **Chi tiết các file**:
-  - `src/services/NavigationService.ts`: Logic tìm kiếm Zone còn chỗ trống nhất để điều hướng xe.
-  - `src/controllers/DashboardController.ts`: Tổng hợp dữ liệu (Aggregation) để trả về các con số thống kê nhanh cho Admin Dashboard.
-  - `src/controllers/NavigationController.ts`: API cung cấp dữ liệu hiển thị cho các bảng LED điều hướng.
-  - `src/routes/dashboard.routes.ts`: Routes thống kê Dashboard.
-  - `src/routes/monitoring.routes.ts`: Routes lấy dữ liệu Live Monitoring.
-  - `src/routes/navigation.routes.ts`: Routes phục vụ điều hướng.
+### Task 6: Live Monitoring & Dashboard Aggregation
+- **Mục tiêu**: Cung cấp dữ liệu thời gian thực và biểu đồ.
+- **Chi tiết các file**: `src/services/NavigationService.ts`, `src/controllers/DashboardController.ts`, các routes liên quan.
+- **💻 Hướng dẫn cách code**:
+  - **Thống kê Dashboard**: Dùng lệnh `ParkingSession.countDocuments({ sessionStatus: 'ACTIVE' })` để đếm số xe đang đỗ. Trả về Frontend.
+  - **Điều hướng LED**: Viết logic ở `NavigationService` query bảng `Zone`, tìm xem Zone nào có `currentUsage` nhỏ nhất thì gợi ý cho sinh viên.
+- **🧪 Hướng dẫn viết Test Case**:
+  - Test API `/api/dashboard/stats`: Mock DB có 5 xe đang đỗ -> API trả về số 5.
 
-### Task 7: System Configuration, Pricing & Audit Logging (System Admin)
-- **Mục tiêu**: Quản lý các thiết lập hệ thống và nhật ký thay đổi.
-- **Chi tiết các file**:
-  - `src/services/SystemAdminService.ts`: Logic cập nhật cấu hình hệ thống và chính sách giá, đồng thời tự động tạo Audit Log.
-  - `src/controllers/SystemAdminController.ts`: API CRUD cho cấu hình hệ thống, giá vé và xem Audit Logs.
-  - `src/routes/admin.routes.ts`: Gom các route quản trị vào một module `/api/admin`.
+### Task 7: System Admin, Reports & Error Handling
+- **Mục tiêu**: Quản trị hệ thống, báo cáo và chuẩn hóa App.
+- **Chi tiết các file**: `src/services/SystemAdminService.ts`, `ReportService.ts`, `SystemAdminController.ts`, `errorHandler.ts`.
+- **💻 Hướng dẫn cách code**:
+  - **Audit Log**: Mỗi khi xử lý API cập nhật `SystemConfig` hay `PricingPolicy`, thêm dòng code `AuditLog.create({ action: "UPDATE_PRICE", userId: req.user.id })` trước khi gửi Response.
+  - **Error Handler**: Middleware đã viết sẵn. Bạn cần chủ động dùng lệnh `throw new Error("Thông báo lỗi")` trong mọi Controller khác để Middleware này "tóm" được.
+- **🧪 Hướng dẫn viết Test Case**:
+  - Test sửa giá -> Kì vọng giá trị trong DB đổi VÀ sinh ra 1 record `AuditLog`.
+  - Test Error: Bắn API sai format -> Middleware trả về status 500 JSON.
 
-### Task 8: Reports, Integration Setup & OpenAPI (Reports & Setup)
-- **Mục tiêu**: Chuẩn hóa API, xử lý lỗi và báo cáo tổng hợp.
-- **Chi tiết các file**:
-  - `src/services/ReportService.ts`: Truy vấn dữ liệu để tạo báo cáo doanh thu và tần suất hoạt động theo thời gian.
-  - `src/controllers/ReportController.ts`: API trả về dữ liệu báo cáo dạng JSON (hoặc export Excel/PDF).
-  - `src/routes/reports.routes.ts`: Routes báo cáo.
-  - `src/routes/index.ts`: Gom tất cả các module route con lại thành một router duy nhất gắn vào App.
-  - `src/middlewares/errorHandler.ts`: Middleware bắt mọi lỗi phát sinh trong App để trả về format JSON thống nhất.
-  - `src/config/swagger.ts`: Cấu hình Swagger UI để tự động tạo tài liệu API từ code comments.
-  - `tests/checkin.test.ts`: Viết một bộ test hoàn chỉnh cho luồng check-in để làm mẫu.
+---
 
-## 6. Hướng dẫn Setup môi trường
-1. Clone repo, mở terminal vào thư mục `backend`.
-2. Chạy `npm install`.
-3. Chạy `docker-compose up -d` để khởi động MongoDB.
-4. Tạo `.env` từ `.env.example`.
-5. `npm run dev` để chạy Server, hoặc `npm test` để chạy test.
+## 4. Cách chạy Test Case (Với Jest)
+1. Trong file `package.json`, đảm bảo có `"test": "jest"`.
+2. Thành viên viết test trong thư mục `tests/` với đuôi file là `.test.ts` (ví dụ `auth.test.ts`).
+3. Dùng thư viện `supertest` để giả lập gọi HTTP request mà không cần mở server thật.
+4. Chạy lệnh `npm test`.
