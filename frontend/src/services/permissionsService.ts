@@ -1,22 +1,14 @@
-/**
- * Permissions service – user list from HCMUT_DATACORE.
- * Replace with API when backend is ready.
- */
-
 import type { PermissionsUser } from "@/types/permissions";
 import type { UserRole } from "@/types/roles";
-import permissionsData from "@/data/permissionsData.json";
-
-const users = permissionsData as PermissionsUser[];
+import { apiFetch } from "@/config/api";
 
 export async function getPermissionsUsers(): Promise<PermissionsUser[]> {
-  return [...users];
+  return apiFetch<PermissionsUser[]>("/api/users");
 }
 
-export async function updateUserRole(
-  userId: string,
-  role: UserRole
-): Promise<void> {
-  const u = users.find((x) => x.id === userId);
-  if (u) u.role = role;
+export async function updateUserRole(userId: string, role: UserRole): Promise<void> {
+  await apiFetch(`/api/users/${userId}/role`, {
+    method: "PUT",
+    body: JSON.stringify({ role }),
+  });
 }

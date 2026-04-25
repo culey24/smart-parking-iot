@@ -1,16 +1,10 @@
-/**
- * Reports service – Revenue & Activity stats.
- * Replace with API when backend is ready.
- */
-
 import type { RevenueSummary, ActivityStats } from "@/types/reports";
-import revenueData from "@/data/revenueData.json";
-import activityData from "@/data/activityStatsData.json";
+import { apiFetch } from "@/config/api";
 
 export async function getRevenueSummary(): Promise<RevenueSummary> {
-  return revenueData as RevenueSummary;
+  return apiFetch<RevenueSummary>("/api/reports/revenue");
 }
 
 export async function getActivityStats(): Promise<ActivityStats> {
-  return activityData as ActivityStats;
+  return apiFetch<ActivityStats>("/api/reports/activity");
 }

@@ -1,17 +1,13 @@
-/**
- * System configuration service.
- * Replace with API when backend is ready.
- */
-
 import type { SystemConfig } from "@/types/systemConfig";
-import configData from "@/data/systemConfigData.json";
-
-let config = { ...configData } as SystemConfig;
+import { apiFetch } from "@/config/api";
 
 export async function getSystemConfig(): Promise<SystemConfig> {
-  return { ...config };
+  return apiFetch<SystemConfig>("/api/system-config");
 }
 
 export async function saveSystemConfig(data: SystemConfig): Promise<void> {
-  config = { ...data };
+  await apiFetch("/api/system-config", {
+    method: "PUT",
+    body: JSON.stringify(data),
+  });
 }
