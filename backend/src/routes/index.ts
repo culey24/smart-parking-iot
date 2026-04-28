@@ -6,6 +6,10 @@ import cardsRoutes from './cards.routes';
 import billingRoutes from './billing.routes';
 import reconciliationRoutes from './reconciliation.routes';
 
+// 1. IMPORT ROUTES CỦA TASK 7 VÀO ĐÂY
+import adminRoutes from './admin.routes';
+import reportsRoutes from './reports.routes';
+
 const router = Router();
 
 router.use('/auth', authRoutes);
@@ -14,5 +18,9 @@ router.use('/gates', gateRoutes);
 router.use('/cards', cardsRoutes);
 router.use('/billing', billingRoutes);
 router.use('/reconciliation', reconciliationRoutes);
+
+// 2. CẮM ĐƯỜNG DẪN CỦA TASK 7 VÀO MAIN ROUTER
+router.use('/admin', adminRoutes);
+router.use('/reports', reportsRoutes);
 
 export default router;
