@@ -8,3 +8,4 @@ const ZoneSchema = new Schema({
 }, { timestamps: true });
 
 export const Zone = model('Zone', ZoneSchema);
+
