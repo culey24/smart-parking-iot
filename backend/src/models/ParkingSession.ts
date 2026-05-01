@@ -5,7 +5,9 @@ const ParkingSessionSchema = new Schema({
   startTime: { type: Date, default: Date.now },
   endTime: { type: Date },
   sessionStatus: { type: String, enum: ['ACTIVE', 'COMPLETED', 'CANCELLED'], default: 'ACTIVE' },
+  paymentStatus: { type: String, enum: ['UNPAID', 'PENDING', 'PAID'], default: 'UNPAID' },
   type: { type: String, enum: ['REGISTERED', 'TEMPORARY'], required: true },
+  vehicleType: { type: String, required: true },
   subjectID: { type: String, required: true }, // userId or cardID
   plateNumber: { type: String, required: true },
   fee: { type: Number, default: 0 },

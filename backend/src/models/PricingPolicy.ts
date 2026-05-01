@@ -1,10 +1,10 @@
 import { Schema, model } from 'mongoose';
 
 const PricingPolicySchema = new Schema({
-  vehicleType: { type: String, enum: ['MOTORBIKE', 'CAR', 'BICYCLE'], required: true },
-  baseRate: { type: Number, required: true },
-  hourlyRate: { type: Number, required: true },
-  monthlyRate: { type: Number, required: true },
+  vehicleType: { type: String, enum: ['MOTORBIKE', 'BICYCLE'], required: true },
+  dayRate: { type: Number, required: true }, 
+  nightOrSundayRate: { type: Number, required: true },  
+  status: { type: String, enum: ['ACTIVE', 'INACTIVE'], default: 'ACTIVE' },
   effectiveDate: { type: Date, default: Date.now },
 }, { timestamps: true });
 
