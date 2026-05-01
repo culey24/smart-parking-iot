@@ -1,0 +1,31 @@
+import { NavigationService } from '../src/services/NavigationService';
+import { Zone } from '../src/models/Zone';
+
+jest.mock('../src/models/Zone');
+
+describe('NavigationService', () => {
+  it('should return zones sorted by usage', async () => {
+    (Zone.find as jest.Mock).mockReturnValue({
+      sort: jest.fn().mockReturnValue({
+        exec: jest.fn().mockResolvedValue([{ zoneId: 'A', currentUsage: 1 }])
+      })
+    });
+
+    const zones = await NavigationService.getZonesByUsage();
+    expect(zones[0].zoneId).toBe('A');
+  });
+
+  it('should return usage summary', async () => {
+    (Zone.find as jest.Mock).mockReturnValue({
+      exec: jest.fn().mockResolvedValue([
+        { capacity: 10, currentUsage: 5 },
+        { capacity: 20, currentUsage: 10 }
+      ])
+    });
+
+    const summary = await NavigationService.getStats();
+    expect(summary.totalCapacity).toBe(30);
+    expect(summary.totalUsage).toBe(15);
+    expect(summary.utilizationRate).toBe(0.5);
+  });
+});
