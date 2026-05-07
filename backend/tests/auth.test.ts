@@ -49,13 +49,12 @@ describe('Task 2: Auth API Tests', () => {
       expect(response.body.message).toBe('User not found');
     });
 
-    // user id might be optional, check the code (testcase failed)
-    // it('should return 400 when userId is missing in the request body', async () => {
-    //     const response = await request(app).post('api/auth/login').send({});
+    it('should return 400 when userId is missing in the request body', async () => {
+        const response = await request(app).post('/api/auth/login').send({});
 
-    //     expect(response.status).toBe(400);
-    //     expect(response.body.message).toBe('userId is required');
-    // });
+        expect(response.status).toBe(400);
+        expect(response.body.message).toBe('userId is required');
+    });
   });
 
   describe('GET /api/auth/profile (Protected Route)', () => {
