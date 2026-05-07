@@ -1,9 +1,8 @@
-import { ParkingSession } from '../models/ParkingSession';
 import { PricingPolicy } from '../models/PricingPolicy';
 
 export class BillingService {
-  static async calculateSingleSessionFee(endTime: Date, vehicleType: string): Promise<number> {
-    try {
+  static async calculateFee(endTime: Date, vehicleType: string): Promise<number> {
+    try {   
       const policy = await PricingPolicy.findOne({ 
         status: 'ACTIVE', 
         vehicleType: vehicleType 
@@ -19,40 +18,18 @@ export class BillingService {
       // Nếu là Chủ nhật (0) hoặc lấy xe từ 18:00 trở đi
       if (dayOfWeek === 0 || hourOfDay >= 18) {
         return policy.nightOrSundayRate;
-      } 
+      }
       
       // Thứ 2 - Thứ 7, lấy xe trước 18:00)
       return policy.dayRate;
 
     } catch (error) {
-      console.error('An error occurred during per-session charging:', error);
-      throw error; // Ném lỗi để Middleware xử lý theo Task 7
+      console.error('An error occurred during fee calculation:', error);
+      throw error;
     }
   }
 
-  static async calculateTotalCycleFee(userId: string, startDate: Date, endDate: Date): Promise<number> {
-    try {
-      const sessions = await ParkingSession.find({
-        userId: userId,
-        sessionStatus: 'COMPLETED',
-        endTime: { $gte: startDate, $lte: endDate }
-      });
-
-      let totalAmount = 0;
-
-      for (const session of sessions) {
-        if (session.endTime) {
-          const vehicleType = (session as any).vehicleType || 'MOTORBIKE'; 
-          const fee = await this.calculateSingleSessionFee(session.endTime, vehicleType);
-          totalAmount += fee;
-        }
-      }
-
-      return totalAmount;
-
-    } catch (error) {
-      console.error('An error occurred during the total cycle fee calculation:', error);
-      throw error;
-    }
+  static calculateCycleFee(sessions: any[]): number {
+    return sessions.reduce((totalAmount, session) => totalAmount + (session.fee || 0), 0);
   }
 }

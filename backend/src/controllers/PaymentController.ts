@@ -3,69 +3,36 @@ import { BillingService } from '../services/BillingService';
 import { ParkingSession } from '../models/ParkingSession';
 
 export class PaymentController {
-  
-  // 1. API tính tiền cho một lượt gửi xe (Vẫn giữ để hệ thống gọi lúc xe chạy ra cổng)
-  static async calculateSessionFee(req: Request, res: Response) {
-    try {
-      const { sessionId } = req.params;
-      const session = await ParkingSession.findById(sessionId);
-      if (!session) {
-        return res.status(404).json({ success: false, message: 'Cannot find parking session' });
-      }
-
-      const endTime = session.endTime || new Date();
-      const fee = await BillingService.calculateSingleSessionFee(endTime, session.vehicleType);
-
-      res.json({
-        success: true,
-        data: {
-          sessionId: session._id,
-          startTime: session.startTime,
-          endTime: endTime,
-          totalFee: fee,
-          currency: 'VND'
-        }
-      });
-    } catch (error: any) {
-      res.status(500).json({ success: false, message: error.message });
-    }
-  }
-
   static async initiateCyclePayment(req: Request, res: Response) {
     try {
-      // Yêu cầu Frontend gửi lên khoảng thời gian của chu kỳ để chốt sổ
-      const { subjectID, startDate, endDate } = req.body; 
+      // Yêu cầu Frontend gửi thời gian của chu kỳ
+      const { subjectId, startDate, endDate } = req.body; 
 
-      if (!subjectID || !startDate || !endDate) {
-        return res.status(400).json({ success: false, message: 'Thiếu subjectID, startDate hoặc endDate' });
+      if (!subjectId || !startDate || !endDate) {
+        return res.status(400).json({ success: false, message: 'Missing subjectId, startDate or endDate' });
       }
 
-      // Lọc CHÍNH XÁC các phiên đỗ xe nằm trong chu kỳ này
       const unpaidSessionsInCycle = await ParkingSession.find({
-        subjectID: subjectID,
+        subjectId: subjectId,
         sessionStatus: 'COMPLETED',
         paymentStatus: 'UNPAID',
         endTime: { 
-          $gte: new Date(startDate), // Lớn hơn hoặc bằng ngày bắt đầu chu kỳ
-          $lte: new Date(endDate)    // Nhỏ hơn hoặc bằng ngày kết thúc chu kỳ
+          $gte: new Date(startDate),
+          $lte: new Date(endDate)
         }
       });
 
       if (unpaidSessionsInCycle.length === 0) {
         return res.json({ 
           success: true, 
-          message: 'Không có khoản phí nào cần thanh toán trong chu kỳ này' 
+          message: 'No fees need to be paid in this cycle' 
         });
       }
 
-      // Tính tổng tiền cần thanh toán cho RIÊNG chu kỳ này
-      let totalCycleAmount = 0;
+      const totalCycleAmount = BillingService.calculateCycleFee(unpaidSessionsInCycle);
       const mockTransactionId = 'BKPAY_CYCLE_' + Date.now();
 
       for (const session of unpaidSessionsInCycle) {
-        totalCycleAmount += session.fee || 0; 
-        
-        // Đánh dấu các session NÀY là đang chờ thanh toán
         session.paymentStatus = 'PENDING';
         session.invoiceId = mockTransactionId; 
         
@@ -74,10 +41,10 @@ export class PaymentController {
 
       res.json({
         success: true,
-        message: `Đã tạo yêu cầu thanh toán cho ${unpaidSessionsInCycle.length} lượt đỗ xe trong chu kỳ`,
+        message: `Created payment request for ${unpaidSessionsInCycle.length} parking sessions in the cycle`,
         data: {
           transactionId: mockTransactionId,
-          subjectID: subjectID,
+          subjectId: subjectId,
           cycleStart: startDate,
           cycleEnd: endDate,
           totalAmount: totalCycleAmount,
@@ -90,13 +57,12 @@ export class PaymentController {
     }
   }
 
-  // 3. BƯỚC 2: API Giả lập Webhook/Callback từ BKPay (Thanh toán thành công)
   static async mockBKPayCallback(req: Request, res: Response) {
     try {
       const { transactionId } = req.body;
 
       if (!transactionId) {
-        return res.status(400).json({ success: false, message: 'Thiếu transactionId' });
+        return res.status(400).json({ success: false, message: 'Missing transactionId' });
       }
 
       const sessions = await ParkingSession.find({
@@ -105,10 +71,9 @@ export class PaymentController {
       });
 
       if (sessions.length === 0) {
-        return res.status(404).json({ success: false, message: 'Không tìm thấy giao dịch nào đang chờ thanh toán' });
+        return res.status(404).json({ success: false, message: 'Cannot find any pending sessions for the given transaction ID' });
       }
 
-      // Cập nhật ĐỒNG LOẠT tất cả các session này sang trạng thái ĐÃ THANH TOÁN
       await ParkingSession.updateMany(
         { invoiceId: transactionId, paymentStatus: 'PENDING' },
         { $set: { paymentStatus: 'PAID' } }
@@ -116,7 +81,7 @@ export class PaymentController {
 
       res.json({
         success: true,
-        message: 'Xác nhận thanh toán thành công (Mock Callback)',
+        message: 'Payment successful',
         data: {
           transactionId: transactionId,
           sessionsPaidCount: sessions.length,
@@ -130,13 +95,13 @@ export class PaymentController {
 
   static async getHistory(req: Request, res: Response) {
     try {
-      const subjectID = req.query.subjectID as string;
-      if (!subjectID) {
-        return res.status(400).json({ success: false, message: 'Thiếu query subjectID' });
+      const subjectId = req.query.subjectId as string;
+      if (!subjectId) {
+        return res.status(400).json({ success: false, message: 'Missing query subjectId' });
       }
 
       const paidSessions = await ParkingSession.find({
-        subjectID: subjectID,
+        subjectId: subjectId,
         paymentStatus: 'PAID'
       }).sort({ endTime: -1 });
 
@@ -149,28 +114,25 @@ export class PaymentController {
     }
   }
 
-  // 5. CẬP NHẬT THÊM: Tính tổng nợ thật từ DB
   static async getDebt(req: Request, res: Response) {
     try {
-      const subjectID = req.query.subjectID as string;
-      if (!subjectID) {
-        return res.status(400).json({ success: false, message: 'Thiếu query subjectID' });
+      const subjectId = req.query.subjectId as string;
+      if (!subjectId) {
+        return res.status(400).json({ success: false, message: 'Missing query subjectId' });
       }
 
-      // Lấy tất cả các xe đã ra khỏi bãi nhưng chưa thanh toán
       const unpaidSessions = await ParkingSession.find({
-        subjectID: subjectID,
+        subjectId: subjectId,
         sessionStatus: 'COMPLETED',
         paymentStatus: 'UNPAID'
       });
 
-      // Cộng dồn trường 'fee' lại
       const totalDebt = unpaidSessions.reduce((sum, session) => sum + (session.fee || 0), 0);
 
       res.json({
         success: true,
         data: {
-          subjectID: subjectID,
+          subjectId: subjectId,
           totalDebt: totalDebt,
           unpaidCount: unpaidSessions.length
         }
