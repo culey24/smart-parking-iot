@@ -6,7 +6,7 @@ export class PaymentController {
   static async initiateCyclePayment(req: Request, res: Response) {
     try {
       // Yêu cầu Frontend gửi thời gian của chu kỳ
-      const { subjectId: subjectId, startDate, endDate } = req.body; 
+      const { subjectId: subjectId, startDate, endDate } = req.body;
 
       if (!subjectId || !startDate || !endDate) {
         return res.status(400).json({ success: false, message: 'Missing subjectId, startDate or endDate' });
@@ -16,16 +16,16 @@ export class PaymentController {
         subjectId: subjectId,
         sessionStatus: 'COMPLETED',
         paymentStatus: 'UNPAID',
-        endTime: { 
+        endTime: {
           $gte: new Date(startDate),
           $lte: new Date(endDate)
         }
       });
 
       if (unpaidSessionsInCycle.length === 0) {
-        return res.json({ 
-          success: true, 
-          message: 'No fees need to be paid in this cycle' 
+        return res.json({
+          success: true,
+          message: 'No fees need to be paid in this cycle'
         });
       }
 
@@ -34,8 +34,8 @@ export class PaymentController {
 
       for (const session of unpaidSessionsInCycle) {
         session.paymentStatus = 'PENDING';
-        session.invoiceId = mockTransactionId; 
-        
+        session.invoiceId = mockTransactionId;
+
         await session.save();
       }
 
@@ -95,24 +95,62 @@ export class PaymentController {
 
   static async getHistory(req: Request, res: Response) {
     try {
-      const subjectId = req.query.subjectId as string;
-      if (!subjectId) {
-        return res.status(400).json({ success: false, message: 'Missing query subjectId' });
-      }
+      const userId = (req as any).user.id;
 
-      const paidSessions = await ParkingSession.find({
-        subjectId: subjectId,
-        paymentStatus: 'PAID'
-      }).sort({ endTime: -1 });
+      const n = parseInt(process.env.HISTORY_VIEW_DAYS_LIMIT as string) || 30;
 
-      res.json({
-        success: true,
-        data: paidSessions
-      });
-    } catch (error: any) {
-      res.status(500).json({ success: false, message: error.message });
+      const cutoffDate = new Date();
+      cutoffDate.setDate(cutoffDate.getDate() - n);
+
+      // Query Database
+      const history = await ParkingSession.find({
+        subjectId: userId,
+        createdAt: { $gte: cutoffDate }
+      }).sort({ createdAt: -1 });
+
+      res.status(200).json({ success: true, data: history });
+    } catch (error) {
+      res.status(500).json({ success: false, message: "Lỗi server" });
     }
   }
+
+  static async getHistoryAdmin(req: Request, res: Response) {
+    try {
+      // Lấy tham số subjectId từ query (nếu có)
+      const { startDate, endDate, subjectId } = req.query;
+
+      if (!startDate || !endDate) {
+        return res.status(400).json({ success: false, message: 'Missing query parameters: startDate and endDate are required' });
+      }
+
+      const start = new Date(startDate as string);
+      const end = new Date(endDate as string);
+
+      if (isNaN(start.getTime()) || isNaN(end.getTime())) {
+        return res.status(400).json({ success: false, message: 'Invalid date format. Please use a valid ISO date string (e.g. YYYY-MM-DD)' });
+      }
+
+      end.setHours(23, 59, 59, 999);
+
+      // Khởi tạo object truy vấn mặc định
+      const query: any = {
+        createdAt: { $gte: start, $lte: end }
+      };
+
+      // Nếu Admin truyền thêm mã user (subjectId) , thêm vào điều kiện lọc
+      if (subjectId) {
+        query.subjectId = subjectId;
+      }
+
+      // Bỏ biến query vào lệnh find
+      const history = await ParkingSession.find(query).sort({ createdAt: -1 });
+
+      res.status(200).json({ success: true, data: history });
+    } catch (error: any) {
+      res.status(500).json({ success: false, message: error.message || "Lỗi server" });
+    }
+  }
+
 
   static async getDebt(req: Request, res: Response) {
     try {

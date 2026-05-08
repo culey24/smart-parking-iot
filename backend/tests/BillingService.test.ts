@@ -15,57 +15,57 @@ describe('BillingService', () => {
       nightOrSundayRate: 3000
     };
 
-    it('Nên trả về 3000đ nếu lấy xe vào ngày Chủ nhật (bất kể giờ nào)', async () => {
+    it('Should return 3000 VND if the vehicle is picked up on a Sunday (regardless of the time)', async () => {
       // Ép kiểu mock function cho TypeScript khỏi báo lỗi
       (PricingPolicy.findOne as jest.Mock).mockResolvedValue(mockPolicy);
-      
-      const sundayDate = new Date('2026-05-10T10:00:00'); 
+
+      const sundayDate = new Date('2026-05-10T10:00:00');
       const fee = await BillingService.calculateFee(sundayDate, 'MOTORBIKE');
-      
+
       expect(fee).toBe(3000);
       expect(PricingPolicy.findOne).toHaveBeenCalledTimes(1);
     });
 
-    it('Nên trả về 3000đ nếu lấy xe từ 18:00 trở đi (Thứ 2 - Thứ 7)', async () => {
+    it('Should return 3000 VND if the vehicle is picked up from 18:00 onwards (Monday - Saturday)', async () => {
       (PricingPolicy.findOne as jest.Mock).mockResolvedValue(mockPolicy);
-      
-      const mondayNightDate = new Date('2026-05-11T18:30:00'); 
+
+      const mondayNightDate = new Date('2026-05-11T18:30:00');
       const fee = await BillingService.calculateFee(mondayNightDate, 'MOTORBIKE');
-      
+
       expect(fee).toBe(3000);
     });
 
-    it('Nên trả về 2000đ nếu lấy xe trước 18:00 (Thứ 2 - Thứ 7)', async () => {
+    it('Should return 2000 VND if the vehicle is picked up before 18:00 (Monday - Saturday)', async () => {
       (PricingPolicy.findOne as jest.Mock).mockResolvedValue(mockPolicy);
-      
-      const mondayAfternoonDate = new Date('2026-05-11T15:00:00'); 
+
+      const mondayAfternoonDate = new Date('2026-05-11T15:00:00');
       const fee = await BillingService.calculateFee(mondayAfternoonDate, 'MOTORBIKE');
-      
+
       expect(fee).toBe(2000);
     });
 
-    it('Nên ném lỗi nếu không tìm thấy PricingPolicy (ACTIVE)', async () => {
+    it('Should throw an error if no ACTIVE PricingPolicy is found', async () => {
       (PricingPolicy.findOne as jest.Mock).mockResolvedValue(null);
       const someDate = new Date('2026-05-11T15:00:00');
-      
+
       await expect(BillingService.calculateFee(someDate, 'MOTORBIKE')).rejects.toThrow();
     });
   });
 
   describe('calculateCycleFee', () => {
-    it('Nên tính toán chính xác tổng phí cho 100 user, mỗi user có 30-35 lượt gửi', () => {
+    it('Should calculate the total fee accurately for 100 users, with each user having 30-35 sessions', () => {
       const mockUsers = Array.from({ length: 100 }, (_, i) => `SV_${i + 1}`);
 
       mockUsers.forEach(userId => {
         const mockSessions = [];
         let expectedTotalFee = 0;
 
-        const sessionCount = Math.floor(Math.random() * 6) + 30; 
+        const sessionCount = Math.floor(Math.random() * 6) + 30;
 
         for (let i = 0; i < sessionCount; i++) {
           const fee = Math.random() > 0.3 ? 3000 : 2000;
           mockSessions.push({ subjectId: userId, fee: fee });
-          expectedTotalFee += fee; 
+          expectedTotalFee += fee;
         }
 
         const calculatedTotal = BillingService.calculateCycleFee(mockSessions);
@@ -74,13 +74,14 @@ describe('BillingService', () => {
         if (userId === 'SV_1' || userId === 'SV_25' || userId === 'SV_50') {
           console.log(`👤 User: ${userId} | Số lượt gửi: ${sessionCount} | Output Service: ${calculatedTotal}đ | Output Kỳ vọng: ${expectedTotalFee}đ`);
         }
+
         // ----------------------------------------
 
         expect(calculatedTotal).toBe(expectedTotalFee);
       });
     });
 
-    it('Nên tính tổng cộng dồn các trường fee chính xác', () => {
+    it('Should accurately accumulate the total from the fee fields', () => {
       const mockSessions = [
         { fee: 2000 },
         { fee: 3000 },
@@ -93,7 +94,7 @@ describe('BillingService', () => {
       expect(total).toBe(7000);
     });
 
-    it('Nên trả về 0 nếu mảng rỗng', () => {
+    it('Should return 0 if the array is empty', () => {
       const total = BillingService.calculateCycleFee([]);
       expect(total).toBe(0);
     });
