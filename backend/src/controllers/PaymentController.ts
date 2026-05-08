@@ -6,7 +6,7 @@ export class PaymentController {
   static async initiateCyclePayment(req: Request, res: Response) {
     try {
       // Yêu cầu Frontend gửi thời gian của chu kỳ
-      const { subjectId, startDate, endDate } = req.body; 
+      const { subjectId: subjectId, startDate, endDate } = req.body; 
 
       if (!subjectId || !startDate || !endDate) {
         return res.status(400).json({ success: false, message: 'Missing subjectId, startDate or endDate' });
