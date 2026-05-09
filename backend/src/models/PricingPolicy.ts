@@ -1,11 +1,10 @@
 import { Schema, model, Document } from 'mongoose';
 
 export interface IPricingPolicy extends Document {
-  // Ràng buộc cứng luôn 3 loại xe, gõ sai chữ (VD: 'xe-may') là TypeScript báo lỗi ngay
   vehicleType: 'MOTORBIKE' | 'CAR' | 'BICYCLE';
-  baseRate: number;
-  hourlyRate: number;
-  monthlyRate: number;
+  dayRate: number;
+  nightOrSundayRate: number;
+  status: 'ACTIVE' | 'INACTIVE';
   effectiveDate: Date;
   createdAt: Date;
   updatedAt: Date;
@@ -13,10 +12,11 @@ export interface IPricingPolicy extends Document {
 
 const PricingPolicySchema = new Schema<IPricingPolicy>({
   vehicleType: { type: String, enum: ['MOTORBIKE', 'CAR', 'BICYCLE'], required: true },
-  baseRate: { type: Number, required: true },
-  hourlyRate: { type: Number, required: true },
-  monthlyRate: { type: Number, required: true },
+  dayRate: { type: Number, required: true },
+  nightOrSundayRate: { type: Number, required: true },
+  status: { type: String, enum: ['ACTIVE', 'INACTIVE'], default: 'ACTIVE' },
   effectiveDate: { type: Date, default: Date.now },
 }, { timestamps: true });
 
 export const PricingPolicy = model<IPricingPolicy>('PricingPolicy', PricingPolicySchema);
+

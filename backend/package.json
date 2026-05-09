@@ -8,6 +8,7 @@
     "build": "tsc",
     "start": "node dist/server.js",
     "test": "jest",
+    "test:cov": "jest --coverage",
     "seed": "ts-node src/utils/seed.ts"
   },
   "keywords": [],
