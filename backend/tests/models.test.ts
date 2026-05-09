@@ -94,7 +94,8 @@ describe('Task 1: Core Database Models Validation', () => {
       const session = new ParkingSession({
         sessionId: 'SESS-001',
         type: 'TEMPORARY',
-        subjectID: 'GUEST-1',
+        vehicleType: 'MOTORBIKE',
+        subjectId: 'GUEST-1',
         plateNumber: '59-P1'
       });
       const savedSession = await session.save();

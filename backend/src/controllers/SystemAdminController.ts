@@ -87,22 +87,19 @@ export class SystemAdminController {
    * vehicleType:
    * type: string
    * example: "CAR"
-   * baseRate:
+   * dayRate:
    * type: number
-   * example: 20000
-   * hourlyRate:
+   * example: 3000
+   * nightOrSundayRate:
    * type: number
-   * example: 10000
-   * monthlyRate:
-   * type: number
-   * example: 500000
+   * example: 5000
    * responses:
    * 200:
    * description: Cập nhật thành công
    */
   static async updatePricing(req: AuthRequest, res: Response) {
     try {
-      const { vehicleType, baseRate, hourlyRate, monthlyRate } = req.body;
+      const { vehicleType, dayRate, nightOrSundayRate } = req.body;
       const userId = req.user?.id || 'system';
 
       if (!vehicleType) {
@@ -110,7 +107,7 @@ export class SystemAdminController {
       }
 
       const result = await SystemAdminService.updatePricing(vehicleType, {
-        baseRate, hourlyRate, monthlyRate
+        dayRate, nightOrSundayRate
       });
 
       await AuditLog.create({
