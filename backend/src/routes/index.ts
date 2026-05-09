@@ -8,6 +8,10 @@ import reconciliationRoutes from './reconciliation.routes';
 import iotRoutes from './iot.routes';
 import alertsRoutes from './alerts.routes';
 
+// 1. IMPORT ROUTES CỦA TASK 7 VÀO ĐÂY
+import adminRoutes from './admin.routes';
+import reportsRoutes from './reports.routes';
+
 const router = Router();
 
 router.use('/auth', authRoutes);
@@ -18,5 +22,9 @@ router.use('/billing', billingRoutes);
 router.use('/reconciliation', reconciliationRoutes);
 router.use('/iot', iotRoutes);
 router.use('/alerts', alertsRoutes);
+
+// 2. CẮM ĐƯỜNG DẪN CỦA TASK 7 VÀO MAIN ROUTER
+router.use('/admin', adminRoutes);
+router.use('/reports', reportsRoutes);
 
 export default router;

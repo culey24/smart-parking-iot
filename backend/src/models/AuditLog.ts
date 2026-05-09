@@ -1,6 +1,16 @@
-import { Schema, model } from 'mongoose';
+import { Schema, model, Document } from 'mongoose';
 
-const AuditLogSchema = new Schema({
+export interface IAuditLog extends Document {
+  userId: string;
+  action: string;
+  targetResource?: string;
+  details?: any; // Lưu log thì có thể quăng bất cứ Object nào vào cũng được
+  timestamp: Date;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+const AuditLogSchema = new Schema<IAuditLog>({
   userId: { type: String, required: true },
   action: { type: String, required: true },
   targetResource: { type: String },
@@ -8,4 +18,4 @@ const AuditLogSchema = new Schema({
   timestamp: { type: Date, default: Date.now },
 }, { timestamps: true });
 
-export const AuditLog = model('AuditLog', AuditLogSchema);
+export const AuditLog = model<IAuditLog>('AuditLog', AuditLogSchema);
