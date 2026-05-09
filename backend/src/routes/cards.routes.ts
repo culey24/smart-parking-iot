@@ -1,22 +1,13 @@
 import { Router } from 'express';
+import { CardController } from '../controllers/CardController';
+import { authMiddleware } from '../middlewares/authMiddleware';
 
 const router = Router();
 
-router.get('/lookup', (req, res) => {
-  const { plate } = req.query;
-  // Mock data
-  res.json({
-    success: true,
-    data: {
-      cardId: 1001,
-      plateNumber: plate,
-      status: 'ACTIVE'
-    }
-  });
-});
+// Endpoint tra cứu thẻ
+router.get('/lookup', CardController.lookup);
 
-router.put('/:id/disable', (req, res) => {
-  res.json({ success: true, message: `Card ${req.params.id} disabled` });
-});
+// Endpoint vô hiệu hóa thẻ (Cần có quyền Admin/Operator)
+router.put('/:id/disable', authMiddleware, CardController.disableCard);
 
 export default router;
