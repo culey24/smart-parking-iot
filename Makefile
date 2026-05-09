@@ -1,55 +1,59 @@
-# Smart Parking System (IoT-SPMS1) - Dev runner
+# Smart Parking System (IoT-SPMS1) - Docker Runner
 # Usage:
-#   make dev          → Khởi động DB + Backend + Frontend
-#   make db           → Chạy MongoDB qua docker-compose
-#   make backend      → Chạy riêng Backend (ExpressJS :3000)
-#   make frontend     → Chạy riêng Frontend (Vite :5173)
-#   make seed         → Nạp dữ liệu giả vào DB
-#   make stop-db      → Dừng DB containers
-#   make logs-db      → Xem log DB
+#   make up            → Khởi động tất cả services (background)
+#   make down          → Dừng và xóa tất cả containers
+#   make dev           → Khởi động tất cả services và xem logs
+#   make restart       → Restart all services
+#   make logs          → Xem logs từ tất cả containers
+#   make seed          → Nạp dữ liệu giả vào DB (trong container backend)
+#   make test          → Chạy test backend và frontend
+#   make test-backend  → Chạy test backend
+#   make test-frontend → Chạy test frontend
 
-.PHONY: dev db backend frontend seed stop-db logs-db
-
-# ── Paths ─────────────────────────────────────────────────────────────────────
-BACKEND_DIR := backend
-FRONTEND_DIR := frontend
+.PHONY: up down dev restart logs seed test test-backend test-frontend
 
 # ── Màu terminal ──────────────────────────────────────────────────────────────
 CYAN  := \033[0;36m
 RESET := \033[0m
 
-# ── DB ────────────────────────────────────────────────────────────────────────
-db:
-	@echo "$(CYAN)▶ Khởi động MongoDB...$(RESET)"
-	cd $(BACKEND_DIR) && docker-compose up -d || \
-	  (echo "$(CYAN)⚠ DB có thể đang chạy rồi — kiểm tra: docker ps$(RESET)" && true)
-	@echo "$(CYAN)✓ DB: mongodb://localhost:27017/smart-parking$(RESET)"
+# ── Lifecycle ─────────────────────────────────────────────────────────────────
+up:
+	@echo "$(CYAN)▶ Starting all services in Docker...$(RESET)"
+	docker compose up -d
+	@echo "$(CYAN)✓ Backend: http://localhost:8000$(RESET)"
+	@echo "$(CYAN)✓ Frontend: http://localhost:5173$(RESET)"
 
-stop-db:
-	cd $(BACKEND_DIR) && docker-compose stop
+down:
+	@echo "$(CYAN)▶ Stopping and removing containers...$(RESET)"
+	docker compose down
 
-logs-db:
-	cd $(BACKEND_DIR) && docker-compose logs -f
+dev:
+	@echo "$(CYAN)▶ Running all services with logs...$(RESET)"
+	docker compose up
 
+restart:
+	@echo "$(CYAN)▶ Restarting services...$(RESET)"
+	docker compose restart
+
+logs:
+	docker compose logs -f
+
+# ── Data & Logic ──────────────────────────────────────────────────────────────
 seed:
-	@echo "$(CYAN)▶ Seeding database...$(RESET)"
-	cd $(BACKEND_DIR) && npm run seed
+	@echo "$(CYAN)▶ Seeding database inside backend container...$(RESET)"
+	docker compose exec backend npm run seed
 
-# ── Individual services ───────────────────────────────────────────────────────
-backend:
-	@echo "$(CYAN)▶ Backend (ExpressJS :3000) — $(BACKEND_DIR)$(RESET)"
-	cd $(BACKEND_DIR) && npm run dev
+# ── Testing ───────────────────────────────────────────────────────────────────
+test: test-backend test-frontend
 
-frontend:
-	@echo "$(CYAN)▶ web-frontend (Vite :5173) — $(FRONTEND_DIR)$(RESET)"
-	cd $(FRONTEND_DIR) && npm run dev
+test-backend:
+	@echo "$(CYAN)▶ Running Backend Tests...$(RESET)"
+	docker compose exec backend npm test
 
-# ── Dev: toàn bộ trong 1 lệnh ─────────────────────────────────────────────────
-# Dùng & để chạy song song, trap để dừng sạch khi Ctrl+C
-dev: db
-	@echo "$(CYAN)▶ Khởi động tất cả services (Backend :3000, Frontend :5173)...$(RESET)"
-	@echo "$(CYAN)  Nhấn Ctrl+C để dừng tất cả$(RESET)"
-	@trap 'kill 0' SIGINT; \
-	  (cd $(BACKEND_DIR) && npm run dev 2>&1 | sed "s/^/[backend] /") & \
-	  (cd $(FRONTEND_DIR) && npm run dev 2>&1 | sed "s/^/[frontend] /") & \
-	  wait
+test-frontend:
+	@echo "$(CYAN)▶ Running Frontend Tests (Vitest)...$(RESET)"
+	docker compose exec frontend npm run test
+
+test-frontend:
+	@echo "$(CYAN)▶ Running Frontend Tests (Vitest)...$(RESET)"
+	docker-compose exec frontend npm run test

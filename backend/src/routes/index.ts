@@ -7,6 +7,9 @@ import billingRoutes from './billing.routes';
 import reconciliationRoutes from './reconciliation.routes';
 import iotRoutes from './iot.routes';
 import alertsRoutes from './alerts.routes';
+import dashboardRoutes from './dashboard.routes';
+import monitoringRoutes from './monitoring.routes';
+import sessionsRoutes from './sessions.routes';
 
 // 1. IMPORT ROUTES CỦA TASK 7 VÀO ĐÂY
 import adminRoutes from './admin.routes';
@@ -22,6 +25,9 @@ router.use('/billing', billingRoutes);
 router.use('/reconciliation', reconciliationRoutes);
 router.use('/iot', iotRoutes);
 router.use('/alerts', alertsRoutes);
+router.use('/dashboard', dashboardRoutes);
+router.use('/monitoring', monitoringRoutes);
+router.use('/sessions', sessionsRoutes);
 
 // 2. CẮM ĐƯỜNG DẪN CỦA TASK 7 VÀO MAIN ROUTER
 router.use('/admin', adminRoutes);

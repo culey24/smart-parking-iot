@@ -1,7 +1,7 @@
-import { NavigationService } from '../src/services/NavigationService';
-import { Zone } from '../src/models/Zone';
+import { NavigationService } from '../../src/services/NavigationService';
+import { Zone } from '../../src/models/Zone';
 
-jest.mock('../src/models/Zone');
+jest.mock('../../src/models/Zone');
 
 describe('NavigationService', () => {
   it('should return zones sorted by usage', async () => {

@@ -2,13 +2,17 @@ import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { getUserProfile } from "@/services/userProfileService";
 import type { UserProfileRecord } from "@/types/api";
+import { useAuth } from "@/contexts/AuthContext";
 
 export function ProfilePage() {
+  const { user } = useAuth();
   const [profile, setProfile] = useState<UserProfileRecord | null>(null);
 
   useEffect(() => {
-    getUserProfile().then(setProfile);
-  }, []);
+    if (user?.id) {
+      getUserProfile(user.id).then(setProfile);
+    }
+  }, [user]);
 
   if (!profile) {
     return (

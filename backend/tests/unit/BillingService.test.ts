@@ -1,8 +1,8 @@
-import { BillingService } from '../src/services/BillingService';
-import { PricingPolicy } from '../src/models/PricingPolicy';
+import { BillingService } from '../../src/services/BillingService';
+import { PricingPolicy } from '../../src/models/PricingPolicy';
 
 // Giả lập (Mock) Model PricingPolicy
-jest.mock('../src/models/PricingPolicy');
+jest.mock('../../src/models/PricingPolicy');
 
 describe('BillingService', () => {
   afterEach(() => {

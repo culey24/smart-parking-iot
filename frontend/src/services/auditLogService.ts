@@ -2,7 +2,7 @@ import type { AuditLogEntry } from "@/types/auditLog";
 import { apiFetch } from "@/config/api";
 
 export async function getAuditLog(limit = 100, offset = 0): Promise<AuditLogEntry[]> {
-  return apiFetch<AuditLogEntry[]>(`/api/audit-logs?limit=${limit}&offset=${offset}`);
+  return apiFetch<AuditLogEntry[]>(`/api/admin/logs?limit=${limit}&offset=${offset}`);
 }
 
 export async function appendAuditLog(
@@ -11,7 +11,7 @@ export async function appendAuditLog(
   target: string,
   reason?: string
 ): Promise<void> {
-  await apiFetch("/api/audit-logs", {
+  await apiFetch("/api/admin/logs", {
     method: "POST",
     body: JSON.stringify({ actor, action, target, reason }),
   });

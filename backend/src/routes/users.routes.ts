@@ -2,6 +2,7 @@ import { Router, Request, Response } from 'express';
 import { authMiddleware } from '../middlewares/authMiddleware';
 import { roleMiddleware } from '../middlewares/roleMiddleware';
 import { User } from '../models/User';
+import { UserController } from '../controllers/UserController';
 
 const router = Router();
 
@@ -25,5 +26,8 @@ router.put('/:userId/role', authMiddleware, roleMiddleware(['ADMIN']), async (re
     res.status(500).json({ success: false, message: error.message });
   }
 });
+
+// Get User Profile
+router.get('/:userId/profile', authMiddleware, UserController.getProfile);
 
 export default router;

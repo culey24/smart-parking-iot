@@ -1,25 +1,16 @@
-/** Pricing policy configuration by audience group */
+export type VehicleType = "MOTORBIKE" | "CAR" | "BICYCLE";
+export type PolicyStatus = "ACTIVE" | "INACTIVE";
 
-export type PricingUnit = "per_trip" | "per_hour";
-
-export type PaymentCycle = "daily" | "weekly" | "monthly" | "semester";
-
-export interface SpecialTimeSlot {
-  startTime: string; // HH:mm
-  endTime: string;
-  discountPercent: number; // 0 = free, 100 = no discount
-  label?: string;
+export interface PricingPolicy {
+  _id?: string;
+  vehicleType: VehicleType;
+  dayRate: number;
+  nightOrSundayRate: number;
+  status: PolicyStatus;
+  effectiveDate?: string;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
-export interface AudiencePricingConfig {
-  unitPriceVnd: number;
-  pricingUnit: PricingUnit;
-  paymentCycle: PaymentCycle;
-  specialSlots: SpecialTimeSlot[];
-}
-
-export interface PricingPolicyConfig {
-  learner: AudiencePricingConfig;
-  facultyStaff: AudiencePricingConfig;
-  visitor: AudiencePricingConfig;
-}
+// In the frontend, we usually fetch an array of policies
+export type PricingPolicyConfig = PricingPolicy[];

@@ -1,70 +1,111 @@
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
-import { User } from '../models/User';
+import { Location } from '../models/Location';
+import { ParkingSlot } from '../models/ParkingSlot';
+import { IoTDevice } from '../models/IoTDevice';
+import { InfrastructureAlert } from '../models/InfrastructureAlert';
 import { Zone } from '../models/Zone';
-import { PricingPolicy } from '../models/PricingPolicy';
 
 dotenv.config();
 
-const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/smart-parking';
+const MONGO_URI = process.env.MONGO_URI || 'mongodb://admin:password@localhost:27017/smart-parking?authSource=admin';
 
 const seedDatabase = async () => {
   try {
-    await mongoose.connect(MONGODB_URI);
-    console.log('Connected to MongoDB for seeding...');
+    await mongoose.connect(MONGO_URI);
+    console.log('Connected to MongoDB.');
 
-    // Clear existing data
-    await User.deleteMany({});
+    // Clear existing
+    await Location.deleteMany({});
+    await ParkingSlot.deleteMany({});
+    await IoTDevice.deleteMany({});
+    await InfrastructureAlert.deleteMany({});
     await Zone.deleteMany({});
-    await PricingPolicy.deleteMany({});
+    console.log('Cleared existing collections.');
 
-    // Seed Users
-    const users = [
-      {
-        userId: 'admin1',
-        schoolCardId: 100001,
-        fullName: 'Admin User',
-        role: 'ADMIN',
-        email: 'admin@hcmut.edu.vn'
-      },
-      {
-        userId: 'student1',
-        schoolCardId: 200001,
-        fullName: 'Nguyen Van A',
-        role: 'USER',
-        email: 'student1@hcmut.edu.vn'
-      }
-    ];
-    await User.insertMany(users);
+    // 1. Create a Zone
+    const zoneA = await Zone.create({
+      zoneId: 'ZONE_A',
+      zoneName: 'Main Campus Parking',
+      capacity: 50,
+      currentUsage: 2
+    });
 
-    // Seed Zones
-    const zones = [
-      { zoneId: 'Z1', zoneName: 'Khu A - Xe Máy', capacity: 500, currentUsage: 0 },
-      { zoneId: 'Z2', zoneName: 'Khu B - Ô Tô', capacity: 100, currentUsage: 0 }
-    ];
-    await Zone.insertMany(zones);
+    // 2. Create Locations (Slots and Gateways)
+    const locSlot1 = await Location.create({
+      locationId: 'LOC_S1',
+      locationName: 'Slot 1',
+      coordinates: [1, 1], // row 1, col 1
+      locationType: 'SLOT'
+    });
+    
+    const locSlot2 = await Location.create({
+      locationId: 'LOC_S2',
+      locationName: 'Slot 2',
+      coordinates: [1, 2], // row 1, col 2
+      locationType: 'SLOT'
+    });
 
-    // Seed Pricing Policy
-    const pricing = [
-      {
-        vehicleType: 'MOTORBIKE',
-        baseRate: 4000,
-        hourlyRate: 1000,
-        monthlyRate: 120000
-      },
-      {
-        vehicleType: 'CAR',
-        baseRate: 20000,
-        hourlyRate: 5000,
-        monthlyRate: 600000
-      }
-    ];
-    await PricingPolicy.insertMany(pricing);
+    const locGate1 = await Location.create({
+      locationId: 'LOC_G1',
+      locationName: 'Main Entry Gate',
+      coordinates: [0, 0],
+      locationType: 'GATE'
+    });
 
-    console.log('Database seeded successfully!');
+    // 3. Create Parking Slots mapping to Slot Locations
+    await ParkingSlot.create({
+      slotId: 'LOC_S1',
+      zoneId: zoneA.zoneId,
+      isAvailable: false // occupied
+    });
+
+    await ParkingSlot.create({
+      slotId: 'LOC_S2',
+      zoneId: zoneA.zoneId,
+      isAvailable: true // empty
+    });
+
+    // 4. Create IoT Devices mapping to Locations
+    const devCam1 = await IoTDevice.create({
+      deviceId: 'CAM_01',
+      zoneId: zoneA.zoneId,
+      deviceType: 'CAMERA',
+      locationId: 'LOC_G1',
+      deviceName: 'Entry Camera A',
+      status: 'ONLINE'
+    });
+
+    const devSensor1 = await IoTDevice.create({
+      deviceId: 'SENS_01',
+      zoneId: zoneA.zoneId,
+      deviceType: 'SENSOR',
+      locationId: 'LOC_S1',
+      deviceName: 'Slot 1 Sensor',
+      status: 'ONLINE'
+    });
+    
+    const devSensor2 = await IoTDevice.create({
+      deviceId: 'SENS_02',
+      zoneId: zoneA.zoneId,
+      deviceType: 'SENSOR',
+      locationId: 'LOC_S2',
+      deviceName: 'Slot 2 Sensor',
+      status: 'ERROR'
+    });
+
+    // 5. Create an Infrastructure Alert
+    await InfrastructureAlert.create({
+      deviceId: devSensor2.deviceId,
+      alertType: 'ERROR',
+      message: 'Sensor misaligned',
+      status: 'ACTIVE'
+    });
+
+    console.log('Seeding completed successfully!');
     process.exit(0);
   } catch (error) {
-    console.error('Seeding error:', error);
+    console.error('Seeding failed:', error);
     process.exit(1);
   }
 };

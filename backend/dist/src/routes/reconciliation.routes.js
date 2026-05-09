@@ -1,0 +1,11 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = require("express");
+const ReconciliationController_1 = require("../controllers/ReconciliationController");
+const authMiddleware_1 = require("../middlewares/authMiddleware");
+const router = (0, express_1.Router)();
+router.use(authMiddleware_1.authMiddleware);
+router.get('/requests', ReconciliationController_1.ReconciliationController.getRequests);
+router.put('/requests/:id', ReconciliationController_1.ReconciliationController.resolveRequest);
+router.get('/session/:sessionId', ReconciliationController_1.ReconciliationController.getSessionData);
+exports.default = router;
