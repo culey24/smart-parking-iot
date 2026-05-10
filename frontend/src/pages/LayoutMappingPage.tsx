@@ -10,29 +10,24 @@ import {
   MousePointer2,
   Trash2,
   Map as RoadIcon,
-  MoveUpRight,
   Circle,
-  Settings,
   ChevronRight,
   ChevronLeft,
   Hand,
-  Maximize,
-  Minimize,
   Triangle,
   Square as SquareIcon,
   RotateCcw,
   RotateCw,
-  Database,
   Cloud,
   Save,
   LogIn,
-  GitBranch,
-  ArrowRight,
-  Plus,
   Info,
   Navigation2,
   MapPin,
-  ArrowUpRight
+  ArrowUpRight,
+  ArrowDownLeft,
+  Copy,
+  ClipboardPaste
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -77,14 +72,14 @@ export function LayoutMappingPage() {
   
   const [mode, setMode] = useState<"select" | "delete" | "pan" | "draw-rect" | "draw-tri" | "connect">("select");
   const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [clipboard, setClipboard] = useState<PlacedDevice | null>(null);
   
   const [transform, setTransform] = useState<CanvasTransform>({ scale: 1, offsetX: 0, offsetY: 0 });
   const [isPanning, setIsPanning] = useState(false);
   const [draggedDeviceId, setDraggedDeviceId] = useState<string | null>(null);
-  const [draggedHandle, setDraggedHandle] = useState<{deviceId: string, type: "start" | "end"} | null>(null);
   
   const [isSpacePressed, setIsSpacePressed] = useState(false);
-  const [snapEnabled, setSnapEnabled] = useState(true);
+  const [snapEnabled] = useState(true);
   
   const [drawingPoints, setDrawingPoints] = useState<{x: number, y: number}[]>([]);
   const [syncing, setSyncing] = useState(false);
@@ -122,6 +117,45 @@ export function LayoutMappingPage() {
     }
   };
 
+  const copySelected = useCallback(() => {
+    if (!selectedId) return;
+    const device = placedDevices.find(d => d.id === selectedId);
+    if (device && device.type !== 'connection') {
+      setClipboard(device);
+    }
+  }, [selectedId, placedDevices]);
+
+  const pasteClipboard = useCallback(() => {
+    if (!clipboard) return;
+    const id = crypto.randomUUID();
+    const newDevice: PlacedDevice = {
+      ...clipboard,
+      id,
+      x: clipboard.x + 2,
+      y: clipboard.y + 2,
+      label: `${clipboard.label} (Copy)`,
+      deviceId: undefined,
+    };
+    
+    if (newDevice.type === 'zone' && newDevice.points) {
+       newDevice.points = newDevice.points.map(p => ({ x: p.x + 2, y: p.y + 2 }));
+    }
+
+    const newState = [...placedDevices, newDevice];
+    
+    if (clipboard.type === 'zone') {
+       const children = placedDevices.filter(d => d.parentId === clipboard.id);
+       children.forEach(child => {
+          const childId = crypto.randomUUID();
+          newState.push({ ...child, id: childId, parentId: id, x: child.x + 2, y: child.y + 2 });
+       });
+    }
+
+    setPlacedDevices(newState);
+    addToHistory(newState);
+    setSelectedId(id);
+  }, [clipboard, placedDevices, addToHistory]);
+
   // Initial Load
   useEffect(() => {
     const initLayout = async () => {
@@ -154,7 +188,6 @@ export function LayoutMappingPage() {
       if (e.code === "Escape") {
         setMode("select");
         setDrawingPoints([]);
-        setDraggedHandle(null);
         setConnectionSourceId(null);
       }
       if ((e.ctrlKey || e.metaKey) && e.code === "KeyZ") {
@@ -165,6 +198,14 @@ export function LayoutMappingPage() {
       if ((e.ctrlKey || e.metaKey) && e.code === "KeyS") {
         e.preventDefault();
         saveLayout();
+      }
+      if ((e.ctrlKey || e.metaKey) && e.code === "KeyC") {
+        e.preventDefault();
+        copySelected();
+      }
+      if ((e.ctrlKey || e.metaKey) && e.code === "KeyV") {
+        e.preventDefault();
+        pasteClipboard();
       }
       if (e.code === "Delete" || e.code === "Backspace") {
          if (selectedId) deleteElement(selectedId);
@@ -179,7 +220,7 @@ export function LayoutMappingPage() {
       window.removeEventListener("keydown", handleKeyDown);
       window.removeEventListener("keyup", handleKeyUp);
     };
-  }, [selectedId, historyIndex, history, placedDevices]);
+  }, [selectedId, historyIndex, history, placedDevices, copySelected, pasteClipboard]);
 
   const saveLayout = async () => {
     setSyncing(true);
@@ -236,18 +277,12 @@ export function LayoutMappingPage() {
     if (mode === "draw-rect" || mode === "draw-tri") {
       const { x, y } = screenToCanvas(e.clientX, e.clientY);
       const newPoints = [...drawingPoints, { x, y }];
-      if (mode === "draw-rect" && newPoints.length === 2) {
-        finalizeShape("rectangle", getRectPoints(newPoints[0], newPoints[1]));
-      } else if (mode === "draw-tri" && newPoints.length === 3) {
-        finalizeShape("polygon", newPoints);
-      } else {
-        setDrawingPoints(newPoints);
-      }
+      if (mode === "draw-rect" && newPoints.length === 2) finalizeShape("rectangle", getRectPoints(newPoints[0], newPoints[1]));
+      else if (mode === "draw-tri" && newPoints.length === 3) finalizeShape("polygon", newPoints);
+      else setDrawingPoints(newPoints);
       return;
     }
-    if (mode === "select" || mode === "delete") {
-       setSelectedId(null);
-    }
+    if (mode === "select" || mode === "delete") setSelectedId(null);
   };
 
   const handleMouseMove = (e: React.MouseEvent) => {
@@ -261,21 +296,6 @@ export function LayoutMappingPage() {
     }
 
     const { x, y } = screenToCanvas(e.clientX, e.clientY);
-
-    if (draggedHandle) {
-      const { deviceId, type } = draggedHandle;
-      const anchor = placedDevices.find(d => {
-         const dist = Math.sqrt(Math.pow(d.x - x, 2) + Math.pow(d.y - y, 2));
-         return dist < 3 && d.type !== "connection" && d.id !== deviceId;
-      });
-
-      setPlacedDevices(prev => prev.map(d => {
-        if (d.id !== deviceId) return d;
-        if (type === "start") return { ...d, x, y, sourceId: anchor?.id };
-        else return { ...d, endX: x, endY: y, targetId: anchor?.id };
-      }));
-      return;
-    }
 
     if (draggedDeviceId) {
       const dev = placedDevices.find(d => d.id === draggedDeviceId);
@@ -303,8 +323,8 @@ export function LayoutMappingPage() {
   };
 
   const handleMouseUp = () => {
-    if (draggedDeviceId || draggedHandle) { addToHistory(placedDevices); }
-    setIsPanning(false); setDraggedDeviceId(null); setDraggedHandle(null);
+    if (draggedDeviceId) addToHistory(placedDevices);
+    setIsPanning(false); setDraggedDeviceId(null);
   };
 
   const finalizeShape = (shape: "rectangle" | "polygon", points: {x: number, y: number}[]) => {
@@ -327,24 +347,43 @@ export function LayoutMappingPage() {
     e.stopPropagation();
     if (mode === "delete") { deleteElement(id); return; }
     if (mode === "connect") {
-       if (!connectionSourceId) setConnectionSourceId(id);
-       else if (connectionSourceId !== id) {
+       if (!connectionSourceId) {
+          setConnectionSourceId(id);
+       } else if (connectionSourceId !== id) {
+          const source = placedDevices.find(d => d.id === connectionSourceId);
+          const target = placedDevices.find(d => d.id === id);
+          
+          if (!source || !target) {
+            setConnectionSourceId(null);
+            return;
+          }
+
           const connId = crypto.randomUUID();
-          const source = placedDevices.find(d => d.id === connectionSourceId)!;
-          const target = placedDevices.find(d => d.id === id)!;
-          const newConn: PlacedDevice = { id: connId, type: "connection", sourceId: connectionSourceId, targetId: id, x: source.x, y: source.y, endX: target.x, endY: target.y, label: `Route ${connId.substring(0, 4)}` };
+          const newConn: PlacedDevice = { 
+            id: connId, 
+            type: "connection", 
+            sourceId: connectionSourceId, 
+            targetId: id, 
+            x: source.x, 
+            y: source.y, 
+            endX: target.x, 
+            endY: target.y, 
+            label: `Route ${connId.substring(0, 4)}` 
+          };
           const newState = [...placedDevices, newConn];
           setPlacedDevices(newState);
           addToHistory(newState);
           setConnectionSourceId(null);
-          setMode("select");
           setSelectedId(connId);
+       } else {
+          setConnectionSourceId(null);
        }
        return;
     }
     setSelectedId(id);
     setDraggedDeviceId(id);
   };
+
 
   const handleMapDrop = useCallback((e: React.DragEvent) => {
     e.preventDefault();
@@ -376,8 +415,10 @@ export function LayoutMappingPage() {
   const getEffectiveCoords = (deviceId: string | undefined, fallbackX: number, fallbackY: number) => {
     if (!deviceId) return { x: fallbackX, y: fallbackY };
     const dev = placedDevices.find(d => d.id === deviceId);
-    return dev ? { x: dev.x, y: dev.y } : { x: fallbackX, y: fallbackY };
+    if (!dev) return { x: fallbackX, y: fallbackY };
+    return { x: dev.x, y: dev.y };
   };
+
 
   const getConnectionLinePx = (conn: PlacedDevice) => {
     const start = getEffectiveCoords(conn.sourceId, conn.x, conn.y);
@@ -394,17 +435,25 @@ export function LayoutMappingPage() {
 
   const selectedDevice = useMemo(() => placedDevices.find(d => d.id === selectedId), [selectedId, placedDevices]);
 
-  const getTrafficDetails = (id: string) => {
-    const conn = placedDevices.filter(d => d.type === 'connection' && d.sourceId === id);
-    return conn.map(c => {
-      const target = placedDevices.find(t => t.id === c.targetId);
-      if (!target) return null;
-      let label = "Path Guidance";
-      if (target.type === 'signage' || target.type === 'waypoint') label = "NEXT INTERSECTION";
-      if (target.type === 'entrance') label = "ZONE ENTRANCE";
-      if (target.type === 'sensor') label = "SLOT GUIDANCE";
-      return { id: target.id, type: target.type, label, name: target.label };
-    }).filter(Boolean);
+  const getTrafficLogic = (id: string) => {
+    const outgoing = placedDevices.filter(d => d.type === 'connection' && d.sourceId === id);
+    const incoming = placedDevices.filter(d => d.type === 'connection' && d.targetId === id);
+    
+    const mapRoute = (c: PlacedDevice) => {
+       const otherId = c.sourceId === id ? c.targetId : c.sourceId;
+       const other = placedDevices.find(t => t.id === otherId);
+       if (!other) return null;
+       let label = "Path Guidance";
+       if (other.type === 'signage' || other.type === 'waypoint') label = "NEXT INTERSECTION";
+       if (other.type === 'entrance') label = "ZONE ENTRANCE";
+       if (other.type === 'sensor') label = "SLOT GUIDANCE";
+       return { id: other.id, type: other.type, label, name: other.label };
+    };
+
+    return { 
+      outgoing: outgoing.map(mapRoute).filter((r): r is NonNullable<typeof r> => r !== null), 
+      incoming: incoming.map(mapRoute).filter((r): r is NonNullable<typeof r> => r !== null) 
+    };
   };
 
   return (
@@ -423,7 +472,7 @@ export function LayoutMappingPage() {
           <Button variant={mode === "select" ? "secondary" : "ghost"} size="sm" onClick={() => setMode("select")} className="h-9 w-9 p-0 rounded-xl"><MousePointer2 className="h-4 w-4" /></Button>
           <Button variant={mode === "pan" ? "secondary" : "ghost"} size="sm" onClick={() => setMode("pan")} className="h-9 w-9 p-0 rounded-xl"><Hand className="h-4 w-4" /></Button>
           <Separator orientation="vertical" className="h-6 bg-white/10 mx-1" />
-          <Button variant={mode === "connect" ? "secondary" : "ghost"} size="sm" onClick={() => setMode("connect")} className={cn("h-9 w-9 p-0 rounded-xl text-blue-400", mode === "connect" && "bg-blue-500/20")}><LinkIcon className="h-4 w-4" /></Button>
+          <Button variant={mode === "connect" ? "secondary" : "ghost"} size="sm" onClick={() => setMode("connect")} className={cn("h-9 w-9 p-0 rounded-xl text-blue-400", mode === "connect" && "bg-blue-500/20")} title="Connection Mode (Persistent)"><LinkIcon className="h-4 w-4" /></Button>
           <Button variant={mode === "delete" ? "destructive" : "ghost"} size="sm" onClick={() => setMode("delete")} className="h-9 w-9 p-0 rounded-xl text-red-400"><Trash2 className="h-4 w-4" /></Button>
           <Separator orientation="vertical" className="h-6 bg-white/10 mx-1" />
           <div className="flex items-center gap-1 px-1">
@@ -433,6 +482,12 @@ export function LayoutMappingPage() {
         </div>
 
         <div className="flex items-center gap-3">
+          {clipboard && (
+            <Badge variant="secondary" className="bg-blue-500/10 text-blue-400 border-blue-500/20 px-3 py-1 flex items-center gap-2">
+              <Copy className="h-3 w-3" />
+              <span className="text-[10px] font-black uppercase tracking-widest">{clipboard.type} Copied</span>
+            </Badge>
+          )}
           <Button variant="outline" size="sm" onClick={saveLayout} disabled={syncing || !hasUnsavedChanges} className={cn("bg-white text-black hover:bg-white/90 border-none font-black text-xs px-6 rounded-xl", hasUnsavedChanges ? "ring-2 ring-emerald-500 shadow-lg" : "opacity-50")}>
              {syncing ? <Cloud className="h-3 w-3 animate-bounce mr-2" /> : hasUnsavedChanges ? <Save className="h-3 w-3 mr-2" /> : null}
              {syncing ? "Syncing..." : "Publish Changes"}
@@ -483,15 +538,17 @@ export function LayoutMappingPage() {
               ))}
             </svg>
 
+            {/* Zone Layer */}
             <svg viewBox={viewBox} className="absolute inset-0 w-full h-full pointer-events-none z-10 overflow-visible">
                {placedDevices.filter(d => d.type === "zone").map(zone => (
                  <g key={zone.id} className="pointer-events-auto cursor-pointer" onMouseDown={(e) => handleDeviceClick(e, zone.id)}>
                     <polygon points={zone.points?.map(p => `${(p.x/100) * CAMPUS_PARKING_ALPHA.dimensions.width},${(p.y/100) * CAMPUS_PARKING_ALPHA.dimensions.height}`).join(' ')} fill={selectedId === zone.id ? "rgba(59, 130, 246, 0.3)" : "rgba(59, 130, 246, 0.15)"} stroke="#3b82f6" strokeWidth={selectedId === zone.id ? "4" : "2"} strokeDasharray="5 5" />
-                    {selectedId === zone.id && (<text x={(zone.x/100)*CAMPUS_PARKING_ALPHA.dimensions.width} y={(zone.y/100)*CAMPUS_PARKING_ALPHA.dimensions.height} className="text-[8px] font-black fill-blue-500 uppercase tracking-widest pointer-events-none" textAnchor="middle">{zone.label}</text>)}
+                    <text x={(zone.x/100)*CAMPUS_PARKING_ALPHA.dimensions.width} y={(zone.y/100)*CAMPUS_PARKING_ALPHA.dimensions.height} className={cn("text-[9px] font-black uppercase tracking-[0.2em] pointer-events-none", selectedId === zone.id ? "fill-blue-600" : "fill-blue-500/60")} textAnchor="middle" style={{ filter: 'drop-shadow(0px 1px 1px rgba(255,255,255,0.5))' }}>{zone.label}</text>
                  </g>
                ))}
             </svg>
 
+            {/* Connection Layer */}
             <svg viewBox={viewBox} className="absolute inset-0 w-full h-full pointer-events-none z-20 overflow-visible">
               <defs><marker id="arrow-simple" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#3b82f6" /></marker></defs>
               {placedDevices.filter(d => d.type === "connection").map(conn => {
@@ -506,36 +563,25 @@ export function LayoutMappingPage() {
               })}
             </svg>
 
+            {/* Hardware Layer */}
             {placedDevices.filter(d => d.type !== "connection" && d.type !== "zone").map((d) => {
               const pItem = DEVICE_PALETTE.find(p => p.type === d.type);
               const Icon = d.type === "entrance" ? LogIn : (pItem?.icon || Square);
               const isSel = selectedId === d.id;
               const isSource = connectionSourceId === d.id;
+              
+              const sizeClass = (d.type === 'sensor' || d.type === 'waypoint') ? 'h-5 w-5 rounded-md' : 'h-10 w-10 rounded-xl';
+              const iconSize = (d.type === 'sensor' || d.type === 'waypoint') ? 'h-3 w-3' : 'h-5 w-5';
+
               return (
                 <div key={d.id} onMouseDown={(e) => handleDeviceClick(e, d.id)} className={`absolute transform -translate-x-1/2 -translate-y-1/2 cursor-move ${isSel ? 'z-50' : 'z-30'}`} style={{ left: `${d.x}%`, top: `${d.y}%` }}>
-                  <div className={cn("flex items-center justify-center transition-all", d.type === 'sensor' ? 'h-5 w-5 rounded-md' : 'h-10 w-10 rounded-xl', (isSel || isSource) ? 'ring-2 ring-blue-500 ring-offset-2 ring-offset-white scale-110' : 'shadow-lg', d.type === 'entrance' ? 'bg-emerald-600 border-2 border-white' : (isSource ? 'bg-blue-600' : pItem?.color || 'bg-slate-800'), "text-white")}>
-                    <Icon className={d.type === 'sensor' ? 'h-3 w-3' : 'h-5 w-5'} />
+                  <div className={cn("flex items-center justify-center transition-all", sizeClass, (isSel || isSource) ? 'ring-2 ring-blue-500 ring-offset-2 ring-offset-white scale-110' : 'shadow-lg', d.type === 'entrance' ? 'bg-emerald-600 border-2 border-white' : (isSource ? 'bg-blue-600' : pItem?.color || 'bg-slate-800'), "text-white")}>
+                    <Icon className={iconSize} />
                     {isSource && <div className="absolute inset-0 rounded-full bg-blue-500 animate-ping opacity-20" />}
                   </div>
                 </div>
               );
             })}
-
-            {selectedId && placedDevices.find(d => d.id === selectedId)?.type === "connection" && (
-              <div className="absolute inset-0 pointer-events-none z-40">
-                 {(() => {
-                    const conn = placedDevices.find(d => d.id === selectedId)!;
-                    const start = getEffectiveCoords(conn.sourceId, conn.x, conn.y);
-                    const end = getEffectiveCoords(conn.targetId, conn.endX || conn.x + 10, conn.endY || conn.y + 10);
-                    return (
-                      <>
-                        <div onMouseDown={(e) => { e.stopPropagation(); setDraggedHandle({deviceId: conn.id, type: "start"}); }} className="absolute h-4 w-4 bg-white border-2 border-blue-500 rounded-full cursor-move pointer-events-auto -translate-x-1/2 -translate-y-1/2 shadow-xl hover:scale-125 transition-transform" style={{left: `${start.x}%`, top: `${start.y}%`}} />
-                        <div onMouseDown={(e) => { e.stopPropagation(); setDraggedHandle({deviceId: conn.id, type: "end"}); }} className="absolute h-4 w-4 bg-white border-2 border-blue-500 rounded-full cursor-move pointer-events-auto -translate-x-1/2 -translate-y-1/2 shadow-xl hover:scale-125 transition-transform" style={{left: `${end.x}%`, top: `${end.y}%`}} />
-                      </>
-                    );
-                 })()}
-              </div>
-            )}
           </div>
         </div>
 
@@ -560,6 +606,11 @@ export function LayoutMappingPage() {
                       <Input value={selectedDevice.label || ""} onChange={(e) => updateDeviceLabel(selectedDevice.id, e.target.value)} className="bg-white/5 border-white/10 text-xs rounded-xl text-white h-10 px-4 focus:ring-blue-500" placeholder="Enter Label..." />
                     </div>
 
+                    <div className="flex items-center gap-2 pt-2">
+                       <Button variant="outline" size="sm" onClick={copySelected} className="flex-1 bg-white/5 border-white/10 text-white/60 hover:text-white rounded-xl h-9 text-[10px] font-black uppercase"><Copy className="h-3 w-3 mr-2" /> Copy</Button>
+                       <Button variant="outline" size="sm" onClick={pasteClipboard} disabled={!clipboard} className="flex-1 bg-white/5 border-white/10 text-white/60 hover:text-white rounded-xl h-9 text-[10px] font-black uppercase"><ClipboardPaste className="h-3 w-3 mr-2" /> Paste</Button>
+                    </div>
+
                     {(selectedDevice.type === 'sensor' || selectedDevice.type === 'gateway' || selectedDevice.type === 'signage') && (
                       <div className="space-y-2">
                         <label className="text-[10px] font-black text-white/30 uppercase tracking-widest ml-1">Hardware Binding</label>
@@ -576,47 +627,56 @@ export function LayoutMappingPage() {
                       </div>
                     )}
 
-                    {selectedDevice.type === 'entrance' && selectedDevice.parentId && (
-                       <div className="p-4 rounded-2xl bg-emerald-500/5 border border-emerald-500/10 space-y-2">
-                          <label className="text-[10px] font-black text-emerald-500/60 uppercase tracking-widest">Anchored Zone</label>
-                          <div className="flex items-center gap-2">
-                             <div className="h-2 w-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]" />
-                             <span className="text-xs font-bold text-white/80">{placedDevices.find(d => d.id === selectedDevice.parentId)?.label || 'Unknown Zone'}</span>
-                          </div>
-                       </div>
-                    )}
+                    {(selectedDevice.type !== 'zone') && (
+                      <div className="space-y-6 pt-2 border-t border-white/5 mt-4">
+                        <div className="space-y-3">
+                           <div className="flex items-center gap-2 ml-1">
+                              <ArrowUpRight className="h-3 w-3 text-blue-500" />
+                              <label className="text-[10px] font-black text-white/30 uppercase tracking-widest">Outgoing Routes</label>
+                           </div>
+                           <div className="space-y-2">
+                             {getTrafficLogic(selectedDevice.id).outgoing.length > 0 ? (
+                               getTrafficLogic(selectedDevice.id).outgoing.map((traffic, idx) => (
+                                 <div key={idx} className="bg-blue-500/5 border border-blue-500/10 rounded-2xl p-4 group">
+                                   <div className="flex items-center gap-2 mb-1">
+                                      <div className="p-1.5 rounded-lg bg-blue-500/20 text-blue-500"><Navigation2 className="h-3 w-3 fill-current" /></div>
+                                      <span className="text-[10px] font-black text-blue-500 uppercase tracking-wider">{traffic.label}</span>
+                                   </div>
+                                   <div className="mt-2 flex items-center gap-2 text-white/60">
+                                      <MapPin className="h-3 w-3" />
+                                      <span className="text-[11px] font-bold">{traffic.name || `Target ${idx + 1}`}</span>
+                                   </div>
+                                 </div>
+                               ))
+                             ) : (
+                               <div className="p-3 rounded-xl bg-white/5 border border-white/10 border-dashed text-center text-[9px] font-bold text-white/20 uppercase tracking-widest">No Outbound</div>
+                             )}
+                           </div>
+                        </div>
 
-                    {/* Traffic & Guidance Intelligence Section */}
-                    {(selectedDevice.type === 'signage' || selectedDevice.type === 'road' || selectedDevice.type === 'waypoint' || selectedDevice.type === 'entrance') && (
-                      <div className="space-y-4 pt-2 border-t border-white/5 mt-4">
-                        <label className="text-[10px] font-black text-white/30 uppercase tracking-widest ml-1">Guidance Logic</label>
-                        <div className="space-y-2">
-                          {getTrafficDetails(selectedDevice.id).length > 0 ? (
-                            getTrafficDetails(selectedDevice.id).map((traffic, idx) => (
-                              <div key={idx} className="bg-blue-500/5 border border-blue-500/10 rounded-2xl p-4 transition-all hover:bg-blue-500/10 group">
-                                <div className="flex items-start justify-between">
-                                  <div className="flex items-center gap-2 mb-1">
-                                    <div className="p-1.5 rounded-lg bg-blue-500/20 text-blue-500">
-                                      <Navigation2 className="h-3 w-3 fill-current" />
-                                    </div>
-                                    <span className="text-[10px] font-black text-blue-500 uppercase tracking-wider">{traffic.label}</span>
-                                  </div>
-                                  <div className="h-5 w-5 rounded-full bg-white/5 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                                    <ArrowUpRight className="h-3 w-3 text-white/40" />
-                                  </div>
-                                </div>
-                                <div className="mt-2 flex items-center gap-2 text-white/60">
-                                   <MapPin className="h-3 w-3" />
-                                   <span className="text-[11px] font-bold">{traffic.name || `Unnamed ${traffic.type}`}</span>
-                                </div>
-                              </div>
-                            ))
-                          ) : (
-                            <div className="p-4 rounded-2xl bg-white/5 border border-white/10 border-dashed flex flex-col items-center justify-center py-6 text-center">
-                               <Radio className="h-4 w-4 text-white/20 mb-2" />
-                               <span className="text-[9px] font-bold text-white/20 uppercase tracking-widest">No Outgoing Routes</span>
-                            </div>
-                          )}
+                        <div className="space-y-3">
+                           <div className="flex items-center gap-2 ml-1">
+                              <ArrowDownLeft className="h-3 w-3 text-emerald-500" />
+                              <label className="text-[10px] font-black text-white/30 uppercase tracking-widest">Incoming Routes</label>
+                           </div>
+                           <div className="space-y-2">
+                             {getTrafficLogic(selectedDevice.id).incoming.length > 0 ? (
+                               getTrafficLogic(selectedDevice.id).incoming.map((traffic, idx) => (
+                                 <div key={idx} className="bg-emerald-500/5 border border-emerald-500/10 rounded-2xl p-4 group">
+                                   <div className="flex items-center gap-2 mb-1">
+                                      <div className="p-1.5 rounded-lg bg-emerald-500/20 text-emerald-500"><Navigation2 className="h-3 w-3 fill-current rotate-180" /></div>
+                                      <span className="text-[10px] font-black text-emerald-500 uppercase tracking-wider">SOURCE FEED</span>
+                                   </div>
+                                   <div className="mt-2 flex items-center gap-2 text-white/60">
+                                      <MapPin className="h-3 w-3" />
+                                      <span className="text-[11px] font-bold">{traffic.name || `Source ${idx + 1}`}</span>
+                                   </div>
+                                 </div>
+                               ))
+                             ) : (
+                               <div className="p-3 rounded-xl bg-white/5 border border-white/10 border-dashed text-center text-[9px] font-bold text-white/20 uppercase tracking-widest">No Inbound</div>
+                             )}
+                           </div>
                         </div>
                       </div>
                     )}
