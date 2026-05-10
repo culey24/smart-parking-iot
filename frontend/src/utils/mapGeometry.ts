@@ -41,7 +41,6 @@ export function isPointInPolygon(point: {x: number, y: number}, polygon: {x: num
 
 /**
  * Finds the closest point on the perimeter of a polygon.
- * Used to constrain Entrance nodes to the edge of a Zone.
  */
 export function getClosestPointOnPolygonPerimeter(point: {x: number, y: number}, polygon: {x: number, y: number}[]) {
   let minDistance = Infinity;
@@ -73,6 +72,25 @@ function getClosestPointOnSegment(p: {x: number, y: number}, a: {x: number, y: n
 }
 
 /**
+ * Generates an orthogonal (right-angled) path through multiple points.
+ */
+export function getOrthogonalPath(points: {x: number, y: number}[]): string {
+  if (points.length < 2) return "";
+  let d = `M ${points[0].x},${points[0].y}`;
+  
+  for (let i = 0; i < points.length - 1; i++) {
+    const p1 = points[i];
+    const p2 = points[i+1];
+    
+    // Calculate a midpoint that preserves right angles
+    const midX = p1.x + (p2.x - p1.x) / 2;
+    d += ` L ${midX},${p1.y} L ${midX},${p2.y} L ${p2.x},${p2.y}`;
+  }
+  
+  return d;
+}
+
+/**
  * Generates 4 vertices for a rectangle from two opposite corners.
  */
 export function getRectPoints(p1: {x: number, y: number}, p2: {x: number, y: number}) {
@@ -85,7 +103,7 @@ export function getRectPoints(p1: {x: number, y: number}, p2: {x: number, y: num
 }
 
 /**
- * Calculates real-time occupancy counts for each zone (both structural and user-drawn).
+ * Calculates real-time occupancy counts for each zone.
  */
 export function calculateZoneOccupancy(
   map: ParkingMap,
