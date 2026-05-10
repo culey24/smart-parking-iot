@@ -9,7 +9,11 @@
     "start": "node dist/server.js",
     "test": "jest",
     "test:cov": "jest --coverage",
-    "seed": "ts-node src/utils/seed.ts"
+    "seed": "ts-node src/utils/seed.ts",
+    "lint": "eslint src --max-warnings 0",
+    "lint:fix": "eslint src --fix",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
   },
   "keywords": [],
   "author": "",
@@ -30,6 +34,7 @@
     "uuid": "^9.0.0"
   },
   "devDependencies": {
+    "@eslint/js": "^10.0.1",
     "@types/bcryptjs": "^2.4.6",
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.6",
@@ -49,6 +54,7 @@
     "supertest": "^7.2.2",
     "ts-jest": "^29.4.9",
     "ts-node": "^10.9.2",
-    "typescript": "^6.0.3"
+    "typescript": "^6.0.3",
+    "typescript-eslint": "^8.59.2"
   }
 }

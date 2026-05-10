@@ -64,3 +64,24 @@ test-backend:
 test-frontend:
 	@echo "$(CYAN)▶ Running Frontend Tests (Vitest)...$(RESET)"
 	cd frontend && npm run test
+
+## lint: Run linting on all services
+lint:
+	@echo "$(CYAN)▶ Running Backend Linting...$(RESET)"
+	cd backend && npm run lint
+	@echo "$(CYAN)▶ Running Frontend Linting...$(RESET)"
+	cd frontend && npm run lint
+
+## lint:fix: Auto-fix linting issues
+lint:fix:
+	@echo "$(CYAN)▶ Auto-fixing Backend Lint...$(RESET)"
+	cd backend && npm run lint:fix || true
+	@echo "$(CYAN)▶ Auto-fixing Frontend Lint...$(RESET)"
+	cd frontend && npm run lint:fix || true
+
+## format: Run prettier formatting
+format:
+	@echo "$(CYAN)▶ Formatting Backend...$(RESET)"
+	cd backend && npm run format
+	@echo "$(CYAN)▶ Formatting Frontend...$(RESET)"
+	cd frontend && npm run format

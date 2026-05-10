@@ -14,6 +14,7 @@ import sessionsRoutes from './sessions.routes';
 // 1. IMPORT ROUTES CỦA TASK 7 VÀO ĐÂY
 import adminRoutes from './admin.routes';
 import reportsRoutes from './reports.routes';
+import layoutRoutes from './layout.routes';
 
 const router = Router();
 
@@ -32,5 +33,6 @@ router.use('/sessions', sessionsRoutes);
 // 2. CẮM ĐƯỜNG DẪN CỦA TASK 7 VÀO MAIN ROUTER
 router.use('/admin', adminRoutes);
 router.use('/reports', reportsRoutes);
+router.use('/layout', layoutRoutes);
 
 export default router;
