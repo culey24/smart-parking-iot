@@ -9,7 +9,20 @@ export class UserController {
       if (!user) {
         return res.status(404).json({ success: false, message: 'User not found' });
       }
-      res.json(user); // Frontend expects the user object directly, not wrapped in data
+
+      // Map to frontend UserProfileRecord structure
+      const profile = {
+        mssvMscb: user.schoolCardId?.toString() || user.userId,
+        fullName: user.fullName,
+        email: user.email,
+        faculty: 'Information Technology', // Data from HCMUT_DATACORE
+        country: 'Vietnam',
+        province: 'Ho Chi Minh City',
+        timezone: 'Asia/Ho_Chi_Minh (GMT+7)',
+        registeredVehicleType: 'Motorbike'
+      };
+
+      res.json({ success: true, data: profile });
     } catch (error: any) {
       res.status(500).json({ success: false, message: error.message });
     }

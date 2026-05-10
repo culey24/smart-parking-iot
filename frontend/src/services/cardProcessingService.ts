@@ -1,12 +1,19 @@
 import type { CardLookupResult } from "@/types/cardProcessing";
 import { apiFetch } from "@/config/api";
 
+interface ApiResponse<T> {
+  success: boolean;
+  data: T;
+  message: string;
+}
+
 /** Lookup current parking session by license plate */
 export async function lookupByLicensePlate(
   licensePlate: string
 ): Promise<CardLookupResult | null> {
   const plate = encodeURIComponent(licensePlate.trim().toUpperCase());
-  return apiFetch<CardLookupResult | null>(`/api/cards/lookup?plate=${plate}`);
+  const res = await apiFetch<ApiResponse<CardLookupResult | null>>(`/api/cards/lookup?plate=${plate}`);
+  return res.data;
 }
 
 /** Disable the linked card */

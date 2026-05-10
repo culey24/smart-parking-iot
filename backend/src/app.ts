@@ -2,27 +2,26 @@ import express from 'express';
 import cors from 'cors';
 import routes from './routes';
 import { errorHandler } from './middlewares/errorHandler';
+import { requestLogger } from './middlewares/requestLogger';
 import { setupSwagger } from './config/swagger';
 import adminRoutes from './routes/admin.routes';
 import reportRoutes from './routes/reports.routes';
 
 const app = express();
 
-app.use(cors());
+app.use(requestLogger);
+app.use(cors({
+  origin: [/localhost:\d+$/, /127\.0\.0\.1:\d+$/, /frontend:\d+$/],
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: true,
+}));
 app.use(express.json());
 
-app.use('/api/reports', reportRoutes);
-
-// Admin API routes
-app.use('/api/admin', adminRoutes);
-
-// 2. Khởi chạy giao diện Swagger (nên để trước các route chính)
-setupSwagger(app);
-
-// Main API routes
 app.use('/api', routes);
 
-// Error handling
+setupSwagger(app);
+
 app.use(errorHandler);
 
 export default app;

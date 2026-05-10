@@ -68,8 +68,8 @@ export function AuditLogPage() {
                 </TableCell>
               </TableRow>
             ) : (
-              entries.map((entry) => (
-                <TableRow key={entry.id}>
+              entries.map((entry, i) => (
+                <TableRow key={entry.id || i}>
                   <TableCell className="flex items-center gap-2 text-muted-foreground">
                     <Clock className="h-4 w-4 shrink-0" />
                     {formatDateTime(entry.timestamp)}

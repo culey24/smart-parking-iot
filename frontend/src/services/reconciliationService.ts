@@ -7,20 +7,43 @@ import type {
 } from "@/types/reconciliation";
 import { apiFetch } from "@/config/api";
 
+type ApiList<T> = { success: boolean; data: T[] };
+type ApiItem<T> = { success: boolean; data: T };
+
 export async function getReconciliationRequests(): Promise<ReconciliationRequest[]> {
-  return apiFetch<ReconciliationRequest[]>("/api/reconciliation/requests");
+  try {
+    const res = await apiFetch<ApiList<ReconciliationRequest>>("/api/reconciliation/requests");
+    return res.data ?? [];
+  } catch {
+    return [];
+  }
 }
 
 export async function getSpmsData(sessionId: string): Promise<SpmsData | null> {
-  return apiFetch<SpmsData | null>(`/api/reconciliation/session/${sessionId}`);
+  try {
+    const res = await apiFetch<ApiItem<SpmsData>>(`/api/reconciliation/session/${sessionId}`);
+    return res.data ?? null;
+  } catch {
+    return null;
+  }
 }
 
 export async function getBkpayData(sessionId: string): Promise<BkpayData | null> {
-  return apiFetch<BkpayData | null>(`/api/reconciliation/session/${sessionId}`);
+  try {
+    const res = await apiFetch<ApiItem<BkpayData>>(`/api/reconciliation/session/${sessionId}`);
+    return res.data ?? null;
+  } catch {
+    return null;
+  }
 }
 
 export async function getRelatedSessions(userId: string): Promise<RelatedSession[]> {
-  return apiFetch<RelatedSession[]>(`/api/reconciliation/related/${userId}`);
+  try {
+    const res = await apiFetch<ApiList<RelatedSession>>(`/api/reconciliation/related/${userId}`);
+    return res.data ?? [];
+  } catch {
+    return [];
+  }
 }
 
 export async function updateRequestStatus(

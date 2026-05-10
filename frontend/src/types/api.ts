@@ -1,12 +1,17 @@
 /** API types - align with JSON/DB schema for easy migration */
 
 export interface ParkingRecord {
-  id: string;
-  entryTime: string;
-  exitTime: string | null;
-  licensePlate: string;
+  _id: string;
+  sessionId: string;
+  startTime: string;       // entryTime equivalent
+  endTime: string | null;  // exitTime equivalent
+  plateNumber: string;     // licensePlate equivalent
   fee: number;
-  status: "ongoing" | "completed";
+  sessionStatus: 'ACTIVE' | 'COMPLETED' | 'CANCELLED';
+  paymentStatus: 'UNPAID' | 'PENDING' | 'PAID';
+  vehicleType: string;
+  type: 'REGISTERED' | 'TEMPORARY';
+  subjectId: string;
 }
 
 export interface BillingRecord {

@@ -29,10 +29,13 @@ export class DashboardController {
       const syncRate = totalDevices > 0 ? (devicesOnline / totalDevices) * 100 : 100;
 
       res.status(200).json({
-        devicesOnline,
-        totalDevices,
-        unresolvedErrors,
-        syncRate: parseFloat(syncRate.toFixed(1))
+        success: true,
+        data: {
+          devicesOnline,
+          totalDevices,
+          unresolvedErrors,
+          syncRate: parseFloat(syncRate.toFixed(1))
+        }
       });
     } catch (error: any) {
       res.status(500).json({ success: false, message: error.message });

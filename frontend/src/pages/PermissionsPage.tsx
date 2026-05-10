@@ -132,8 +132,8 @@ export function PermissionsPage() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {users.map((user) => (
-              <TableRow key={user.id}>
+            {users.map((user, i) => (
+              <TableRow key={user.id || i}>
                 <TableCell className="font-medium">{user.name}</TableCell>
                 <TableCell className="text-muted-foreground">
                   {user.email}

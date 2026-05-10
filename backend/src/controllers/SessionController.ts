@@ -5,7 +5,7 @@ export class SessionController {
   static async getAll(req: Request, res: Response) {
     try {
       const sessions = await ParkingSession.find().sort({ createdAt: -1 });
-      res.json(sessions);
+      res.json({ success: true, data: sessions });
     } catch (error: any) {
       res.status(500).json({ success: false, message: error.message });
     }
@@ -15,7 +15,7 @@ export class SessionController {
     try {
       const { userId } = req.params;
       const sessions = await ParkingSession.find({ subjectId: userId }).sort({ createdAt: -1 });
-      res.json(sessions);
+      res.json({ success: true, data: sessions });
     } catch (error: any) {
       res.status(500).json({ success: false, message: error.message });
     }
@@ -25,7 +25,7 @@ export class SessionController {
     try {
       const limit = parseInt(req.query.limit as string) || 10;
       const sessions = await ParkingSession.find().sort({ createdAt: -1 }).limit(limit);
-      res.json(sessions);
+      res.json({ success: true, data: sessions });
     } catch (error: any) {
       res.status(500).json({ success: false, message: error.message });
     }

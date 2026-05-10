@@ -1,0 +1,369 @@
+
+> backend@1.0.0 test
+> jest
+
+PASS tests/sample.test.ts (5.254 s)
+PASS src/__tests__/authMiddleware.test.ts (5.233 s)
+[02:11:22.773] [34mDEBUG[39m (83506): [36mAuth: no token[39m
+    [35mmethod[39m: "GET"
+[02:11:22.778] [34mDEBUG[39m (83506): [36mAuth: invalid token[39m
+    [35mmethod[39m: "GET"
+PASS tests/unit/BillingService.test.ts (6.173 s)
+  ● Console
+
+    console.error
+      An error occurred during fee calculation: Error: Pricing policy (ACTIVE) not found for vehicle type: MOTORBIKE
+          at BillingService.calculateFee (/home/culey/Developer/Projects/smart-parking-iot/backend/src/services/BillingService.ts:12:15)
+          at processTicksAndRejections (node:internal/process/task_queues:104:5)
+          at Object.<anonymous> (/home/culey/Developer/Projects/smart-parking-iot/backend/tests/unit/BillingService.test.ts:51:7)
+
+      25 |
+      26 |     } catch (error) {
+    > 27 |       console.error('An error occurred during fee calculation:', error);
+         |               ^
+      28 |       throw error;
+      29 |     }
+      30 |   }
+
+      at BillingService.calculateFee (src/services/BillingService.ts:27:15)
+      at Object.<anonymous> (tests/unit/BillingService.test.ts:51:7)
+
+    console.log
+      👤 User: SV_1 | Số lượt gửi: 32 | Output Service: 86000đ | Output Kỳ vọng: 86000đ
+
+      at tests/unit/BillingService.test.ts:75:19
+          at Array.forEach (<anonymous>)
+
+    console.log
+      👤 User: SV_25 | Số lượt gửi: 33 | Output Service: 92000đ | Output Kỳ vọng: 92000đ
+
+      at tests/unit/BillingService.test.ts:75:19
+          at Array.forEach (<anonymous>)
+
+    console.log
+      👤 User: SV_50 | Số lượt gửi: 33 | Output Service: 89000đ | Output Kỳ vọng: 89000đ
+
+      at tests/unit/BillingService.test.ts:75:19
+          at Array.forEach (<anonymous>)
+
+PASS src/__tests__/User.test.ts (7.887 s)
+PASS src/__tests__/SessionController.test.ts (7.978 s)
+(node:83485) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+(node:83492) [MONGOOSE] Warning: mongoose: the `new` option for `findOneAndUpdate()` and `findOneAndReplace()` is deprecated. Use `returnDocument: 'after'` instead.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[02:11:25.446] [32mINFO[39m (83485): [36mRequest[39m
+    [35mmethod[39m: "PUT"
+    [35murl[39m: "/pricing"
+    [35mstatus[39m: 200
+    [35mduration[39m: 22
+[02:11:25.468] [31mERROR[39m (83485): [36mCần xác định loại xe (vehicleType)[39m
+    [35mreq[39m: {
+      "method": "PUT",
+      "url": "/api/admin/pricing",
+      "body": {
+        "baseRate": 20000
+      }
+    }
+    err: {
+      "type": "Error",
+      "message": "Cần xác định loại xe (vehicleType)",
+      "stack":
+          Error: Cần xác định loại xe (vehicleType)
+              at updatePricing (/home/culey/Developer/Projects/smart-parking-iot/backend/src/controllers/SystemAdminController.ts:106:15)
+              at Layer.handleRequest (/home/culey/Developer/Projects/smart-parking-iot/backend/node_modules/router/lib/layer.js:152:17)
+              at next (/home/culey/Developer/Projects/smart-parking-iot/backend/node_modules/router/lib/route.js:157:13)
+              at /home/culey/Developer/Projects/smart-parking-iot/backend/src/middlewares/roleMiddleware.ts:15:5
+              at Layer.handleRequest (/home/culey/Developer/Projects/smart-parking-iot/backend/node_modules/router/lib/layer.js:152:17)
+              at next (/home/culey/Developer/Projects/smart-parking-iot/backend/node_modules/router/lib/route.js:157:13)
+              at authMiddleware (/home/culey/Developer/Projects/smart-parking-iot/backend/src/middlewares/authMiddleware.ts:20:5)
+              at Layer.handleRequest (/home/culey/Developer/Projects/smart-parking-iot/backend/node_modules/router/lib/layer.js:152:17)
+              at next (/home/culey/Developer/Projects/smart-parking-iot/backend/node_modules/router/lib/route.js:157:13)
+              at Route.dispatch (/home/culey/Developer/Projects/smart-parking-iot/backend/node_modules/router/lib/route.js:117:3)
+              at handle (/home/culey/Developer/Projects/smart-parking-iot/backend/node_modules/router/index.js:435:11)
+              at Layer.handleRequest (/home/culey/Developer/Projects/smart-parking-iot/backend/node_modules/router/lib/layer.js:152:17)
+              at /home/culey/Developer/Projects/smart-parking-iot/backend/node_modules/router/index.js:295:15
+              at processParams (/home/culey/Developer/Projects/smart-parking-iot/backend/node_modules/router/index.js:582:12)
+              at next (/home/culey/Developer/Projects/smart-parking-iot/backend/node_modules/router/index.js:291:5)
+              at router.handle (/home/culey/Developer/Projects/smart-parking-iot/backend/node_modules/router/index.js:186:3)
+              at router (/home/culey/Developer/Projects/smart-parking-iot/backend/node_modules/router/index.js:60:12)
+              at Layer.handleRequest (/home/culey/Developer/Projects/smart-parking-iot/backend/node_modules/router/lib/layer.js:152:17)
+              at trimPrefix (/home/culey/Developer/Projects/smart-parking-iot/backend/node_modules/router/index.js:342:13)
+              at /home/culey/Developer/Projects/smart-parking-iot/backend/node_modules/router/index.js:297:9
+              at processParams (/home/culey/Developer/Projects/smart-parking-iot/backend/node_modules/router/index.js:582:12)
+              at next (/home/culey/Developer/Projects/smart-parking-iot/backend/node_modules/router/index.js:291:5)
+              at /home/culey/Developer/Projects/smart-parking-iot/backend/node_modules/body-parser/lib/read.js:171:5
+              at AsyncResource.runInAsyncScope (node:async_hooks:228:14)
+              at invokeCallback (/home/culey/Developer/Projects/smart-parking-iot/backend/node_modules/raw-body/index.js:238:16)
+              at done (/home/culey/Developer/Projects/smart-parking-iot/backend/node_modules/raw-body/index.js:227:7)
+              at IncomingMessage.onEnd (/home/culey/Developer/Projects/smart-parking-iot/backend/node_modules/raw-body/index.js:287:7)
+              at IncomingMessage.emit (node:events:508:28)
+              at endReadableNT (node:internal/streams/readable:1729:12)
+              at processTicksAndRejections (node:internal/process/task_queues:90:21)
+    }
+[02:11:25.486] [32mINFO[39m (83485): [36mRequest[39m
+    [35mmethod[39m: "PUT"
+    [35murl[39m: "/api/admin/pricing"
+    [35mstatus[39m: 500
+    [35mduration[39m: 22
+[02:11:25.497] [32mINFO[39m (83485): [36mRequest[39m
+    [35mmethod[39m: "PUT"
+    [35murl[39m: "/pricing"
+    [35mstatus[39m: 403
+    [35mduration[39m: 3
+[02:11:25.504] [34mDEBUG[39m (83485): [36mAuth: no token[39m
+    [35mmethod[39m: "PUT"
+    [35murl[39m: "/pricing"
+[02:11:25.505] [32mINFO[39m (83485): [36mRequest[39m
+    [35mmethod[39m: "PUT"
+    [35murl[39m: "/pricing"
+    [35mstatus[39m: 401
+    [35mduration[39m: 1
+[02:11:25.513] [31mERROR[39m (83485): [36mMongoDB Connection Lost[39m
+    [35mreq[39m: {
+      "method": "PUT",
+      "url": "/api/admin/pricing",
+      "body": {
+        "vehicleType": "CAR",
+        "baseRate": 10000
+      }
+    }
+    err: {
+      "type": "Error",
+      "message": "MongoDB Connection Lost",
+      "stack":
+          Error: MongoDB Connection Lost
+              at Object.<anonymous> (/home/culey/Developer/Projects/smart-parking-iot/backend/tests/SystemAdmin.test.ts:96:56)
+              at Promise.finally.completed (/home/culey/Developer/Projects/smart-parking-iot/backend/node_modules/jest-circus/build/jestAdapterInit.js:1557:28)
+              at new Promise (<anonymous>)
+              at callAsyncCircusFn (/home/culey/Developer/Projects/smart-parking-iot/backend/node_modules/jest-circus/build/jestAdapterInit.js:1497:10)
+              at _callCircusTest (/home/culey/Developer/Projects/smart-parking-iot/backend/node_modules/jest-circus/build/jestAdapterInit.js:1007:40)
+              at processTicksAndRejections (node:internal/process/task_queues:104:5)
+              at _runTest (/home/culey/Developer/Projects/smart-parking-iot/backend/node_modules/jest-circus/build/jestAdapterInit.js:947:3)
+              at /home/culey/Developer/Projects/smart-parking-iot/backend/node_modules/jest-circus/build/jestAdapterInit.js:849:7
+              at _runTestsForDescribeBlock (/home/culey/Developer/Projects/smart-parking-iot/backend/node_modules/jest-circus/build/jestAdapterInit.js:862:11)
+              at _runTestsForDescribeBlock (/home/culey/Developer/Projects/smart-parking-iot/backend/node_modules/jest-circus/build/jestAdapterInit.js:857:11)
+              at _runTestsForDescribeBlock (/home/culey/Developer/Projects/smart-parking-iot/backend/node_modules/jest-circus/build/jestAdapterInit.js:857:11)
+              at run (/home/culey/Developer/Projects/smart-parking-iot/backend/node_modules/jest-circus/build/jestAdapterInit.js:761:3)
+              at runAndTransformResultsToJestFormat (/home/culey/Developer/Projects/smart-parking-iot/backend/node_modules/jest-circus/build/jestAdapterInit.js:1918:21)
+              at jestAdapter (/home/culey/Developer/Projects/smart-parking-iot/backend/node_modules/jest-circus/build/runner.js:101:19)
+              at runTestInternal (/home/culey/Developer/Projects/smart-parking-iot/backend/node_modules/jest-runner/build/testWorker.js:275:16)
+              at runTest (/home/culey/Developer/Projects/smart-parking-iot/backend/node_modules/jest-runner/build/testWorker.js:343:7)
+              at Object.worker (/home/culey/Developer/Projects/smart-parking-iot/backend/node_modules/jest-runner/build/testWorker.js:497:12)
+    }
+[02:11:25.519] [32mINFO[39m (83485): [36mRequest[39m
+    [35mmethod[39m: "PUT"
+    [35murl[39m: "/api/admin/pricing"
+    [35mstatus[39m: 500
+    [35mduration[39m: 8
+[02:11:25.528] [32mINFO[39m (83485): [36mRequest[39m
+    [35mmethod[39m: "PUT"
+    [35murl[39m: "/config"
+    [35mstatus[39m: 200
+    [35mduration[39m: 3
+[02:11:25.536] [31mERROR[39m (83485): [36mThiếu thông tin settingKey hoặc settingValue[39m
+    [35mreq[39m: {
+      "method": "PUT",
+      "url": "/api/admin/config",
+      "body": {
+        "settingKey": "MAX_CAPACITY"
+      }
+    }
+    err: {
+      "type": "Error",
+      "message": "Thiếu thông tin settingKey hoặc settingValue",
+      "stack":
+          Error: Thiếu thông tin settingKey hoặc settingValue
+              at updateConfig (/home/culey/Developer/Projects/smart-parking-iot/backend/src/controllers/SystemAdminController.ts:49:15)
+              at Layer.handleRequest (/home/culey/Developer/Projects/smart-parking-iot/backend/node_modules/router/lib/layer.js:152:17)
+              at next (/home/culey/Developer/Projects/smart-parking-iot/backend/node_modules/router/lib/route.js:157:13)
+              at /home/culey/Developer/Projects/smart-parking-iot/backend/src/middlewares/roleMiddleware.ts:15:5
+              at Layer.handleRequest (/home/culey/Developer/Projects/smart-parking-iot/backend/node_modules/router/lib/layer.js:152:17)
+              at next (/home/culey/Developer/Projects/smart-parking-iot/backend/node_modules/router/lib/route.js:157:13)
+              at authMiddleware (/home/culey/Developer/Projects/smart-parking-iot/backend/src/middlewares/authMiddleware.ts:20:5)
+              at Layer.handleRequest (/home/culey/Developer/Projects/smart-parking-iot/backend/node_modules/router/lib/layer.js:152:17)
+              at next (/home/culey/Developer/Projects/smart-parking-iot/backend/node_modules/router/lib/route.js:157:13)
+              at Route.dispatch (/home/culey/Developer/Projects/smart-parking-iot/backend/node_modules/router/lib/route.js:117:3)
+              at handle (/home/culey/Developer/Projects/smart-parking-iot/backend/node_modules/router/index.js:435:11)
+              at Layer.handleRequest (/home/culey/Developer/Projects/smart-parking-iot/backend/node_modules/router/lib/layer.js:152:17)
+              at /home/culey/Developer/Projects/smart-parking-iot/backend/node_modules/router/index.js:295:15
+              at processParams (/home/culey/Developer/Projects/smart-parking-iot/backend/node_modules/router/index.js:582:12)
+              at next (/home/culey/Developer/Projects/smart-parking-iot/backend/node_modules/router/index.js:291:5)
+              at router.handle (/home/culey/Developer/Projects/smart-parking-iot/backend/node_modules/router/index.js:186:3)
+              at router (/home/culey/Developer/Projects/smart-parking-iot/backend/node_modules/router/index.js:60:12)
+              at Layer.handleRequest (/home/culey/Developer/Projects/smart-parking-iot/backend/node_modules/router/lib/layer.js:152:17)
+              at trimPrefix (/home/culey/Developer/Projects/smart-parking-iot/backend/node_modules/router/index.js:342:13)
+              at /home/culey/Developer/Projects/smart-parking-iot/backend/node_modules/router/index.js:297:9
+              at processParams (/home/culey/Developer/Projects/smart-parking-iot/backend/node_modules/router/index.js:582:12)
+              at next (/home/culey/Developer/Projects/smart-parking-iot/backend/node_modules/router/index.js:291:5)
+              at /home/culey/Developer/Projects/smart-parking-iot/backend/node_modules/body-parser/lib/read.js:171:5
+              at AsyncResource.runInAsyncScope (node:async_hooks:228:14)
+              at invokeCallback (/home/culey/Developer/Projects/smart-parking-iot/backend/node_modules/raw-body/index.js:238:16)
+              at done (/home/culey/Developer/Projects/smart-parking-iot/backend/node_modules/raw-body/index.js:227:7)
+              at IncomingMessage.onEnd (/home/culey/Developer/Projects/smart-parking-iot/backend/node_modules/raw-body/index.js:287:7)
+              at IncomingMessage.emit (node:events:508:28)
+              at endReadableNT (node:internal/streams/readable:1729:12)
+              at processTicksAndRejections (node:internal/process/task_queues:90:21)
+    }
+[02:11:25.538] [32mINFO[39m (83485): [36mRequest[39m
+    [35mmethod[39m: "PUT"
+    [35murl[39m: "/api/admin/config"
+    [35mstatus[39m: 500
+    [35mduration[39m: 4
+PASS tests/SystemAdmin.test.ts (8.243 s)
+  ● Console
+
+    console.log
+      📄 Swagger Docs is running at http://localhost:8000/api-docs
+
+      at setupSwagger (src/config/swagger.ts:43:11)
+
+[02:11:25.550] [32mINFO[39m (83485): [36mRequest[39m
+    [35mmethod[39m: "PUT"
+    [35murl[39m: "/pricing"
+    [35mstatus[39m: 200
+    [35mduration[39m: 2
+FAIL tests/PaymentController.test.ts (8.267 s)
+  ● Console
+
+    console.warn
+      
+      💳 User: SV_VIP_001 | Số lượt: 50 | Output API: 121000đ | Kỳ vọng: 121000đ
+
+      232 |       const res = await request(app).post('/api/payment/cycle').send(payload);
+      233 |
+    > 234 |       console.warn(`\n💳 User: ${payload.subjectId} | Số lượt: 50 | Output API: ${res.body.data.totalAmount}đ | Kỳ vọng: ${expectedTotalAmount}đ`);
+          |               ^
+      235 |
+      236 |       mockBulkSessions.forEach(session => {
+      237 |         expect(session.save).toHaveBeenCalled();
+
+      at Object.<anonymous> (tests/PaymentController.test.ts:234:15)
+
+  ● PaymentController (Supertest) › GET /api/payment/history › Should return the User's parking history using the default number of days (30)
+
+    expect(jest.fn()).toHaveBeenCalledWith(...expected)
+
+    Expected: ObjectContaining {"createdAt": Any<Object>, "subjectId": "SV001"}
+    Received: {"createdAt": {"$gte": 2026-04-09T19:11:25.517Z}, "subjectId": undefined}
+
+    Number of calls: 1
+
+      76 |
+      77 |       // Verify find was called with correct filter (subjectId and createdAt limit)
+    > 78 |       expect(ParkingSession.find).toHaveBeenCalledWith(
+         |                                   ^
+      79 |         expect.objectContaining({
+      80 |           subjectId: 'SV001',
+      81 |           createdAt: expect.any(Object) // Contains $gte
+
+      at Object.<anonymous> (tests/PaymentController.test.ts:78:35)
+
+PASS tests/unit/navigationService.test.ts (8.393 s)
+PASS src/__tests__/CardController.test.ts (8.565 s)
+PASS tests/dashboardController.test.ts (8.458 s)
+FAIL tests/auth.test.ts (8.635 s)
+  ● Task 2: Auth API Tests › POST /api/auth/login › should return a JWT token and user info when login is successful
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: 200
+    Received: 400
+
+      31 |         .send({ userId: 'student123' });
+      32 |
+    > 33 |       expect(response.status).toBe(200);
+         |                               ^
+      34 |       expect(response.body.success).toBe(true);
+      35 |       expect(response.body.data).toHaveProperty('token');
+      36 |       expect(response.body.data.user.userId).toBe('student123');
+
+      at Object.<anonymous> (tests/auth.test.ts:33:31)
+
+  ● Task 2: Auth API Tests › POST /api/auth/login › should return 401 when the user is not found in the DB
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: 401
+    Received: 400
+
+      45 |         .send({ userId: 'wrong_user' });
+      46 |
+    > 47 |       expect(response.status).toBe(401);
+         |                               ^
+      48 |       expect(response.body.success).toBe(false);
+      49 |       expect(response.body.message).toBe('User not found');
+      50 |     });
+
+      at Object.<anonymous> (tests/auth.test.ts:47:31)
+
+  ● Task 2: Auth API Tests › POST /api/auth/login › should return 400 when userId is missing in the request body
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: "userId is required"
+    Received: "schoolCardId and password are required"
+
+      54 |
+      55 |         expect(response.status).toBe(400);
+    > 56 |         expect(response.body.message).toBe('userId is required');
+         |                                       ^
+      57 |     });
+      58 |   });
+      59 |
+
+      at Object.<anonymous> (tests/auth.test.ts:56:39)
+
+[02:11:25.997] [34mDEBUG[39m (83467): [36mAuth: no token[39m
+    [35mmethod[39m: "GET"
+    [35murl[39m: "/profile"
+[02:11:26.007] [34mDEBUG[39m (83467): [36mAuth: invalid token[39m
+    [35mmethod[39m: "GET"
+    [35murl[39m: "/profile"
+FAIL tests/models.test.ts (9.537 s)
+  ● Task 1: Core Database Models Validation › User Model › should throw an error for duplicate userId
+
+    ValidationError: User validation failed: password: Path `password` is required.
+
+      35 |   describe('User Model', () => {
+      36 |     it('should throw an error for duplicate userId', async () => {
+    > 37 |       await User.create({
+         |       ^
+      38 |         userId: 'SV001',
+      39 |         fullName: 'Nguyen Van A',
+      40 |         email: 'a@hcmut.edu.vn'
+
+      at model.validate (node_modules/mongoose/lib/document.js:2864:36)
+      at model.$__save (node_modules/mongoose/lib/model.js:393:7)
+      at model.save (node_modules/mongoose/lib/model.js:667:5)
+      at model.create (node_modules/mongoose/lib/model.js:2747:5)
+      at Object.<anonymous> (tests/models.test.ts:37:7)
+
+ts-jest[config] (WARN) [94mmessage[0m[90m TS151002: [0mUsing hybrid module kind (Node16/18/Next) is only supported in "isolatedModules: true". Please set "isolatedModules: true" in your tsconfig.json. To disable this message, you can set "diagnostics.ignoreCodes" to include 151002 in your ts-jest config. See more at https://kulshekhar.github.io/ts-jest/docs/getting-started/options/diagnostics
+FAIL tests/unit/AuthService.test.ts
+  ● Test suite failed to run
+
+    [96mtests/unit/AuthService.test.ts[0m:[93m23[0m:[93m40[0m - [91merror[0m[90m TS2554: [0mExpected 2 arguments, but got 1.
+
+    [7m23[0m       const result = await AuthService.login('U1');
+    [7m  [0m [91m                                       ~~~~~[0m
+
+      [96msrc/services/AuthService.ts[0m:[93m5[0m:[93m44[0m
+        [7m5[0m   static async login(schoolCardId: string, password: string) {
+        [7m [0m [96m                                           ~~~~~~~~~~~~~~~~[0m
+        An argument for 'password' was not provided.
+    [96mtests/unit/AuthService.test.ts[0m:[93m33[0m:[93m32[0m - [91merror[0m[90m TS2554: [0mExpected 2 arguments, but got 1.
+
+    [7m33[0m       await expect(AuthService.login('U1')).rejects.toThrow('User not found');
+    [7m  [0m [91m                               ~~~~~[0m
+
+      [96msrc/services/AuthService.ts[0m:[93m5[0m:[93m44[0m
+        [7m5[0m   static async login(schoolCardId: string, password: string) {
+        [7m [0m [96m                                           ~~~~~~~~~~~~~~~~[0m
+        An argument for 'password' was not provided.
+
+Test Suites: 4 failed, 9 passed, 13 total
+Tests:       5 failed, 55 passed, 60 total
+Snapshots:   0 total
+Time:        12.165 s, estimated 24 s
+Ran all test suites.

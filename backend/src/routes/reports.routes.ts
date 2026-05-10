@@ -9,5 +9,8 @@ const router = Router();
 const reportAuth = [authMiddleware, roleMiddleware(['ADMIN', 'FINANCE_OFFICE'])];
 
 router.get('/daily-revenue', reportAuth, ReportController.getDailyRevenueReport);
+// Aliases used by frontend
+router.get('/revenue', reportAuth, ReportController.getDailyRevenueReport);
+router.get('/activity', reportAuth, ReportController.getActivityStats);
 
 export default router;

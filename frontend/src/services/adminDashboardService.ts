@@ -3,7 +3,12 @@ import { apiFetch } from "@/config/api";
 
 /** Get infrastructure alerts (issues) */
 export async function getAdminAlerts(): Promise<AdminAlert[]> {
-  return apiFetch<AdminAlert[]>("/api/alerts");
+  try {
+    const res = await apiFetch<{ success: boolean; data: AdminAlert[] }>("/api/alerts");
+    return res.data ?? [];
+  } catch {
+    return [];
+  }
 }
 
 /** Update alert status */
@@ -18,6 +23,11 @@ export async function updateAlertStatus(
 }
 
 /** Get dashboard stats */
-export async function getAdminStats(): Promise<AdminDashboardStats> {
-  return apiFetch<AdminDashboardStats>("/api/dashboard/stats");
+export async function getAdminStats(): Promise<AdminDashboardStats | null> {
+  try {
+    const res = await apiFetch<{ success: boolean; data: AdminDashboardStats }>("/api/dashboard/stats");
+    return res.data ?? null;
+  } catch {
+    return null;
+  }
 }

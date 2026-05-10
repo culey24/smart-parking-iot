@@ -54,12 +54,13 @@ export const IoTDataController = {
       const mappedDevices = devices.map(d => ({
         id: d.deviceId,
         name: d.deviceName || d.deviceId,
-        type: d.deviceType,
-        status: d.status,
+        type: d.deviceType.toLowerCase(),
+        status: d.status.toLowerCase(),
+        zone: d.zoneId,
         lastActive: d.lastPing || d.updatedAt
       }));
       
-      res.json(mappedDevices);
+      res.json({ success: true, data: mappedDevices });
     } catch (error) {
       next(error);
     }
@@ -84,7 +85,7 @@ export const IoTDataController = {
         };
       }));
       
-      res.json(mappedAlerts);
+      res.json({ success: true, data: mappedAlerts });
     } catch (error) {
       next(error);
     }

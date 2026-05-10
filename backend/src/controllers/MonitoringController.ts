@@ -58,7 +58,7 @@ export class MonitoringController {
         alerts: mappedAlerts
       };
       
-      res.json(liveData);
+      res.json({ success: true, data: liveData });
     } catch (error: any) {
       res.status(500).json({ success: false, message: error.message });
     }

@@ -10,15 +10,15 @@ export async function getPricingPolicy(): Promise<PricingPolicyConfig> {
 export async function savePricingPolicy(
   data: PricingPolicy
 ): Promise<void> {
-  // We don't send the actor in the body for the pricing policy update endpoint
-  // because the backend SystemAdminController.updatePricing doesn't read it (it reads req.user.id).
-  // It only expects vehicleType, dayRate, nightOrSundayRate.
   await apiFetch("/api/admin/pricing", {
     method: "PUT",
     body: JSON.stringify({
+      userRole: data.userRole,
       vehicleType: data.vehicleType,
-      dayRate: data.dayRate,
-      nightOrSundayRate: data.nightOrSundayRate,
+      calculationType: data.calculationType,
+      billingIntervalMinutes: data.billingIntervalMinutes,
+      specialRules: data.specialRules,
+      discountPercent: data.discountPercent,
     }),
   });
 }

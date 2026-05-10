@@ -1,18 +1,20 @@
 import { Request, Response } from 'express';
 import { ParkingSession } from '../models/ParkingSession';
-import { Zone } from '../models/Zone'; // Bổ sung import Zone
+import { Zone } from '../models/Zone';
 import { v4 as uuidv4 } from 'uuid';
+import { User } from '../models/User';
+import { BillingService } from '../services/BillingService';
 
 export class EntryExitController {
   
   // 1. Xử lý xe vào
   static async checkIn(req: Request, res: Response) {
     try {
-      const { subjectID, plateNumber, type, zoneId } = req.body;
+      const { subjectId, plateNumber, type, vehicleType, zoneId } = req.body;
       
       // BỔ SUNG: Kiểm tra bãi đỗ xem còn chỗ không
       if (zoneId) {
-        const zone = await Zone.findById(zoneId);
+        const zone = await Zone.findOne({ zoneId });
         if (!zone) {
           return res.status(404).json({ success: false, message: 'Zone not found' });
         }
@@ -25,11 +27,22 @@ export class EntryExitController {
         await zone.save();
       }
 
+      // Determine user role
+      let userRole = 'VISITOR';
+      if (type === 'REGISTERED' && subjectId) {
+        const user = await User.findOne({ userId: subjectId });
+        if (user) {
+          userRole = user.role;
+        }
+      }
+
       const session = new ParkingSession({
-        sessionId: uuidv4(), // Giữ nguyên cách dùng uuid của file cũ
-        subjectID,
+        sessionId: uuidv4(),
+        subjectId,
         plateNumber,
         type, // 'REGISTERED' or 'TEMPORARY'
+        userRole,
+        vehicleType,
         sessionStatus: 'ACTIVE'
       });
 
@@ -55,15 +68,24 @@ export class EntryExitController {
       session.endTime = new Date();
       session.sessionStatus = 'COMPLETED';
       
-      // MOCK FEE: Should call BillingService here
-      // Lưu ý: Đảm bảo trong Schema ParkingSession của bạn có định nghĩa trường 'fee', nếu không Mongoose sẽ không lưu
-      session.set('fee', 5000); 
+      // Tính phí thực tế dựa vào loại xe, role và thời điểm ra
+      if (session.endTime && session.vehicleType && (session as any).startTime) {
+        const fee = await BillingService.calculateFee(
+          (session as any).startTime, 
+          session.endTime, 
+          session.vehicleType, 
+          (session as any).userRole
+        );
+        session.set('fee', fee);
+      } else {
+        session.set('fee', 5000); // Mức phí dự phòng nếu thiếu dữ liệu
+      }
 
       await session.save();
 
       // BỔ SUNG: Giảm số lượng xe trong bãi khi xe ra
       if (zoneId) {
-        const zone = await Zone.findById(zoneId);
+        const zone = await Zone.findOne({ zoneId });
         if (zone && zone.currentUsage > 0) {
           zone.currentUsage -= 1;
           await zone.save();

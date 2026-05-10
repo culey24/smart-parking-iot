@@ -37,13 +37,15 @@ describe('Task 1: Core Database Models Validation', () => {
       await User.create({
         userId: 'SV001',
         fullName: 'Nguyen Van A',
-        email: 'a@hcmut.edu.vn'
+        email: 'a@hcmut.edu.vn',
+        password: 'password'
       });
 
       const duplicateUser = new User({
         userId: 'SV001',
         fullName: 'Nguyen Van B',
-        email: 'b@hcmut.edu.vn'
+        email: 'b@hcmut.edu.vn',
+        password: 'password'
       });
 
       let err: any;
@@ -53,8 +55,10 @@ describe('Task 1: Core Database Models Validation', () => {
         err = error;
       }
       // MongoDB error code 11000 is for unique constraint violations
+      // Mongoose may wrap it: err.code or err.errorResponse?.code
       expect(err).toBeDefined();
-      expect(err.code).toBe(11000);
+      const errorCode = err.code ?? err.errorResponse?.code;
+      expect(errorCode).toBe(11000);
     });
 
     it('should fail if email is missing', async () => {

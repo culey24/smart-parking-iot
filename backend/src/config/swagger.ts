@@ -40,5 +40,5 @@ const swaggerSpec = swaggerJsdoc(options);
 export const setupSwagger = (app: Express) => {
   // Gắn giao diện Swagger UI vào đường dẫn /api-docs
   app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
-  console.log('📄 Swagger Docs is running at http://localhost:3000/api-docs');
+  console.log('📄 Swagger Docs is running at http://localhost:8000/api-docs');
 };

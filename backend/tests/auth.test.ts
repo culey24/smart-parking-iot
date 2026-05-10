@@ -21,14 +21,16 @@ describe('Task 2: Auth API Tests', () => {
     it('should return a JWT token and user info when login is successful', async () => {
       const mockUser = {
         userId: 'student123',
+        schoolCardId: 100001,
         role: 'STUDENT',
-        fullName: 'Nguyen Van A'
+        fullName: 'Nguyen Van A',
+        comparePassword: jest.fn().mockResolvedValue(true)
       };
       (User.findOne as jest.Mock).mockResolvedValue(mockUser);
 
       const response = await request(app)
         .post('/api/auth/login')
-        .send({ userId: 'student123' });
+        .send({ schoolCardId: '100001', password: 'password' });
 
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
@@ -42,18 +44,18 @@ describe('Task 2: Auth API Tests', () => {
 
       const response = await request(app)
         .post('/api/auth/login')
-        .send({ userId: 'wrong_user' });
+        .send({ schoolCardId: '999999', password: 'password' });
 
       expect(response.status).toBe(401);
       expect(response.body.success).toBe(false);
       expect(response.body.message).toBe('User not found');
     });
 
-    it('should return 400 when userId is missing in the request body', async () => {
+    it('should return 400 when schoolCardId or password is missing in the request body', async () => {
         const response = await request(app).post('/api/auth/login').send({});
 
         expect(response.status).toBe(400);
-        expect(response.body.message).toBe('userId is required');
+        expect(response.body.message).toBe('schoolCardId and password are required');
     });
   });
 

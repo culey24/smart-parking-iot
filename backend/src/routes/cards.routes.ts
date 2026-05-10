@@ -4,10 +4,16 @@ import { authMiddleware } from '../middlewares/authMiddleware';
 
 const router = Router();
 
-// Endpoint tra cứu thẻ
+// Tra cứu thẻ bằng biển số (public)
 router.get('/lookup', CardController.lookup);
 
-// Endpoint vô hiệu hóa thẻ (Cần có quyền Admin/Operator)
+// Cấp thẻ tạm (public — IoT gọi khi xe vào)
+router.post('/issue', CardController.issueCard);
+
+// Trả thẻ tạm (public — IoT gọi khi xe ra)
+router.post('/return', CardController.returnCard);
+
+// Khóa thẻ khi bị mất (cần auth)
 router.put('/:id/disable', authMiddleware, CardController.disableCard);
 
 export default router;

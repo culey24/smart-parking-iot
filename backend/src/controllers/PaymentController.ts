@@ -95,7 +95,7 @@ export class PaymentController {
 
   static async getHistory(req: Request, res: Response) {
     try {
-      const userId = (req as any).user.id;
+      const userId = (req as any).user.userId;
 
       const n = parseInt(process.env.HISTORY_VIEW_DAYS_LIMIT as string) || 30;
 

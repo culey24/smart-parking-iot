@@ -4,11 +4,11 @@ import { apiFetch } from "@/config/api";
 
 function toParkingSession(record: ParkingRecord): ParkingSession {
   return {
-    id: record.id,
-    licensePlate: record.licensePlate,
-    startTime: new Date(record.entryTime),
-    endTime: record.exitTime ? new Date(record.exitTime) : undefined,
-    status: record.status as "ongoing" | "completed",
+    id: record.sessionId ?? record._id,
+    licensePlate: record.plateNumber,
+    startTime: new Date(record.startTime),
+    endTime: record.endTime ? new Date(record.endTime) : undefined,
+    status: record.sessionStatus === 'ACTIVE' ? 'ongoing' : 'completed',
     amount: record.fee,
   };
 }
@@ -16,13 +16,15 @@ function toParkingSession(record: ParkingRecord): ParkingSession {
 /** Get full parking history (for History page) */
 export async function getParkingHistory(userId?: string): Promise<ParkingRecord[]> {
   if (userId) {
-    return apiFetch<ParkingRecord[]>(`/api/sessions/user/${userId}`);
+    const res = await apiFetch<{ success: boolean; data: ParkingRecord[] }>(`/api/sessions/user/${userId}`);
+    return res.data ?? [];
   }
-  return apiFetch<ParkingRecord[]>("/api/sessions");
+  const res = await apiFetch<{ success: boolean; data: ParkingRecord[] }>("/api/sessions");
+  return res.data ?? [];
 }
 
 /** Get recent sessions for Dashboard (ongoing first, then by date) */
 export async function getRecentParkingSessions(limit = 5): Promise<ParkingSession[]> {
-  const records = await apiFetch<ParkingRecord[]>(`/api/sessions/recent?limit=${limit}`);
-  return records.map(toParkingSession);
+  const res = await apiFetch<{ success: boolean; data: ParkingRecord[] }>(`/api/sessions/recent?limit=${limit}`);
+  return (res.data ?? []).map(toParkingSession);
 }

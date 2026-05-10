@@ -17,10 +17,10 @@ export class SystemAdminService {
     );
   }
 
-  // Thay vì dùng (newRates: any), dùng Partial<IPricingPolicy> để TypeScript hiểu đây là 1 phần của bảng giá
-  static async updatePricing(vehicleType: string, newRates: Partial<IPricingPolicy>): Promise<IPricingPolicy | null> {
+  // Update pricing based on role and vehicle type
+  static async updatePricing(userRole: string, vehicleType: string, newRates: Partial<IPricingPolicy>): Promise<IPricingPolicy | null> {
     return await PricingPolicy.findOneAndUpdate(
-      { vehicleType },
+      { userRole, vehicleType },
       { ...newRates, effectiveDate: new Date() },
       { new: true, upsert: true }
     );

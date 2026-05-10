@@ -104,9 +104,11 @@ export function MonitoringPage() {
 
   useEffect(() => {
     getMonitoringData().then((data) => {
-      setSlots(data.slots);
-      setDevices(data.devices);
-      setAlerts(data.alerts);
+      if (data) {
+        setSlots(data.slots);
+        setDevices(data.devices);
+        setAlerts(data.alerts);
+      }
     });
   }, []);
 

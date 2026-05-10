@@ -43,6 +43,8 @@ Seed tạo sẵn: 10 users (các roles), 30 slots, 8+ devices, 35 parking sessio
 | GET | `/api/users/:id/profile` | Profile user |
 | PUT | `/api/users/:id/role` | Cập nhật role |
 | GET | `/api/cards/lookup?plate=` | Tra cứu thẻ qua biển số |
+| POST | `/api/cards/issue` | Cấp thẻ tạm cho xe chưa đăng ký |
+| POST | `/api/cards/return` | Trả thẻ tạm và đóng phiên gửi xe |
 | PUT | `/api/cards/:id/disable` | Vô hiệu hoá thẻ |
 | GET | `/api/billing/history?userId=` | Lịch sử hoá đơn |
 | GET | `/api/billing/debt?userId=` | Công nợ chu kỳ hiện tại |

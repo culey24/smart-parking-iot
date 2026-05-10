@@ -4,7 +4,7 @@
 export type UserRole = "LEARNER" | "FACULTY" | "OPERATOR" | "ADMIN" | "IT_TEAM" | "FINANCE" | "SUPER";
 
 /** Roles assignable by admin in Permissions screen */
-export const ASSIGNABLE_ROLES: UserRole[] = ["OPERATOR", "ADMIN", "IT_TEAM", "FINANCE"];
+export const ASSIGNABLE_ROLES: UserRole[] = ["LEARNER", "FACULTY", "OPERATOR", "ADMIN", "IT_TEAM", "FINANCE"];
 
 export const ROLES: Record<string, UserRole> = {
   LEARNER: "LEARNER",

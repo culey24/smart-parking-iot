@@ -15,105 +15,112 @@ export class SystemAdminController {
   /**
    * @openapi
    * /api/admin/config:
-   * put:
-   * tags:
-   * - System Admin
-   * summary: Cập nhật hoặc tạo mới cấu hình hệ thống
-   * security:
-   * - bearerAuth: []
-   * requestBody:
-   * required: true
-   * content:
-   * application/json:
-   * schema:
-   * type: object
-   * properties:
-   * settingKey:
-   * type: string
-   * example: "MAX_PARKING_CAPACITY"
-   * settingValue:
-   * type: string
-   * example: "500"
-   * responses:
-   * 200:
-   * description: Cập nhật thành công
+   *   put:
+   *     tags:
+   *       - System Admin
+   *     summary: Cập nhật hoặc tạo mới cấu hình hệ thống
+   *     security:
+   *       - bearerAuth: []
+   *     requestBody:
+   *       required: true
+   *       content:
+   *         application/json:
+   *           schema:
+   *             type: object
+   *             properties:
+   *               settingKey:
+   *                 type: string
+   *                 example: "MAX_PARKING_CAPACITY"
+   *               settingValue:
+   *                 type: string
+   *                 example: "500"
+   *     responses:
+   *       200:
+   *         description: Cập nhật thành công
    */
   static async updateConfig(req: AuthRequest, res: Response) {
     try {
-      const { settingKey, settingValue } = req.body;
-      
-      // Xài Optional Chaining (?.), lỡ user bị undefined hệ thống cũng không sập
+      const configData = req.body;
       const userId = req.user?.id || 'system'; 
 
-      if (!settingKey || settingValue === undefined) {
-        throw new Error('Thiếu thông tin settingKey hoặc settingValue');
+      // Iteratively update all keys provided in the body
+      const keys = Object.keys(configData);
+      for (const key of keys) {
+        await SystemAdminService.updateConfig(key, configData[key]);
       }
 
-      const result = await SystemAdminService.updateConfig(settingKey, settingValue);
-
       await AuditLog.create({
-        action: 'UPDATE_CONFIG',
+        action: 'UPDATE_SYSTEM_CONFIG',
         userId: userId,
-        targetResource: `SystemConfig_${settingKey}`,
-        details: { newValue: settingValue }
+        targetResource: `SystemConfig_ALL`,
+        details: { keysUpdated: keys }
       });
 
       res.status(200).json({
         success: true,
-        message: 'Cập nhật cấu hình thành công',
-        data: result
+        message: 'Cập nhật cấu hình hệ thống thành công'
       });
-    } catch (error) {
-      throw error;
+    } catch (error: any) {
+      res.status(500).json({ success: false, message: error.message });
     }
   }
 
   /**
    * @openapi
    * /api/admin/pricing:
-   * put:
-   * tags:
-   * - System Admin
-   * summary: Cập nhật bảng giá giữ xe
-   * security:
-   * - bearerAuth: []
-   * requestBody:
-   * required: true
-   * content:
-   * application/json:
-   * schema:
-   * type: object
-   * properties:
-   * vehicleType:
-   * type: string
-   * example: "CAR"
-   * dayRate:
-   * type: number
-   * example: 3000
-   * nightOrSundayRate:
-   * type: number
-   * example: 5000
-   * responses:
-   * 200:
-   * description: Cập nhật thành công
+   *   put:
+   *     tags:
+   *       - System Admin
+   *     summary: Cập nhật bảng giá giữ xe
+   *     security:
+   *       - bearerAuth: []
+   *     requestBody:
+   *       required: true
+   *       content:
+   *         application/json:
+   *           schema:
+   *             type: object
+   *             properties:
+   *               vehicleType:
+   *                 type: string
+   *                 example: "CAR"
+   *               dayRate:
+   *                 type: number
+   *                 example: 3000
+   *               nightOrSundayRate:
+   *                 type: number
+   *                 example: 5000
+   *     responses:
+   *       200:
+   *         description: Cập nhật thành công
    */
   static async updatePricing(req: AuthRequest, res: Response) {
     try {
-      const { vehicleType, dayRate, nightOrSundayRate } = req.body;
+      const { 
+        userRole, 
+        vehicleType, 
+        calculationType, 
+        billingIntervalMinutes,
+        specialRules,
+        discountPercent,
+      } = req.body;
       const userId = req.user?.id || 'system';
 
-      if (!vehicleType) {
-        throw new Error('Cần xác định loại xe (vehicleType)');
+      if (!userRole || !vehicleType) {
+        throw new Error('Cần xác định đối tượng (userRole) và loại xe (vehicleType)');
       }
 
-      const result = await SystemAdminService.updatePricing(vehicleType, {
-        dayRate, nightOrSundayRate
+      const result = await SystemAdminService.updatePricing(userRole, vehicleType, {
+        calculationType, 
+        billingIntervalMinutes,
+        specialRules,
+        discountPercent,
       });
 
       await AuditLog.create({
         action: 'UPDATE_PRICE',
         userId: userId,
-        targetResource: `PricingPolicy_${vehicleType}`
+        targetResource: `PricingPolicy_${userRole}_${vehicleType}`
       });
 
       res.status(200).json({
@@ -131,8 +138,31 @@ export class SystemAdminController {
   static async getAllConfigs(req: AuthRequest, res: Response) {
     try {
       const configs = await SystemAdminService.getAllConfigs();
-      res.status(200).json({ success: true, data: configs });
-    } catch (error) { throw error; }
+      
+      // Transform array of {settingKey, settingValue} to a single object
+      const configObj: Record<string, any> = {};
+      configs.forEach(c => {
+        configObj[c.settingKey] = c.settingValue;
+      });
+
+      // Default values for missing keys
+      const defaults = {
+        occupancyThresholdPercent: 90,
+        iotDeviceTimeoutSeconds: 60,
+        syncIntervalSeconds: 30,
+        enableOccupancyAlerts: true,
+        enableIotTimeoutMonitoring: true,
+        hotlineSupport: "028-3865-1234",
+        alertEmail: "parking-alerts@hcmut.edu.vn",
+        enableEmailAlerts: false
+      };
+
+      const finalConfig = { ...defaults, ...configObj };
+
+      res.status(200).json({ success: true, data: finalConfig });
+    } catch (error: any) { 
+      res.status(500).json({ success: false, message: error.message });
+    }
   }
 
   static async getPricing(req: AuthRequest, res: Response) {

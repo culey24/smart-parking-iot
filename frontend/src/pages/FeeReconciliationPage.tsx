@@ -53,13 +53,14 @@ function formatDateTime(iso: string) {
 }
 
 function StatusBadge({ status }: { status: ReconciliationStatus }) {
-  const config = {
-    pending: { variant: "secondary" as const, label: "Pending" },
-    confirmed: { variant: "success" as const, label: "Confirmed" },
-    refunded: { variant: "outline" as const, label: "Refunded" },
-    adjusted: { variant: "default" as const, label: "Adjusted" },
+  const config: Record<string, { variant: "secondary" | "success" | "outline" | "default"; label: string }> = {
+    pending: { variant: "secondary", label: "Pending" },
+    confirmed: { variant: "success", label: "Confirmed" },
+    refunded: { variant: "outline", label: "Refunded" },
+    adjusted: { variant: "default", label: "Adjusted" },
   };
-  const { variant, label } = config[status];
+  const key = (status || "").toString().toLowerCase();
+  const { variant, label } = config[key] ?? { variant: "secondary", label: status || "Unknown" };
   return <Badge variant={variant}>{label}</Badge>;
 }
 
@@ -139,9 +140,9 @@ export function FeeReconciliationPage() {
                   No pending requests
                 </p>
               ) : (
-                requests.map((req) => (
+                requests.map((req, i) => (
                   <button
-                    key={req.id}
+                    key={req.id || i}
                     type="button"
                     onClick={() => setSelected(req)}
                     className={`w-full rounded-lg border p-3 text-left transition-colors ${
@@ -292,9 +293,9 @@ export function FeeReconciliationPage() {
                         </TableRow>
                       </TableHeader>
                       <TableBody>
-                        {related.map((s) => (
+                        {related.map((s, i) => (
                           <TableRow
-                            key={s.id}
+                            key={s.id || i}
                             className={
                               s.id === selected.sessionId
                                 ? "bg-[#003087]/5"

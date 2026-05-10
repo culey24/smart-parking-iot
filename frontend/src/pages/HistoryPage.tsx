@@ -74,15 +74,15 @@ export function HistoryPage() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {parkingHistory.map((row) => (
-                  <TableRow key={row.id}>
-                    <TableCell>{formatDateTime(row.entryTime)}</TableCell>
+                {parkingHistory.map((row, i) => (
+                  <TableRow key={row.sessionId ?? row._id ?? i}>
+                    <TableCell>{formatDateTime(row.startTime)}</TableCell>
                     <TableCell>
-                      {row.exitTime
-                        ? formatDateTime(row.exitTime)
+                      {row.endTime
+                        ? formatDateTime(row.endTime)
                         : "—"}
                     </TableCell>
-                    <TableCell>{row.licensePlate}</TableCell>
+                    <TableCell>{row.plateNumber}</TableCell>
                     <TableCell className="text-right">
                       {row.fee > 0 ? row.fee.toLocaleString() : "—"}
                     </TableCell>
@@ -91,7 +91,7 @@ export function HistoryPage() {
                         variant="outline"
                         size="sm"
                         className="h-8 gap-1.5 text-xs hover:bg-[#003087]/10 hover:text-[#003087]"
-                        onClick={() => handleReportIssue(row.id)}
+                        onClick={() => handleReportIssue(row.sessionId ?? row._id)}
                       >
                         <AlertCircle className="h-3.5 w-3.5" />
                         Report issue
@@ -126,15 +126,15 @@ export function HistoryPage() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {billingHistory.map((row) => (
-                  <TableRow key={row.id}>
+                {billingHistory.map((row, i) => (
+                  <TableRow key={row.id || i}>
                     <TableCell>
                       {formatDate(row.cycleStart)} – {formatDate(row.cycleEnd)}
                     </TableCell>
                     <TableCell>{formatDateTime(row.paidAt)}</TableCell>
                     <TableCell>{row.method}</TableCell>
                     <TableCell className="text-right">
-                      {row.amount.toLocaleString()}
+                      {(row.amount ?? 0).toLocaleString()}
                     </TableCell>
                     <TableCell className="capitalize">{row.status}</TableCell>
                   </TableRow>

@@ -21,12 +21,14 @@ type SortDir = "asc" | "desc";
 const DEVICE_TYPES: IoTDeviceType[] = ["sensor", "gateway", "signage", "camera"];
 
 function StatusBadge({ status }: { status: IoTDeviceStatus }) {
-  const config = {
-    online: { variant: "success" as const, label: "Online" },
-    offline: { variant: "destructive" as const, label: "Offline" },
-    installed: { variant: "secondary" as const, label: "Installed" },
+  const config: Record<string, { variant: "success" | "destructive" | "secondary" | "outline"; label: string }> = {
+    online:    { variant: "success",     label: "Online" },
+    offline:   { variant: "destructive", label: "Offline" },
+    installed: { variant: "secondary",   label: "Installed" },
+    error:     { variant: "destructive", label: "Error" },
   };
-  const { variant, label } = config[status];
+  const key = (status as string).toLowerCase();
+  const { variant, label } = config[key] ?? { variant: "outline", label: status };
   return <Badge variant={variant}>{label}</Badge>;
 }
 

@@ -14,7 +14,7 @@ app.use(express.json());
 app.get('/api/payment/debt', PaymentController.getDebt);
 app.get('/api/payment/history', (req, res, next) => {
   // Mock req.user for testing purposes
-  (req as any).user = { id: req.query.userId || 'SV001' };
+  (req as any).user = { userId: req.query.userId || 'SV001' };
   next();
 }, PaymentController.getHistory);
 app.get('/api/payment/history/admin', PaymentController.getHistoryAdmin);

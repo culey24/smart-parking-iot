@@ -116,9 +116,10 @@ export function DashboardPage() {
   const [recentSessions, setRecentSessions] = useState<ParkingSession[]>([]);
 
   useEffect(() => {
-    getDebtForCurrentCycle().then(setDebtAmount);
-    getRecentParkingSessions(5).then(setRecentSessions);
-  }, []);
+    if (!user) return;
+    getDebtForCurrentCycle(user.id).then(setDebtAmount).catch(() => setDebtAmount(0));
+    getRecentParkingSessions(5).then(setRecentSessions).catch(() => setRecentSessions([]));
+  }, [user]);
 
   if (!user) {
     return (
@@ -192,8 +193,8 @@ export function DashboardPage() {
           </Link>
         </div>
         <div className="space-y-2">
-          {recentSessions.map((session) => (
-            <ParkingHistoryItem key={session.id} session={session} />
+          {recentSessions.map((session, i) => (
+            <ParkingHistoryItem key={session.id || i} session={session} />
           ))}
         </div>
       </section>

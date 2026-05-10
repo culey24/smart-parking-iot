@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -12,16 +12,13 @@ import {
 import { useAuth } from "@/contexts/AuthContext";
 
 export function LoginPage() {
-  const [userId, setUserId] = useState("");
+  const [cardId, setCardId] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
   const { login } = useAuth();
   const navigate = useNavigate();
-  const location = useLocation();
-
-  const from = (location.state as { from?: { pathname: string } })?.from?.pathname ?? "/";
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -29,10 +26,10 @@ export function LoginPage() {
     setLoading(true);
 
     try {
-      await login(userId, password);
-      navigate(from, { replace: true });
+      await login(cardId, password);
+      navigate("/", { replace: true });
     } catch {
-      setError("Invalid ID or password");
+      setError("Invalid card ID or password");
     } finally {
       setLoading(false);
     }
@@ -52,18 +49,18 @@ export function LoginPage() {
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
-              <label htmlFor="userId" className="text-sm font-medium">
-                ID
+              <label htmlFor="cardId" className="text-sm font-medium">
+                Card ID
               </label>
               <Input
-                id="userId"
+                id="cardId"
                 type="text"
-                placeholder="MSSV / MSCB"
-                value={userId}
-                onChange={(e) => setUserId(e.target.value)}
+                placeholder="Enter school card ID"
+                value={cardId}
+                onChange={(e) => setCardId(e.target.value)}
                 required
                 className="focus-visible:ring-[#003087]"
-                autoComplete="username"
+                autoComplete="off"
               />
             </div>
             <div className="space-y-2">
@@ -92,7 +89,7 @@ export function LoginPage() {
             </Button>
           </form>
           <p className="mt-4 text-center text-xs text-muted-foreground">
-            Demo (ID): quachgiabao@example.com, faculty@example.com, operator@example.com, admin@example.com, it@hcmut.edu.vn, finance@hcmut.edu.vn, super@hcmut.edu.vn
+            Demo Card IDs: 100001 (Admin), 100002, 100003 (Operator), 100004-100020 (User)
           </p>
         </CardContent>
       </Card>

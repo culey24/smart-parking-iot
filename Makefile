@@ -1,59 +1,66 @@
-# Smart Parking System (IoT-SPMS1) - Docker Runner
+# Smart Parking System (IoT-SPMS1) - Local Dev Runner
 # Usage:
-#   make up            → Khởi động tất cả services (background)
-#   make down          → Dừng và xóa tất cả containers
-#   make dev           → Khởi động tất cả services và xem logs
-#   make restart       → Restart all services
-#   make logs          → Xem logs từ tất cả containers
-#   make seed          → Nạp dữ liệu giả vào DB (trong container backend)
-#   make test          → Chạy test backend và frontend
+#   make dev           → Chạy backend + frontend cùng lúc (local)
+#   make backend       → Chỉ chạy backend (nodemon)
+#   make frontend      → Chỉ chạy frontend (vite)
+#   make db            → Chỉ khởi động MongoDB container
+#   make seed          → Nạp dữ liệu giả vào DB
+#   make test          → Chạy test backend + frontend
 #   make test-backend  → Chạy test backend
 #   make test-frontend → Chạy test frontend
+#   make install       → Cài npm cho cả backend và frontend
 
-.PHONY: up down dev restart logs seed test test-backend test-frontend
+.PHONY: dev backend frontend db seed test test-backend test-frontend install
 
 # ── Màu terminal ──────────────────────────────────────────────────────────────
-CYAN  := \033[0;36m
-RESET := \033[0m
+CYAN   := \033[0;36m
+GREEN  := \033[0;32m
+YELLOW := \033[0;33m
+RESET  := \033[0m
 
-# ── Lifecycle ─────────────────────────────────────────────────────────────────
-up:
-	@echo "$(CYAN)▶ Starting all services in Docker...$(RESET)"
-	docker compose up -d
-	@echo "$(CYAN)✓ Backend: http://localhost:8000$(RESET)"
-	@echo "$(CYAN)✓ Frontend: http://localhost:5173$(RESET)"
-
-down:
-	@echo "$(CYAN)▶ Stopping and removing containers...$(RESET)"
-	docker compose down
-
+# ── Dev (chạy local, không cần Docker) ────────────────────────────────────────
 dev:
-	@echo "$(CYAN)▶ Running all services with logs...$(RESET)"
-	docker compose up
+	@echo "$(CYAN)▶ Starting Backend + Frontend locally...$(RESET)"
+	@echo "$(GREEN)✓ Backend:  http://localhost:8000$(RESET)"
+	@echo "$(GREEN)✓ Frontend: http://localhost:5173$(RESET)"
+	@trap 'kill 0' EXIT; \
+	  cd backend  && npm run dev & \
+	  cd frontend && npm run dev & \
+	  wait
 
-restart:
-	@echo "$(CYAN)▶ Restarting services...$(RESET)"
-	docker compose restart
+backend:
+	@echo "$(CYAN)▶ Starting Backend (nodemon)...$(RESET)"
+	cd backend && npm run dev
 
-logs:
-	docker compose logs -f
+frontend:
+	@echo "$(CYAN)▶ Starting Frontend (Vite)...$(RESET)"
+	cd frontend && npm run dev
+
+# ── MongoDB (chỉ DB chạy trong Docker) ────────────────────────────────────────
+db:
+	@echo "$(CYAN)▶ Starting MongoDB container only...$(RESET)"
+	docker compose up -d mongodb
+	@echo "$(GREEN)✓ MongoDB running at localhost:27017$(RESET)"
+
+# ── Install dependencies ───────────────────────────────────────────────────────
+install:
+	@echo "$(CYAN)▶ Installing backend dependencies...$(RESET)"
+	cd backend && npm install
+	@echo "$(CYAN)▶ Installing frontend dependencies...$(RESET)"
+	cd frontend && npm install
 
 # ── Data & Logic ──────────────────────────────────────────────────────────────
 seed:
-	@echo "$(CYAN)▶ Seeding database inside backend container...$(RESET)"
-	docker compose exec backend npm run seed
+	@echo "$(CYAN)▶ Seeding database (local)...$(RESET)"
+	cd backend && npm run seed
 
 # ── Testing ───────────────────────────────────────────────────────────────────
 test: test-backend test-frontend
 
 test-backend:
-	@echo "$(CYAN)▶ Running Backend Tests...$(RESET)"
-	docker compose exec backend npm test
+	@echo "$(CYAN)▶ Running Backend Tests (Jest)...$(RESET)"
+	cd backend && npm test
 
 test-frontend:
 	@echo "$(CYAN)▶ Running Frontend Tests (Vitest)...$(RESET)"
-	docker compose exec frontend npm run test
-
-test-frontend:
-	@echo "$(CYAN)▶ Running Frontend Tests (Vitest)...$(RESET)"
-	docker-compose exec frontend npm run test
+	cd frontend && npm run test

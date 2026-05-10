@@ -151,9 +151,9 @@ export function AdminDashboardPage() {
               </div>
             ) : (
               <ul className="divide-y">
-                {alerts.map((alert) => (
+                {alerts.map((alert, i) => (
                   <li
-                    key={alert.id}
+                    key={alert.id || i}
                     className={`flex flex-wrap items-center justify-between gap-4 p-4 transition-colors ${
                       alert.status === "resolved"
                         ? "bg-muted/30 opacity-75"
