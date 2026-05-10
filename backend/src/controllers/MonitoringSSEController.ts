@@ -107,6 +107,12 @@ eventBus.on('monitoring:vehicle', (event: any) => {
 export const MonitoringSSEController = {
   /** GET /api/monitoring/stream */
   stream: async (req: Request, res: Response): Promise<void> => {
+    // Explicit CORS for SSE
+    // Since we use token-in-url auth for EventSource, we do not need credentials
+    const origin = req.headers.origin || '*';
+    res.setHeader('Access-Control-Allow-Origin', origin);
+    res.setHeader('Vary', 'Origin');
+
     // SSE headers
     res.setHeader('Content-Type', 'text/event-stream');
     res.setHeader('Cache-Control', 'no-cache');

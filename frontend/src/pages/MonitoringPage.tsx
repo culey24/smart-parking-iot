@@ -46,7 +46,6 @@ export function MonitoringPage() {
   const lastMouse = useRef({ x: 0, y: 0 });
   const containerRef = useRef<HTMLDivElement>(null);
   const animRef = useRef<number>();
-  const lastFrameTime = useRef<number>(0);
 
   useEffect(() => {
     layoutService.getMapping().then(r => setLayout(r.layout ?? []));
@@ -54,22 +53,45 @@ export function MonitoringPage() {
 
   const showToast = (msg: string) => { setToast(msg); setTimeout(() => setToast(null), 4000); };
 
-  // Animation loop
+  // Animation loop (Direct DOM manipulation for 60FPS smooth routing)
   useEffect(() => {
     if (agents.length === 0) return;
-    const step = (ts: number) => {
-      const dt = lastFrameTime.current ? ts - lastFrameTime.current : 16;
-      lastFrameTime.current = ts;
-      setAgents(prev => {
-        const next = prev.map(a => ({ ...a, progress: Math.min(a.progress + dt / ANIM_DURATION, 1) })).filter(a => a.progress < 1);
-        if (next.length === 0) setSimStatus("idle");
-        return next;
+    let isActive = true;
+
+    const step = () => {
+      if (!isActive) return;
+      const now = Date.now();
+      let activeCount = 0;
+
+      agents.forEach(agent => {
+        const el = document.getElementById(`agent-${agent.id}`);
+        if (!el) return;
+
+        const progress = Math.min((now - agent.startTime) / ANIM_DURATION, 1);
+        if (progress < 1) {
+          activeCount++;
+          const pos = interpolateAlongPath(agent.path, progress, W, H);
+          el.setAttribute("transform", `translate(${pos.x}, ${pos.y})`);
+        } else {
+          el.style.opacity = "0";
+        }
       });
-      animRef.current = requestAnimationFrame(step);
+
+      if (activeCount === 0) {
+        setSimStatus("idle");
+        // Clean up finished agents
+        setAgents(prev => prev.filter(a => (Date.now() - a.startTime) < ANIM_DURATION));
+      } else {
+        animRef.current = requestAnimationFrame(step);
+      }
     };
+    
     animRef.current = requestAnimationFrame(step);
-    return () => { if (animRef.current) cancelAnimationFrame(animRef.current); };
-  }, [agents.length]);
+    return () => { 
+      isActive = false;
+      if (animRef.current) cancelAnimationFrame(animRef.current); 
+    };
+  }, [agents]);
 
   const handleWheel = useCallback((e: WheelEvent) => {
     e.preventDefault();
@@ -105,10 +127,10 @@ export function MonitoringPage() {
       // Fallback: straight line from start to center
       finalNode = hardware.find(d => d.type === endType);
       const fallbackPath = finalNode ? [{ x: startNode.x, y: startNode.y }, { x: finalNode.x, y: finalNode.y }] : [{ x: startNode.x, y: startNode.y }, { x: 50, y: 50 }];
-      setAgents(prev => [...prev, { id: sessionId, path: fallbackPath, progress: 0, plateNumber, color, direction: "ENTER" }]);
+      setAgents(prev => [...prev, { id: sessionId, path: fallbackPath, startTime: Date.now(), plateNumber, color, direction: "ENTER" }]);
     } else {
       finalNode = path[path.length - 1];
-      setAgents(prev => [...prev, { id: sessionId, path: path.map(d => ({ x: d.x, y: d.y })), progress: 0, plateNumber, color, direction: "ENTER" }]);
+      setAgents(prev => [...prev, { id: sessionId, path: path.map(d => ({ x: d.x, y: d.y })), startTime: Date.now(), plateNumber, color, direction: "ENTER" }]);
     }
     return finalNode?.deviceId || null;
   };
@@ -159,6 +181,7 @@ export function MonitoringPage() {
           setSimStatus("idle");
         }, ANIM_DURATION + 500);
       } else {
+        showToast("❌ Animation failed: Target sensor has no deviceId mapped");
         setSimStatus("idle");
       }
     } catch (e: any) { showToast("❌ Error: " + e.message); setSimStatus("idle"); }
@@ -182,6 +205,7 @@ export function MonitoringPage() {
           setSimStatus("idle");
         }, ANIM_DURATION + 500);
       } else {
+        showToast("❌ Animation failed: Target sensor has no deviceId mapped");
         setSimStatus("idle");
       }
     } catch (e: any) { showToast("❌ Error: " + e.message); setSimStatus("idle"); }
@@ -212,7 +236,7 @@ export function MonitoringPage() {
         exitPath = [{ x: 50, y: 50 }, { x: 50, y: 90 }];
       }
 
-      setAgents(prev => [...prev, { id: session.sessionId + "_exit", path: exitPath, progress: 0, plateNumber: session.plateNumber, color: "#dc2626", direction: "EXIT" }]);
+      setAgents(prev => [...prev, { id: session.sessionId + "_exit", path: exitPath, startTime: Date.now(), plateNumber: session.plateNumber, color: "#dc2626", direction: "EXIT" }]);
       
       // Call APIs after animation completes
       setTimeout(async () => {
@@ -366,8 +390,8 @@ export function MonitoringPage() {
           ))}
         </div>
 
-        {/* Left side: Availability widget + Legend */}
-        <div className="absolute left-4 bottom-6 z-10 flex flex-col gap-2">
+        {/* Global Layout Availability + Legend */}
+        <div className="absolute top-[260px] right-4 z-10 flex flex-col gap-2">
           {/* Availability summary box — layout-aware: only sensors on this map */}
           <div className="bg-white shadow-lg border border-slate-200 rounded-2xl p-4 w-52">
             <div className="flex items-center justify-between mb-1">
@@ -412,9 +436,12 @@ export function MonitoringPage() {
                     <span className="font-bold text-red-500">{mapOccupied}</span>
                   </div>
                   {mapFault > 0 && (
-                    <div className="flex justify-between">
+                    <div className="flex justify-between group relative cursor-help">
                       <span className="flex items-center gap-1.5 text-amber-500"><div className="h-2 w-2 rounded-full bg-amber-400"/>Fault</span>
                       <span className="font-bold text-amber-500">{mapFault}</span>
+                      <div className="absolute hidden group-hover:block right-0 -top-16 bg-slate-800 text-white p-2 rounded text-[10px] w-44 z-50 text-center shadow-lg border border-slate-700">
+                        Reflects real backend ERROR/OFFLINE hardware status.
+                      </div>
                     </div>
                   )}
                 </div>
@@ -427,7 +454,7 @@ export function MonitoringPage() {
           </div>
 
           {/* Legend */}
-          <div className="flex items-center gap-3 bg-white shadow border border-slate-200 px-4 py-2 rounded-2xl">
+          <div className="flex items-center gap-3 bg-white shadow border border-slate-200 px-4 py-2 rounded-2xl justify-center">
             {[["#2563eb","Idle"],["#16a34a","Active"],["#ef4444","Fault"]].map(([c,l])=>(
               <div key={l} className="flex items-center gap-1.5">
                 <div className="h-2.5 w-2.5 rounded-full" style={{backgroundColor:c}}/>
@@ -496,11 +523,11 @@ export function MonitoringPage() {
 
               {/* Vehicle agents */}
               {agents.map(agent => {
-                const pos = interpolateAlongPath(agent.path, agent.progress, W, H);
+                const pos = interpolateAlongPath(agent.path, 0, W, H);
                 return (
-                  <g key={agent.id}>
-                    <circle cx={pos.x} cy={pos.y} r={11} fill={agent.color} stroke="white" strokeWidth="2.5" style={{filter:"drop-shadow(0 2px 6px rgba(0,0,0,0.25))"}}/>
-                    <text x={pos.x} y={pos.y-16} textAnchor="middle" fill={agent.color} fontSize="9" fontWeight="bold"
+                  <g key={agent.id} id={`agent-${agent.id}`} transform={`translate(${pos.x}, ${pos.y})`}>
+                    <circle cx={0} cy={0} r={11} fill={agent.color} stroke="white" strokeWidth="2.5" style={{filter:"drop-shadow(0 2px 6px rgba(0,0,0,0.25))"}}/>
+                    <text x={0} y={-16} textAnchor="middle" fill={agent.color} fontSize="9" fontWeight="bold"
                       style={{filter:"drop-shadow(0 1px 2px rgba(255,255,255,0.8))"}}>{agent.plateNumber}</text>
                   </g>
                 );

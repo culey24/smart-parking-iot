@@ -1,6 +1,6 @@
 /** Device types for parking lot monitoring */
 
-export type DeviceStatus = "online" | "offline" | "error";
+export type DeviceStatus = "online" | "offline" | "error" | "occupied";
 
 export type SlotStatus = "empty" | "occupied" | "error";
 

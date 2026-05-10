@@ -4,7 +4,7 @@ import type { MonitoringData } from "@/types/monitoring";
 export interface VehicleAgent {
   id: string;              // sessionId
   path: { x: number; y: number }[]; // % positions along the route
-  progress: number;        // 0.0 → 1.0
+  startTime: number;       // Date.now() timestamp
   plateNumber: string;
   color: string;           // hex
   direction: "ENTER" | "EXIT";
@@ -48,8 +48,8 @@ export function findPath(
     if (node.type === targetType && nodeId !== startId) {
       // Check if idle (not occupied in live data)
       if (liveData && node.deviceId) {
-        const slot = liveData.slots.find((s) => s.id === node.deviceId);
-        if (slot?.status === "occupied") {
+        const dev = liveData.devices.find((d: any) => d.id === node.deviceId);
+        if (dev?.status === "occupied" || dev?.status === "error" || dev?.status === "offline") {
           // Skip occupied sensors
         } else {
           return path.map((id) => devices.find((d) => d.id === id)!).filter(Boolean);
