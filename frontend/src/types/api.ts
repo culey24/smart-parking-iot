@@ -11,8 +11,9 @@ export interface ParkingRecord {
   paymentStatus: 'UNPAID' | 'PENDING' | 'PAID';
   vehicleType: string;
   type: 'REGISTERED' | 'TEMPORARY';
-  subjectId: string;
+  subjectID: string;
 }
+
 
 export interface BillingRecord {
   id: string;

@@ -1,0 +1,28 @@
+\begin{longtblr}[
+  caption = {UC 1.3: Exit Parking for Learners/Faculty Members},
+]{
+  colspec = {Q[l, 3.5cm] Q[l, 11cm]}, 
+  hlines, vlines,
+  row{1} = {bg=gray9, font=\bfseries}, 
+  rowhead = 0, 
+}
+Field & Details \\
+Use Case ID & 1.3 \\
+Use Case Name & Exit Parking for Learners/Faculty Members \\
+Actors & Primary: Learners, Faculty Members \& Staff. \par Supporting: Gateway, HCMUT\_SSO. \\
+Description & The exit process for registered members. The system verifies their entry session. \\
+Pre-conditions & The user has an active parking session inside the campus. \\
+Post-conditions & The parking session is marked as completed. The fee is calculated and added to their billing cycle. \\
+Main Flow & 
+1. The user drives to the exit gate and taps their official ID card. \par
+2. The camera captures the license plate. \par
+3. The system retrieves the active parking session associated with the card and verifies that the captured plate matches the entry plate. \par
+4. The system calculates the fee (role-based pricing policy). \par
+5. The system accumulates this fee into the user's current billing cycle (to be processed via BKPAY at the end of the month/cycle). \par
+6. The system closes the session and opens the barrier. \par
+7. The barrier closes after the vehicle passes. \\
+Exception Flows & 
+\textbf{E1: Lost ID Card inside the Campus:} If the member lost their ID card, the flow transfers to UC 1.7 (Main User Card Lost). The operator supports the member, invalidates the lost card, issues a replacement, and clears the session. \par \vspace{0.5em}
+\textbf{E2: Plate Mismatch or Barrier Stuck:} If the exit camera detects a mismatch or if the barrier malfunctions, the flow transfers to UC 1.5 (Manual Controlling) for manual verification. \par \vspace{0.5em}
+\textbf{E3: Unpaid Previous Debt:} The system detects an unpaid BKPAY bill. The barrier remains closed, prompting the user to settle their account. \\
+\end{longtblr}

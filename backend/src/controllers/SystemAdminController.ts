@@ -154,7 +154,8 @@ export class SystemAdminController {
         enableIotTimeoutMonitoring: true,
         hotlineSupport: "028-3865-1234",
         alertEmail: "parking-alerts@hcmut.edu.vn",
-        enableEmailAlerts: false
+        enableEmailAlerts: false,
+        pricingCycleDays: 30
       };
 
       const finalConfig = { ...defaults, ...configObj };

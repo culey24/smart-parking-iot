@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import { Zone } from '../models/Zone';
+import { ParkingZone } from '../models/Zone';
 import { InfrastructureAlert } from '../models/InfrastructureAlert';
 import { IoTDevice } from '../models/IoTDevice';
 
@@ -16,7 +16,7 @@ export const IoTDataController = {
       const increment = status === 'ENTRY' ? 1 : status === 'EXIT' ? -1 : 0;
       
       if (increment !== 0) {
-        await Zone.updateOne({ zoneId }, { $inc: { currentUsage: increment } });
+        await ParkingZone.updateOne({ zoneId }, { $inc: { currentUsage: increment } });
       }
 
       res.status(200).json({ message: 'Webhook processed successfully' });
@@ -51,13 +51,13 @@ export const IoTDataController = {
       const devices = await IoTDevice.find().lean();
       
       // Map to frontend expected format
-      const mappedDevices = devices.map(d => ({
+      const mappedDevices = devices.map((d: any) => ({
         id: d.deviceId,
         name: d.deviceName || d.deviceId,
         type: d.deviceType.toLowerCase(),
         status: d.status.toLowerCase(),
         zone: d.zoneId,
-        lastActive: d.lastPing || d.updatedAt
+        lastActive: d.lastOnline || d.updatedAt
       }));
       
       res.json({ success: true, data: mappedDevices });
@@ -69,7 +69,6 @@ export const IoTDataController = {
   getAlerts: async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       // Fetch active alerts and join with IoTDevice to get device type
-      // Mongoose aggregation or multiple queries could be used. Here we use basic mapping.
       const alerts = await InfrastructureAlert.find({ status: 'ACTIVE' }).lean();
       
       const mappedAlerts = await Promise.all(alerts.map(async (a: any) => {

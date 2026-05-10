@@ -1,0 +1,32 @@
+\begin{longtblr}[
+  caption = {UC 4.3: Manage user role (RBAC)},
+]{
+  colspec = {Q[l, 3.5cm] Q[l, 11cm]}, 
+  hlines, vlines,
+  row{1} = {bg=gray9, font=\bfseries}, 
+  rowhead = 0, 
+}
+Field & Details \\
+Use Case ID & 4.3 \\
+Use Case Name & Manage user role (RBAC) \\
+Actors & Primary: IT Team. \par Supporting: HCMUT\_DATACORE. \\
+Description & Manage and distribute roles to specialized users within the smart parking operation pipeline. \\
+Pre-conditions & Actor passes authentication check (UC 4.1). \\
+Post-conditions & Actor gains control over role-based user management. \\
+Main Flow & 
+\textbf{Add a new role:} \par
+1. After passing authentication, actor navigates to the RBAC sector. \par
+2. Actor chooses to create a new role and selects a name for that role. \par
+3. Actor inputs the designated user information (Name, ID, etc.). \par
+4. The system checks validity with HCMUT\_DATACORE; if valid, the user is designated; if not, an invalid message is shown. \par \vspace{0.5em}
+\textbf{Designate a new user for an existing role:} \par
+1. Actor navigates to the RBAC sector and selects an existing role. \par
+2. Actor updates the designated user information. \par
+3. System checks validity with HCMUT\_DATACORE. If valid, it asks for confirmation. If confirmed, the user is updated. If invalid, a message is shown. \par \vspace{0.5em}
+\textbf{Remove an existing role:} \par
+1. Actor selects an existing role to remove. \par
+2. System asks for confirmation. If provided, the role and the designated user are removed; if not, the system returns safely. \\
+Exception Flows & 
+\textbf{E1 - Connection to Authentication/Host Lost:} Displays a failsafe page. Actor must refresh to check connection status. \par \vspace{0.5em}
+\textbf{E2 - Connection to HCMUT\_DATACORE Lost:} Displays a connection lost message and temporarily disables role assignment capabilities. \\
+\end{longtblr}

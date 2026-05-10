@@ -1,0 +1,230 @@
+\section{Method Descriptions}
+
+This section provides detailed descriptions of all methods in the class diagram, organized by class. Each method includes parameter types, return types, and brief functionality descriptions.
+
+\subsection{Domain Model Methods}
+
+\subsubsection{User Class}
+\begin{table}[H]
+\centering
+\begin{tabularx}{\textwidth}{|l|l|l|X|}
+\hline
+\textbf{Method} & \textbf{Parameters} & \textbf{Return Type} & \textbf{Description} \\
+\hline
+comparePassword & password: string & Promise<boolean> & Compares provided password with stored hash using bcrypt \\
+\hline
+\end{tabularx}
+\caption{User Class Methods}
+\label{tab:user-methods}
+\end{table}
+
+\subsubsection{ParkingSession Class}
+No public methods defined - data container class with automatic timestamps.
+
+\subsubsection{Zone Class}
+No public methods defined - data container class with capacity tracking.
+
+\subsubsection{ParkingSlot Class}
+No public methods defined - data container class for slot state management.
+
+\subsubsection{IoTDevice Classes}
+No public methods defined - data container classes with device-specific attributes.
+
+\subsection{Service Layer Methods}
+
+\subsubsection{AuthService Class}
+\begin{table}[H]
+\centering
+\begin{tabularx}{\textwidth}{|p{1.8cm}|p{2cm}|p{2.5cm}|X|}
+\hline
+\textbf{Method} & \textbf{Parameters} & \textbf{Return Type} & \textbf{Description} \\
+\hline
+login & cardId: string, password: string & Promise<\{token: string, user: User\}> & Authenticates user via HCMUT SSO and returns JWT token with user data \\
+\hline
+\end{tabularx}
+\caption{AuthService Class Methods}
+\label{tab:auth-service-methods}
+\end{table}
+
+\subsubsection{BillingService Class}
+\begin{table}[H]
+\centering
+\begin{tabularx}{\textwidth}{|p{1.8cm}|p{2cm}|p{2.5cm}|X|}
+\hline
+\textbf{Method} & \textbf{Parameters} & \textbf{Return Type} & \textbf{Description} \\
+\hline
+calculateFee & startTime: Date, endTime: Date, vehicleType: string, userRole: string & Promise<number> & Calculates parking fee based on duration, vehicle type, and user role using pricing policies \\
+\hline
+calculateCycleFee & sessions: ParkingSession[] & Promise<number> & Calculates total fee for multiple parking sessions in a billing cycle \\
+\hline
+\end{tabularx}
+\caption{BillingService Class Methods}
+\label{tab:billing-service-methods}
+\end{table}
+
+\subsubsection{NavigationService Class}
+\begin{table}[H]
+\centering
+\begin{tabularx}{\textwidth}{|p{1.8cm}|p{2cm}|p{2.5cm}|X|}
+\hline
+\textbf{Method} & \textbf{Parameters} & \textbf{Return Type} & \textbf{Description} \\
+\hline
+getZonesByUsage & - & Promise<Zone[]> & Retrieves zones sorted by current utilization rate \\
+\hline
+getStats & - & Promise<\{totalCapacity: number, totalUsage: number, utilizationRate: number\}> & Returns system-wide parking statistics and utilization metrics \\
+\hline
+\end{tabularx}
+\caption{NavigationService Class Methods}
+\label{tab:navigation-service-methods}
+\end{table}
+
+\subsubsection{ReportService Class}
+\begin{table}[H]
+\centering
+\begin{tabularx}{\textwidth}{|p{1.8cm}|p{2cm}|p{2.5cm}|X|}
+\hline
+\textbf{Method} & \textbf{Parameters} & \textbf{Return Type} & \textbf{Description} \\
+\hline
+getDailyRevenue & startDate: Date, endDate: Date & Promise<DailyRevenueReport[]> & Generates daily revenue reports for specified date range \\
+\hline
+getActivityStats & - & Promise<\{usageByHour: number[], avgOccupancyRate: number, deviceErrors: number\}> & Provides hourly usage patterns and system health metrics \\
+\hline
+\end{tabularx}
+\caption{ReportService Class Methods}
+\label{tab:report-service-methods}
+\end{table}
+
+\subsubsection{SystemAdminService Class}
+\begin{table}[H]
+\centering
+\begin{tabularx}{\textwidth}{|p{1.8cm}|p{2cm}|p{2.5cm}|X|}
+\hline
+\textbf{Method} & \textbf{Parameters} & \textbf{Return Type} & \textbf{Description} \\
+\hline
+getAllConfigs & - & Promise<SystemConfig[]> & Retrieves all system configuration settings \\
+\hline
+updateConfig & key: string, value: any & Promise<SystemConfig> & Updates a specific system configuration setting \\
+\hline
+updatePricing & policy: PricingPolicy & Promise<PricingPolicy> & Creates or updates pricing policy rules \\
+\hline
+getPricingPolicies & - & Promise<PricingPolicy[]> & Retrieves all active pricing policies \\
+\hline
+getAuditLogs & filter: AuditFilter & Promise<AuditLog[]> & Returns audit logs based on specified filters \\
+\hline
+\end{tabularx}
+\caption{SystemAdminService Class Methods}
+\label{tab:system-admin-service-methods}
+\end{table}
+
+\subsubsection{SystemLogService Class}
+\begin{table}[H]
+\centering
+\begin{tabularx}{\textwidth}{|p{1.8cm}|p{2cm}|p{2.5cm}|X|}
+\hline
+\textbf{Method} & \textbf{Parameters} & \textbf{Return Type} & \textbf{Description} \\
+\hline
+log & level: LogLevel, source: string, message: string, metadata?: object & Promise<void> & Logs system events with specified level and context \\
+\hline
+getRecent & limit: number & Promise<SystemLog[]> & Retrieves most recent log entries up to specified limit \\
+\hline
+\end{tabularx}
+\caption{SystemLogService Class Methods}
+\label{tab:system-log-service-methods}
+\end{table}
+
+\subsection{Controller Layer Methods}
+
+\subsubsection{EntryExitController Class}
+\begin{table}[H]
+\centering
+\begin{tabularx}{\textwidth}{|p{1.8cm}|p{2cm}|p{2.5cm}|X|}
+\hline
+\textbf{Method} & \textbf{Parameters} & \textbf{Return Type} & \textbf{Description} \\
+\hline
+checkIn & req: Request, res: Response & Promise<Response> & Processes vehicle entry, validates permissions, creates parking session \\
+\hline
+checkOut & req: Request, res: Response & Promise<Response> & Processes vehicle exit, calculates fees, updates session status \\
+\hline
+openGate & req: Request, res: Response & Promise<Response> & Controls physical gate operations for authorized access \\
+\hline
+\end{tabularx}
+\caption{EntryExitController Class Methods}
+\label{tab:entry-exit-controller-methods}
+\end{table}
+
+\subsubsection{PaymentController Class}
+\begin{table}[H]
+\centering
+\begin{tabularx}{\textwidth}{|p{1.8cm}|p{2cm}|p{2.5cm}|X|}
+\hline
+\textbf{Method} & \textbf{Parameters} & \textbf{Return Type} & \textbf{Description} \\
+\hline
+initiateCyclePayment & req: Request, res: Response & Promise<Response> & Initiates billing cycle payment process for accumulated sessions \\
+\hline
+mockBKPayCallback & req: Request, res: Response & Promise<Response> & Handles payment gateway callbacks and updates transaction status \\
+\hline
+getHistory & req: Request, res: Response & Promise<Response> & Returns user's payment history and transaction records \\
+\hline
+getHistoryAdmin & req: Request, res: Response & Promise<Response> & Administrative view of all payment transactions \\
+\hline
+getDebt & req: Request, res: Response & Promise<Response> & Retrieves outstanding payment amounts for user \\
+\hline
+\end{tabularx}
+\caption{PaymentController Class Methods}
+\label{tab:payment-controller-methods}
+\end{table}
+
+\subsubsection{SessionController Class}
+\begin{table}[H]
+\centering
+\begin{tabularx}{\textwidth}{|p{1.8cm}|p{2cm}|p{2.5cm}|X|}
+\hline
+\textbf{Method} & \textbf{Parameters} & \textbf{Return Type} & \textbf{Description} \\
+\hline
+getAll & req: Request, res: Response & Promise<Response> & Retrieves all parking sessions with filtering options \\
+\hline
+getByUser & req: Request, res: Response & Promise<Response> & Returns parking sessions for specific user \\
+\hline
+getRecent & req: Request, res: Response & Promise<Response> & Provides recent parking session activity \\
+\hline
+\end{tabularx}
+\caption{SessionController Class Methods}
+\label{tab:session-controller-methods}
+\end{table}
+
+\subsection{Frontend Component Methods}
+
+\subsubsection{PlacedDevice Class}
+No public methods defined - data structure for UI mapping.
+
+\subsubsection{CanvasTransform Class}
+No public methods defined - data structure for map transformations.
+
+\subsubsection{ParkingMap Class}
+No public methods defined - data structure for complete map configuration.
+
+\subsection{Supporting Class Methods}
+
+\subsubsection{MappingConfig Class}
+No public methods defined - configuration data container.
+
+\subsubsection{InfrastructureAlert Class}
+No public methods defined - alert data container.
+
+\subsubsection{SystemConfig Class}
+No public methods defined - configuration data container.
+
+\subsubsection{AuditLog Class}
+No public methods defined - audit data container.
+
+\subsubsection{SystemLog Class}
+No public methods defined - log data container with TTL indexing.
+
+\subsubsection{TemporaryCard Class}
+No public methods defined - temporary access data container.
+
+\subsubsection{Location Class}
+No public methods defined - geographic data container.
+
+\subsubsection{Invoice Class}
+No public methods defined - financial transaction data container.

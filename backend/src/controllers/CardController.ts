@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import { ParkingSession } from '../models/ParkingSession';
 import { TemporaryCard } from '../models/TemporaryCard';
+import { SystemLogService } from '../services/SystemLogService';
 
 export class CardController {
 
@@ -25,17 +26,17 @@ export class CardController {
         });
       }
 
-      let cardStatus: 'Active' | 'Disabled' = 'Active';
+      let currentCardStatus: 'Active' | 'Disabled' = 'Active';
       let lastFour = '0000';
 
       if (session.type === 'TEMPORARY') {
-        const card = await TemporaryCard.findOne({ cardId: session.subjectId });
+        const card = await TemporaryCard.findOne({ tempCardID: session.subjectID });
         if (card) {
-          cardStatus = card.status === 'LOST' ? 'Disabled' : 'Active';
-          lastFour = card.cardId.slice(-4);
+          currentCardStatus = card.cardStatus === 'DEACTIVATED' ? 'Disabled' : 'Active';
+          lastFour = card.tempCardID.slice(-4);
         }
       } else {
-        lastFour = session.subjectId.slice(-4);
+        lastFour = session.subjectID.slice(-4);
       }
 
       const result = {
@@ -47,7 +48,7 @@ export class CardController {
         },
         linkedCard: {
           lastFourDigits: lastFour,
-          status: cardStatus
+          status: currentCardStatus
         }
       };
 
@@ -67,38 +68,43 @@ export class CardController {
       }
 
       // Tìm thẻ available đầu tiên
-      const card = await TemporaryCard.findOne({ status: 'AVAILABLE' }).sort({ createdAt: 1 });
+      const card = await TemporaryCard.findOne({ cardStatus: 'ACTIVATING' }).sort({ createdAt: 1 });
 
       if (!card) {
         return res.status(503).json({ success: false, message: 'Không còn thẻ tạm khả dụng' });
       }
 
-      // Cập nhật trạng thái thẻ
-      card.status = 'IN_USE';
-      card.lastAssignedTo = plateNumber.toUpperCase();
-      await card.save();
+      // Note: In the V3 spec, we only have ACTIVATING and DEACTIVATED.
+      // We'll keep the card as ACTIVATING but linked to a session.
 
       // Tạo parking session
       const session = await ParkingSession.create({
         sessionId: `SESS_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
         type: 'TEMPORARY',
         vehicleType,
-        subjectId: card.cardId,
+        subjectID: card.tempCardID,
         plateNumber: plateNumber.toUpperCase(),
         sessionStatus: 'ACTIVE',
         paymentStatus: 'UNPAID',
         fee: 0,
+        userRole: 'VISITOR' // Default for temporary cards
       });
+
+      await SystemLogService.log('INFO', 'CARD', `Visitor entry requested — checking temp card availability for ${plateNumber.toUpperCase()}`);
+      await SystemLogService.log('SUCCESS', 'CARD', `Temp card ${card.tempCardID} assigned to ${plateNumber.toUpperCase()} (${vehicleType})`, { sessionId: session.sessionId });
+      await SystemLogService.log('SUCCESS', 'SESSION', `Visitor session ${session.sessionId} created — ${plateNumber.toUpperCase()} admitted`, { sessionId: session.sessionId });
+      await SystemLogService.log('INFO', 'GATE', `Barrier lifted — visitor ${plateNumber.toUpperCase()} entered facility`);
 
       res.json({
         success: true,
         data: {
-          cardId: card.cardId,
+          tempCardID: card.tempCardID,
           sessionId: session.sessionId,
           plateNumber: session.plateNumber,
         },
         message: 'Thẻ tạm đã được cấp thành công',
       });
+
     } catch (error: any) {
       res.status(500).json({ success: false, message: error.message });
     }
@@ -107,25 +113,21 @@ export class CardController {
   // UC 1.8 — Trả thẻ tạm (thanh toán xong)
   static async returnCard(req: Request, res: Response) {
     try {
-      const { cardId } = req.body;
+      const { tempCardID } = req.body;
 
-      if (!cardId) {
-        return res.status(400).json({ success: false, message: 'cardId is required' });
+      if (!tempCardID) {
+        return res.status(400).json({ success: false, message: 'tempCardID is required' });
       }
 
       // Tìm thẻ
-      const card = await TemporaryCard.findOne({ cardId });
+      const card = await TemporaryCard.findOne({ tempCardID });
       if (!card) {
         return res.status(404).json({ success: false, message: 'Thẻ không tồn tại' });
       }
 
-      if (card.status === 'AVAILABLE') {
-        return res.status(400).json({ success: false, message: 'Thẻ chưa được sử dụng' });
-      }
-
       // Tìm và đóng session
       const session = await ParkingSession.findOneAndUpdate(
-        { subjectId: cardId, sessionStatus: 'ACTIVE' },
+        { subjectID: tempCardID, sessionStatus: 'ACTIVE' },
         {
           sessionStatus: 'COMPLETED',
           endTime: new Date(),
@@ -134,20 +136,18 @@ export class CardController {
         { new: true }
       );
 
-      // Trả thẻ về pool
-      card.status = 'AVAILABLE';
-      card.lastAssignedTo = undefined;
-      await card.save();
+      await SystemLogService.log('SUCCESS', 'CARD', `Temp card ${card.tempCardID} returned. Fee: ${session?.fee ?? 0}đ`);
 
       res.json({
         success: true,
         data: {
-          cardId: card.cardId,
+          tempCardID: card.tempCardID,
           sessionId: session?.sessionId,
           fee: session?.fee ?? 0,
         },
         message: 'Thẻ tạm đã được trả thành công',
       });
+
     } catch (error: any) {
       res.status(500).json({ success: false, message: error.message });
     }
@@ -163,11 +163,11 @@ export class CardController {
         sessionStatus: 'ACTIVE'
       });
 
-      const targetId = session ? session.subjectId : plateOrCardId;
+      const targetID = session ? session.subjectID : plateOrCardId;
 
       await TemporaryCard.updateOne(
-        { cardId: targetId },
-        { status: 'LOST' }
+        { tempCardID: targetID },
+        { cardStatus: 'DEACTIVATED' }
       );
 
       res.json({

@@ -1,0 +1,296 @@
+\section{Development/Implementation View}
+
+The development view describes the software architecture and implementation details of the Smart Parking IoT system. The system follows a layered architecture pattern with clear separation of concerns.
+
+\subsection{Architecture Overview}
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[node distance=2cm, auto]
+    % Layers
+    \node[draw, fill=blue!10, minimum width=4cm, minimum height=1cm] (presentation) at (0,4) {Presentation Layer};
+    \node[draw, fill=green!10, minimum width=4cm, minimum height=1cm] (application) at (0,2) {Application Layer};
+    \node[draw, fill=orange!10, minimum width=4cm, minimum height=1cm] (domain) at (0,0) {Domain Layer};
+    \node[draw, fill=red!10, minimum width=4cm, minimum height=1cm] (infrastructure) at (0,-2) {Infrastructure Layer};
+
+    % Components
+    \node[draw, fill=blue!20, minimum width=2.5cm, minimum height=0.8cm] (frontend) at (-3,4) {React Frontend};
+    \node[draw, fill=blue!20, minimum width=2.5cm, minimum height=0.8cm] (api) at (3,4) {REST API};
+
+    \node[draw, fill=green!20, minimum width=2.5cm, minimum height=0.8cm] (controllers) at (-3,2) {Controllers};
+    \node[draw, fill=green!20, minimum width=2.5cm, minimum height=0.8cm] (services) at (3,2) {Services};
+
+    \node[draw, fill=orange!20, minimum width=2.5cm, minimum height=0.8cm] (models) at (-3,0) {Domain Models};
+    \node[draw, fill=orange!20, minimum width=2.5cm, minimum height=0.8cm] (business) at (3,0) {Business Logic};
+
+    \node[draw, fill=red!20, minimum width=2.5cm, minimum height=0.8cm] (database) at (-3,-2) {MongoDB};
+    \node[draw, fill=red!20, minimum width=2.5cm, minimum height=0.8cm] (external) at (3,-2) {External APIs};
+
+    % Connections
+    \draw[->, thick] (frontend) -- (controllers);
+    \draw[->, thick] (api) -- (controllers);
+    \draw[->, thick] (controllers) -- (services);
+    \draw[->, thick] (services) -- (models);
+    \draw[->, thick] (services) -- (business);
+    \draw[->, thick] (models) -- (database);
+    \draw[->, thick] (business) -- (external);
+
+    % Cross-layer connections
+    \draw[->, thick, dashed] (controllers) -- (database);
+    \draw[->, thick, dashed] (services) -- (external);
+\end{tikzpicture}
+\caption{Layered Architecture Overview}
+\label{fig:layered-arch}
+\end{figure}
+
+\subsection{Technology Stack}
+
+\subsubsection{Backend Technology Stack}
+\begin{table}[H]
+\centering
+\begin{tabular}{|l|l|l|}
+\hline
+\textbf{Layer} & \textbf{Technology} & \textbf{Purpose} \\
+\hline
+Runtime & Node.js 18+ & JavaScript runtime environment \\
+\hline
+Framework & Express 5 & Web application framework \\
+\hline
+Language & TypeScript & Type-safe JavaScript development \\
+\hline
+Database & MongoDB & NoSQL document database \\
+\hline
+ODM & Mongoose & MongoDB object modeling \\
+\hline
+Authentication & JWT & Token-based authentication \\
+\hline
+Logging & Pino & High-performance logging \\
+\hline
+API Documentation & Swagger/OpenAPI & API specification and testing \\
+\hline
+Testing & Jest & Unit and integration testing \\
+\hline
+Linting & ESLint & Code quality and style checking \\
+\hline
+\end{tabular}
+\caption{Backend Technology Stack}
+\label{tab:backend-stack}
+\end{table}
+
+\subsubsection{Frontend Technology Stack}
+\begin{table}[H]
+\centering
+\begin{tabular}{|l|l|l|}
+\hline
+\textbf{Layer} & \textbf{Technology} & \textbf{Purpose} \\
+\hline
+Framework & React 18 & Component-based UI library \\
+\hline
+Build Tool & Vite & Fast build tool and dev server \\
+\hline
+Language & TypeScript & Type-safe JavaScript development \\
+\hline
+Styling & Tailwind CSS v4 & Utility-first CSS framework \\
+\hline
+UI Components & Radix UI & Accessible component primitives \\
+\hline
+Routing & React Router & Client-side routing \\
+\hline
+Charts & Recharts & Data visualization components \\
+\hline
+State Management & React Context & Global state management \\
+\hline
+Testing & Vitest & Fast unit testing framework \\
+\hline
+Linting & ESLint & Code quality checking \\
+\hline
+\end{tabular}
+\caption{Frontend Technology Stack}
+\label{tab:frontend-stack}
+\end{table}
+
+\subsection{Package Structure}
+
+\subsubsection{Backend Package Structure}
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[node distance=1.5cm, auto, font=\small]
+    % Root
+    \node[draw, fill=blue!10] (backend) {backend/};
+
+    % Main directories
+    \node[draw, fill=green!10, below of=backend] (src) {src/};
+    \node[draw, fill=yellow!10, right of=src] (tests) {\_\_tests\_\_/};
+    \node[draw, fill=gray!10, right of=tests] (scripts) {scripts/};
+
+    % src subdirectories
+    \node[draw, fill=orange!10, below of=src, xshift=-2cm] (controllers) {controllers/};
+    \node[draw, fill=orange!10, right of=controllers] (services) {services/};
+    \node[draw, fill=orange!10, right of=services] (models) {models/};
+    \node[draw, fill=orange!10, below of=controllers, xshift=1cm] (routes) {routes/};
+    \node[draw, fill=orange!10, right of=routes] (middlewares) {middlewares/};
+    \node[draw, fill=orange!10, right of=middlewares] (utils) {utils/};
+    \node[draw, fill=orange!10, below of=routes] (config) {config/};
+
+    % Files
+    \node[draw, fill=white, below of=config, xshift=-1cm] (app) {app.ts};
+    \node[draw, fill=white, right of=app] (server) {server.ts};
+
+    % Connections
+    \draw[->] (backend) -- (src);
+    \draw[->] (backend) -- (tests);
+    \draw[->] (backend) -- (scripts);
+    \draw[->] (src) -- (controllers);
+    \draw[->] (src) -- (services);
+    \draw[->] (src) -- (models);
+    \draw[->] (src) -- (routes);
+    \draw[->] (src) -- (middlewares);
+    \draw[->] (src) -- (utils);
+    \draw[->] (src) -- (config);
+    \draw[->] (src) -- (app);
+    \draw[->] (src) -- (server);
+\end{tikzpicture}
+\caption{Backend Package Structure}
+\label{fig:backend-structure}
+\end{figure}
+
+\subsubsection{Frontend Package Structure}
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[node distance=1.5cm, auto, font=\small]
+    % Root
+    \node[draw, fill=blue!10] (frontend) {frontend/};
+
+    % Main directories
+    \node[draw, fill=green!10, below of=frontend] (src) {src/};
+    \node[draw, fill=yellow!10, right of=src] (tests) {\_\_tests\_\_/};
+    \node[draw, fill=gray!10, right of=tests] (public) {public/};
+
+    % src subdirectories
+    \node[draw, fill=orange!10, below of=src, xshift=-2cm] (components) {components/};
+    \node[draw, fill=orange!10, right of=components] (pages) {pages/};
+    \node[draw, fill=orange!10, right of=pages] (services) {services/};
+    \node[draw, fill=orange!10, below of=components, xshift=1cm] (hooks) {hooks/};
+    \node[draw, fill=orange!10, right of=hooks] (contexts) {contexts/};
+    \node[draw, fill=orange!10, right of=contexts] (types) {types/};
+    \node[draw, fill=orange!10, below of=hooks] (utils) {utils/};
+    \node[draw, fill=orange!10, right of=utils] (lib) {lib/};
+    \node[draw, fill=orange!10, right of=lib] (config) {config/};
+
+    % Files
+    \node[draw, fill=white, below of=config, xshift=-1cm] (app) {App.tsx};
+    \node[draw, fill=white, right of=app] (main) {main.tsx};
+
+    % Connections
+    \draw[->] (frontend) -- (src);
+    \draw[->] (frontend) -- (tests);
+    \draw[->] (frontend) -- (public);
+    \draw[->] (src) -- (components);
+    \draw[->] (src) -- (pages);
+    \draw[->] (src) -- (services);
+    \draw[->] (src) -- (hooks);
+    \draw[->] (src) -- (contexts);
+    \draw[->] (src) -- (types);
+    \draw[->] (src) -- (utils);
+    \draw[->] (src) -- (lib);
+    \draw[->] (src) -- (config);
+    \draw[->] (src) -- (app);
+    \draw[->] (src) -- (main);
+\end{tikzpicture}
+\caption{Frontend Package Structure}
+\label{fig:frontend-structure}
+\end{figure}
+
+\subsection{Data Flow Architecture}
+
+\subsubsection{Authentication Flow}
+\begin{enumerate}
+\item User submits credentials via frontend form
+\item Frontend calls authentication API endpoint
+\item Backend validates credentials against HCMUT SSO
+\item JWT token generated and returned to frontend
+\item Frontend stores token in local storage/context
+\item Subsequent API calls include JWT in Authorization header
+\end{enumerate}
+
+\subsubsection{Parking Session Flow}
+\begin{enumerate}
+\item IoT sensor detects vehicle entry (planned) or manual check-in
+\item Frontend sends check-in request to backend
+\item Backend validates user permissions and zone capacity
+\item ParkingSession document created in MongoDB
+\item Zone capacity updated (denormalized for performance)
+\item Real-time updates sent to connected clients via SSE
+\end{enumerate}
+
+\subsubsection{Billing and Payment Flow}
+\begin{enumerate}
+\item User initiates payment or system triggers billing cycle
+\item Backend calculates fees based on pricing policies
+\item Invoice created and stored in MongoDB
+\item Payment request sent to BKPay gateway
+\item Payment status updated in database
+\item Confirmation sent to user via frontend
+\end{enumerate}
+
+\subsection{Component Relationships}
+
+\subsubsection{Backend Component Dependencies}
+\begin{itemize}
+\item \textbf{Controllers} depend on Services and Models
+\item \textbf{Services} contain business logic and orchestrate Models
+\item \textbf{Models} define data schemas and database operations
+\item \textbf{Middlewares} handle cross-cutting concerns (auth, logging, CORS)
+\item \textbf{Routes} map URLs to controller methods
+\end{itemize}
+
+\subsubsection{Frontend Component Dependencies}
+\begin{itemize}
+\item \textbf{Pages} use Components and Hooks
+\item \textbf{Components} consume Contexts and Services
+\item \textbf{Hooks} manage state and side effects
+\item \textbf{Contexts} provide global state management
+\item \textbf{Services} handle API communication
+\end{itemize}
+
+\subsection{Design Patterns}
+
+\subsubsection{Backend Patterns}
+\begin{itemize}
+\item \textbf{Layered Architecture:} Clear separation between presentation, application, domain, and infrastructure layers
+\item \textbf{Dependency Injection:} Services injected into controllers
+\item \textbf{Repository Pattern:} Models encapsulate data access logic
+\item \textbf{Middleware Pattern:} Cross-cutting concerns handled by Express middleware
+\item \textbf{Observer Pattern:} Event-driven architecture for real-time updates
+\end{itemize}
+
+\subsubsection{Frontend Patterns}
+\begin{itemize}
+\item \textbf{Component Composition:} Reusable UI components built from primitives
+\item \textbf{Hooks Pattern:} Custom hooks for stateful logic reuse
+\item \textbf{Context Pattern:} Global state management for authentication and app state
+\item \textbf{Routing Pattern:} Declarative routing with React Router
+\item \textbf{Container/Presentational:} Separation of data fetching and presentation logic
+\end{itemize}
+
+\subsection{Development Workflow}
+
+\subsubsection{Backend Development}
+\begin{enumerate}
+\item Define Mongoose schemas in Models
+\item Implement business logic in Services
+\item Create API endpoints in Controllers
+\item Configure routes and middleware
+\item Write unit tests with Jest
+\item Run linting and formatting checks
+\end{enumerate}
+
+\subsubsection{Frontend Development}
+\begin{enumerate}
+\item Define TypeScript interfaces in types/
+\item Create reusable components in components/
+\item Implement page layouts in pages/
+\item Add state management with hooks and contexts
+\item Integrate API calls via services/
+\item Write unit tests with Vitest
+\end{enumerate}

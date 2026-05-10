@@ -9,7 +9,8 @@ const ParkingSessionSchema = new Schema({
   type: { type: String, enum: ['REGISTERED', 'TEMPORARY'], required: true },
   userRole: { type: String, enum: ['LEARNER', 'FACULTY', 'VISITOR', 'ADMIN', 'OPERATOR', 'IT_TEAM', 'FINANCE_OFFICE'], required: true },
   vehicleType: { type: String, required: true },
-  subjectId: { type: String, required: true }, // userId or cardID
+  subjectID: { type: String, required: true }, // userId or tempCardID
+  deviceId: { type: String }, // Binds the session to a specific parking sensor
   plateNumber: { type: String, required: true },
   fee: { type: Number, default: 0 },
   invoiceId: { type: String },

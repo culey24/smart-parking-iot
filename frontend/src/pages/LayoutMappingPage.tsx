@@ -52,18 +52,18 @@ const DEVICE_PALETTE: { type: MappedDeviceType; label: string; icon: any; color:
   { type: "zone", label: "Zone (Rect)", icon: SquareIcon, color: "bg-slate-500", description: "Rectangle area", variant: "rectangle" },
   { type: "zone", label: "Zone (Tri)", icon: Triangle, color: "bg-slate-400", description: "Triangle area", variant: "triangle" },
   { type: "sensor", label: "IoT Sensor", icon: Gauge, color: "bg-blue-500", description: "Occupancy Detection" },
-  { type: "gateway", label: "IoT Gateway", icon: Radio, color: "bg-purple-500", description: "Data Concentrator" },
+  { type: "gate", label: "Gate (Unit)", icon: Radio, color: "bg-purple-500", description: "Barrier & Controller" },
   { type: "signage", label: "Smart Signage", icon: Monitor, color: "bg-cyan-500", description: "Guidance Display" },
-  { type: "barrier", label: "Barrier", icon: Square, color: "bg-red-500", description: "Physical Gate" },
   { type: "road", label: "Traffic Road", icon: RoadIcon, color: "bg-slate-700", description: "Vehicle Pathway" },
   { type: "waypoint", label: "Nav Waypoint", icon: Circle, color: "bg-slate-400", description: "Path Anchor" },
 ];
 
 const MOCK_DB_DEVICES = [
   { id: "device_001", name: "Entry Sensor North", type: "sensor" },
-  { id: "device_002", name: "Main Gateway", type: "gateway" },
+  { id: "device_002", name: "Main Entrance Gate", type: "gate" },
   { id: "device_003", name: "Lot B Display", type: "signage" },
 ];
+
 
 export function LayoutMappingPage() {
   const [placedDevices, setPlacedDevices] = useState<PlacedDevice[]>([]);
@@ -611,7 +611,8 @@ export function LayoutMappingPage() {
                        <Button variant="outline" size="sm" onClick={pasteClipboard} disabled={!clipboard} className="flex-1 bg-white/5 border-white/10 text-white/60 hover:text-white rounded-xl h-9 text-[10px] font-black uppercase"><ClipboardPaste className="h-3 w-3 mr-2" /> Paste</Button>
                     </div>
 
-                    {(selectedDevice.type === 'sensor' || selectedDevice.type === 'gateway' || selectedDevice.type === 'signage') && (
+                    {(selectedDevice.type === 'sensor' || selectedDevice.type === 'gate' || selectedDevice.type === 'signage') && (
+
                       <div className="space-y-2">
                         <label className="text-[10px] font-black text-white/30 uppercase tracking-widest ml-1">Hardware Binding</label>
                         <Select value={selectedDevice.deviceId || ""} onValueChange={(val) => updateDeviceBinding(selectedDevice.id, val)}>

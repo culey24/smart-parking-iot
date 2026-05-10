@@ -7,7 +7,8 @@ export const authMiddleware = (req: Request, res: Response, next: NextFunction) 
     return next();
   }
 
-  const token = req.headers.authorization?.split(' ')[1];
+  // EventSource (SSE) cannot send custom headers — accept token via query param as fallback
+  const token = req.headers.authorization?.split(' ')[1] || (req.query.token as string);
 
   if (!token) {
     logger.debug({ method: req.method, url: req.url }, 'Auth: no token');

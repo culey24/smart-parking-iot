@@ -6,15 +6,16 @@
 
 export type MappedDeviceType = 
   | "sensor" 
-  | "gateway" 
+  | "gate" 
   | "signage" 
-  | "barrier" 
   | "entrance" 
   | "exit" 
   | "zone"
   | "road"
   | "waypoint"
   | "connection";
+
+
 
 export interface DeviceMetadata {
   status?: "online" | "offline" | "error";

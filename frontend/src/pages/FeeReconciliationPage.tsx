@@ -43,7 +43,10 @@ import type {
 } from "@/types/reconciliation";
 
 function formatDateTime(iso: string) {
-  return new Date(iso).toLocaleString("en-GB", {
+  if (!iso) return "N/A";
+  const date = new Date(iso);
+  if (isNaN(date.getTime())) return "N/A";
+  return date.toLocaleString("en-GB", {
     day: "2-digit",
     month: "2-digit",
     year: "numeric",
@@ -84,9 +87,19 @@ export function FeeReconciliationPage() {
       setRelated([]);
       return;
     }
-    getSpmsData(selected.sessionId).then(setSpms);
-    getBkpayData(selected.sessionId).then(setBkpay);
-    getRelatedSessions(selected.userId).then(setRelated);
+    if (selected.sessionId) {
+      getSpmsData(selected.sessionId).then(setSpms);
+      getBkpayData(selected.sessionId).then(setBkpay);
+    } else {
+      setSpms(null);
+      setBkpay(null);
+    }
+
+    if (selected.userId) {
+      getRelatedSessions(selected.userId).then(setRelated);
+    } else {
+      setRelated([]);
+    }
   }, [selected]);
 
   const refreshRequests = () => {
@@ -219,7 +232,7 @@ export function FeeReconciliationPage() {
                                 Calculated amount
                               </dt>
                               <dd className="font-semibold">
-                                {spms.calculatedAmount.toLocaleString()} VND
+                                {(spms.calculatedAmount ?? 0).toLocaleString()} VND
                               </dd>
                             </div>
                           </dl>
@@ -256,7 +269,7 @@ export function FeeReconciliationPage() {
                                 Actual amount
                               </dt>
                               <dd className="font-semibold">
-                                {bkpay.actualAmount.toLocaleString()} VND
+                                {(bkpay.actualAmount ?? 0).toLocaleString()} VND
                               </dd>
                             </div>
                           </dl>
@@ -307,7 +320,7 @@ export function FeeReconciliationPage() {
                             <TableCell>{formatDateTime(s.exitTime)}</TableCell>
                             <TableCell>{s.licensePlate}</TableCell>
                             <TableCell className="text-right">
-                              {s.fee.toLocaleString()}
+                              {(s.fee ?? 0).toLocaleString()}
                             </TableCell>
                           </TableRow>
                         ))}

@@ -1,0 +1,26 @@
+\begin{longtblr}[
+  caption = {UC 4.1: Authenticate on WEB},
+]{
+  colspec = {Q[l, 3.5cm] Q[l, 11cm]}, 
+  hlines, vlines,
+  row{1} = {bg=gray9, font=\bfseries}, 
+  rowhead = 0, 
+}
+Field & Details \\
+Use Case ID & 4.1 \\
+Use Case Name & Authenticate on WEB \\
+Actors & Primary: Learners, Faculty Members \& Staff. \par Supporting: HCMUT\_SSO. \\
+Description & User’s credentials authentication process at the WEB app using the university's centralized Single Sign-On system. \\
+Trigger & User navigates to the login page or attempts to access restricted dashboard features. \\
+Pre-conditions & User is at the authentication page. \\
+Post-conditions & System connects with HCMUT\_SSO to authenticate. Valid credentials grant access; otherwise, the request is rejected. \\
+Main Flow & 
+1. User navigates to the authentication page. \par
+2. User inputs credentials information (Username and Password) into the page. \par
+3. The system initiates the authentication process by checking the information with fetched data from HCMUT\_SSO. \par
+4. If information is valid, the system provides the user entrance and redirects to the dashboard. \par
+5. If information is NOT valid, the system rejects the request and prompts the user to re-input credentials (back to step 2). \\
+Exception Flows & 
+\textbf{E1 - Connection to Authentication Module/Host Lost:} The system displays a failsafe page indicating a lost connection to the pipeline or host. The user must refresh the page to check status. \par \vspace{0.5em}
+\textbf{E2 - Connection to HCMUT\_SSO Lost:} The system displays a failsafe page indicating that the SSO service is unreachable. Access is temporarily restricted until the connection is restored. \\
+\end{longtblr}

@@ -1,9 +1,10 @@
-import { Schema, model } from 'mongoose';
+import { Schema, model, Document } from 'mongoose';
 
-export interface IInvoice {
+export interface IInvoice extends Document {
   invoiceId: string;
   amount: number;
-  status: 'PENDING' | 'PAID' | 'CANCELLED';
+  paymentStatus: 'PENDING' | 'PAID' | 'CANCELLED';
+  issueDate: Date;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -11,7 +12,8 @@ export interface IInvoice {
 const InvoiceSchema = new Schema<IInvoice>({
   invoiceId: { type: String, required: true, unique: true },
   amount: { type: Number, required: true },
-  status: { type: String, enum: ['PENDING', 'PAID', 'CANCELLED'], default: 'PENDING' }
+  paymentStatus: { type: String, enum: ['PENDING', 'PAID', 'CANCELLED'], default: 'PENDING' },
+  issueDate: { type: Date, default: Date.now }
 }, { timestamps: true });
 
 export const Invoice = model<IInvoice>('Invoice', InvoiceSchema);

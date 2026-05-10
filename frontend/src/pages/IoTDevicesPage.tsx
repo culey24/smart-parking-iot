@@ -18,7 +18,8 @@ import type { IoTDeviceRow, IoTDeviceType, IoTDeviceStatus } from "@/types/iotDe
 type SortKey = "id" | "type" | "zone" | "status";
 type SortDir = "asc" | "desc";
 
-const DEVICE_TYPES: IoTDeviceType[] = ["sensor", "gateway", "signage", "camera"];
+const DEVICE_TYPES: IoTDeviceType[] = ["sensor", "gate", "signage", "camera"];
+
 
 function StatusBadge({ status }: { status: IoTDeviceStatus }) {
   const config: Record<string, { variant: "success" | "destructive" | "secondary" | "outline"; label: string }> = {
@@ -105,8 +106,9 @@ export function IoTDevicesPage() {
               IoT Devices
             </h1>
             <p className="text-sm text-muted-foreground">
-              Gateway, Sensors, Signage, Camera – sort and filter
+              Gate, Sensors, Signage, Camera – sort and filter
             </p>
+
           </div>
         </div>
       </div>

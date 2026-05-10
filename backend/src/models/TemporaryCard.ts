@@ -1,9 +1,8 @@
 import { Schema, model } from 'mongoose';
 
 const TemporaryCardSchema = new Schema({
-  cardId: { type: String, required: true, unique: true },
-  status: { type: String, enum: ['AVAILABLE', 'IN_USE', 'LOST'], default: 'AVAILABLE' },
-  lastAssignedTo: { type: String }, // Plate number or Session ID
+  tempCardID: { type: String, required: true, unique: true },
+  cardStatus: { type: String, enum: ['ACTIVATING', 'DEACTIVATED'], default: 'ACTIVATING' },
 }, { timestamps: true });
 
 export const TemporaryCard = model('TemporaryCard', TemporaryCardSchema);

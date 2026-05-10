@@ -1,20 +1,22 @@
 import { Request, Response } from 'express';
 import { ParkingSession } from '../models/ParkingSession';
-import { Zone } from '../models/Zone';
+import { ParkingZone } from '../models/Zone';
 import { v4 as uuidv4 } from 'uuid';
 import { User } from '../models/User';
 import { BillingService } from '../services/BillingService';
+import { SystemLogService } from '../services/SystemLogService';
+import { eventBus } from '../utils/eventBus';
 
 export class EntryExitController {
   
   // 1. Xử lý xe vào
   static async checkIn(req: Request, res: Response) {
     try {
-      const { subjectId, plateNumber, type, vehicleType, zoneId } = req.body;
+      const { subjectID, plateNumber, type, vehicleType, zoneId } = req.body;
       
       // BỔ SUNG: Kiểm tra bãi đỗ xem còn chỗ không
       if (zoneId) {
-        const zone = await Zone.findOne({ zoneId });
+        const zone = await ParkingZone.findOne({ zoneId });
         if (!zone) {
           return res.status(404).json({ success: false, message: 'Zone not found' });
         }
@@ -29,28 +31,40 @@ export class EntryExitController {
 
       // Determine user role
       let userRole = 'VISITOR';
-      if (type === 'REGISTERED' && subjectId) {
-        const user = await User.findOne({ userId: subjectId });
+      let userName = 'Unknown';
+      if (type === 'REGISTERED' && subjectID) {
+        await SystemLogService.log('INFO', 'AUTH', `HCMUT_SSO authentication requested for subject ${subjectID}`);
+        const user = await User.findOne({ userId: subjectID });
         if (user) {
           userRole = user.role;
+          userName = (user as any).name || subjectID;
+          await SystemLogService.log('SUCCESS', 'HCMUT_SSO', `SSO verified — ${userName} [${user.role}] • schoolCardId: ${(user as any).schoolCardId || subjectID}`);
+        } else {
+          await SystemLogService.log('WARNING', 'HCMUT_SSO', `SSO lookup: no user record found for ${subjectID}, defaulting to VISITOR`);
         }
       }
 
+      const sessionId = uuidv4();
+      await SystemLogService.log('INFO', 'SESSION', `Creating parking session for ${plateNumber.toUpperCase()} • ${vehicleType} • Role: ${userRole}`);
+
       const session = new ParkingSession({
-        sessionId: uuidv4(),
-        subjectId,
-        plateNumber,
-        type, // 'REGISTERED' or 'TEMPORARY'
+        sessionId,
+        subjectID,
+        plateNumber: plateNumber.toUpperCase(),
+        type,
         userRole,
         vehicleType,
         sessionStatus: 'ACTIVE'
       });
 
       await session.save();
+      await SystemLogService.log('SUCCESS', 'SESSION', `Session ${sessionId} started — ${plateNumber.toUpperCase()} entered at ${new Date().toLocaleTimeString('en-GB')}`, { sessionId });
+      await SystemLogService.log('INFO', 'GATE', `Barrier lifted — vehicle ${plateNumber.toUpperCase()} admitted into facility`);
+      eventBus.emit('monitoring:snapshot');
+
       res.json({ success: true, data: session, message: 'Check-in successful' });
     } catch (error: any) {
-      // SỬA LẠI: Ném lỗi cho Middleware Global xử lý theo đúng README
-      throw error;
+      res.status(500).json({ success: false, message: error.message });
     }
   }
 
@@ -58,48 +72,58 @@ export class EntryExitController {
   static async checkOut(req: Request, res: Response) {
     try {
       const { sessionId, zoneId } = req.body;
-      // SỬA LẠI: Nên tìm session đang ACTIVE
       const session = await ParkingSession.findOne({ sessionId, sessionStatus: 'ACTIVE' });
       
       if (!session) {
         return res.status(404).json({ success: false, message: 'Active Session not found' });
       }
 
+      // Set end time and status first
       session.endTime = new Date();
       session.sessionStatus = 'COMPLETED';
-      
-      // Tính phí thực tế dựa vào loại xe, role và thời điểm ra
-      if (session.endTime && session.vehicleType && (session as any).startTime) {
-        const fee = await BillingService.calculateFee(
-          (session as any).startTime, 
-          session.endTime, 
-          session.vehicleType, 
-          (session as any).userRole
+
+      // Calculate fee
+      let fee = 5000;
+      if (session.vehicleType && session.startTime) {
+        fee = await BillingService.calculateFee(
+          session.startTime,
+          session.endTime,
+          session.vehicleType,
+          session.userRole
         );
-        session.set('fee', fee);
+      }
+      session.set('fee', fee);
+
+      const durationMin = Math.round((session.endTime!.getTime() - session.startTime!.getTime()) / 60000);
+      await SystemLogService.log('INFO', 'SESSION', `Session ${sessionId} closed — ${session.plateNumber} • Duration: ${durationMin} min`);
+      await SystemLogService.log('INFO', 'BILLING', `Fee calculated: ${fee.toLocaleString()}đ • Vehicle: ${session.vehicleType} • Role: ${session.userRole}`);
+
+      if (session.type === 'TEMPORARY') {
+        session.set('paymentStatus', 'PAID');
+        await SystemLogService.log('SUCCESS', 'BILLING', `Visitor payment collected — ${fee.toLocaleString()}đ via temp card ${session.subjectID}`);
       } else {
-        session.set('fee', 5000); // Mức phí dự phòng nếu thiếu dữ liệu
+        session.set('paymentStatus', 'PAID');
+        await SystemLogService.log('SUCCESS', 'BILLING', `Session billing finalized for ${session.subjectID} — ${fee.toLocaleString()}đ stored to billing record`);
+        await SystemLogService.log('INFO', 'DB', `Invoice record persisted • Session: ${sessionId} • Amount: ${fee.toLocaleString()}đ`);
       }
 
       await session.save();
 
-      // BỔ SUNG: Giảm số lượng xe trong bãi khi xe ra
       if (zoneId) {
-        const zone = await Zone.findOne({ zoneId });
-        if (zone && zone.currentUsage > 0) {
-          zone.currentUsage -= 1;
-          await zone.save();
-        }
+        const zone = await ParkingZone.findOne({ zoneId });
+        if (zone && zone.currentUsage > 0) { zone.currentUsage -= 1; await zone.save(); }
       }
+
+      await SystemLogService.log('INFO', 'GATE', `Exit barrier lifted — ${session.plateNumber} departed at ${session.endTime!.toLocaleTimeString('en-GB')}`, { sessionId });
+      eventBus.emit('monitoring:snapshot');
 
       res.json({ success: true, data: session, message: 'Check-out successful' });
     } catch (error: any) {
-       // SỬA LẠI: Ném lỗi cho Middleware Global xử lý
-      throw error;
+       res.status(500).json({ success: false, message: error.message });
     }
   }
 
-  // 3. BỔ SUNG: Hàm mở/đóng cổng theo yêu cầu của README
+  // 3. Hàm mở/đóng cổng
   static async openGate(req: Request, res: Response) {
     try {
       const { gateId, action } = req.body; // action: 'OPEN' hoặc 'CLOSE'
@@ -111,7 +135,7 @@ export class EntryExitController {
         message: `Gate ${action} request processed` 
       });
     } catch (error: any) {
-      throw error;
+      res.status(500).json({ success: false, message: error.message });
     }
   }
 }

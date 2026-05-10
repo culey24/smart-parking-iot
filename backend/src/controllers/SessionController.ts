@@ -14,7 +14,8 @@ export class SessionController {
   static async getByUser(req: Request, res: Response) {
     try {
       const { userId } = req.params;
-      const sessions = await ParkingSession.find({ subjectId: userId }).sort({ createdAt: -1 });
+      const sessions = await ParkingSession.find({ subjectID: userId }).sort({ createdAt: -1 });
+
       res.json({ success: true, data: sessions });
     } catch (error: any) {
       res.status(500).json({ success: false, message: error.message });

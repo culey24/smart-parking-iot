@@ -1,0 +1,117 @@
+\contentsline {section}{\numberline {1}Deployment View}{3}{section.1}%
+\contentsline {subsection}{\numberline {1.1}Deployment Architecture}{3}{subsection.1.1}%
+\contentsline {subsection}{\numberline {1.2}Infrastructure Components}{3}{subsection.1.2}%
+\contentsline {subsubsection}{\numberline {1.2.1}Frontend Deployment (Vercel)}{3}{subsubsection.1.2.1}%
+\contentsline {subsubsection}{\numberline {1.2.2}Backend Deployment (Railway)}{4}{subsubsection.1.2.2}%
+\contentsline {subsubsection}{\numberline {1.2.3}Database (Railway MongoDB)}{4}{subsubsection.1.2.3}%
+\contentsline {subsubsection}{\numberline {1.2.4}IoT Integration (Planned)}{4}{subsubsection.1.2.4}%
+\contentsline {subsection}{\numberline {1.3}Business Flow Integration}{4}{subsection.1.3}%
+\contentsline {subsubsection}{\numberline {1.3.1}Authentication Flow}{4}{subsubsection.1.3.1}%
+\contentsline {subsubsection}{\numberline {1.3.2}Billing and Payment Flow}{5}{subsubsection.1.3.2}%
+\contentsline {subsubsection}{\numberline {1.3.3}IoT Data Flow (Planned)}{5}{subsubsection.1.3.3}%
+\contentsline {subsection}{\numberline {1.4}Security Considerations}{5}{subsection.1.4}%
+\contentsline {subsubsection}{\numberline {1.4.1}Data Protection}{5}{subsubsection.1.4.1}%
+\contentsline {subsubsection}{\numberline {1.4.2}Network Security}{5}{subsubsection.1.4.2}%
+\contentsline {subsection}{\numberline {1.5}Scalability and Performance}{6}{subsection.1.5}%
+\contentsline {subsubsection}{\numberline {1.5.1}Frontend Scaling}{6}{subsubsection.1.5.1}%
+\contentsline {subsubsection}{\numberline {1.5.2}Backend Scaling}{6}{subsubsection.1.5.2}%
+\contentsline {subsubsection}{\numberline {1.5.3}Database Scaling}{6}{subsubsection.1.5.3}%
+\contentsline {section}{\numberline {2}Development/Implementation View}{6}{section.2}%
+\contentsline {subsection}{\numberline {2.1}Architecture Overview}{7}{subsection.2.1}%
+\contentsline {subsection}{\numberline {2.2}Technology Stack}{7}{subsection.2.2}%
+\contentsline {subsubsection}{\numberline {2.2.1}Backend Technology Stack}{7}{subsubsection.2.2.1}%
+\contentsline {subsubsection}{\numberline {2.2.2}Frontend Technology Stack}{8}{subsubsection.2.2.2}%
+\contentsline {subsection}{\numberline {2.3}Package Structure}{8}{subsection.2.3}%
+\contentsline {subsubsection}{\numberline {2.3.1}Backend Package Structure}{8}{subsubsection.2.3.1}%
+\contentsline {subsubsection}{\numberline {2.3.2}Frontend Package Structure}{9}{subsubsection.2.3.2}%
+\contentsline {subsection}{\numberline {2.4}Data Flow Architecture}{9}{subsection.2.4}%
+\contentsline {subsubsection}{\numberline {2.4.1}Authentication Flow}{9}{subsubsection.2.4.1}%
+\contentsline {subsubsection}{\numberline {2.4.2}Parking Session Flow}{9}{subsubsection.2.4.2}%
+\contentsline {subsubsection}{\numberline {2.4.3}Billing and Payment Flow}{10}{subsubsection.2.4.3}%
+\contentsline {subsection}{\numberline {2.5}Component Relationships}{10}{subsection.2.5}%
+\contentsline {subsubsection}{\numberline {2.5.1}Backend Component Dependencies}{10}{subsubsection.2.5.1}%
+\contentsline {subsubsection}{\numberline {2.5.2}Frontend Component Dependencies}{11}{subsubsection.2.5.2}%
+\contentsline {subsection}{\numberline {2.6}Design Patterns}{11}{subsection.2.6}%
+\contentsline {subsubsection}{\numberline {2.6.1}Backend Patterns}{11}{subsubsection.2.6.1}%
+\contentsline {subsubsection}{\numberline {2.6.2}Frontend Patterns}{11}{subsubsection.2.6.2}%
+\contentsline {subsection}{\numberline {2.7}Development Workflow}{12}{subsection.2.7}%
+\contentsline {subsubsection}{\numberline {2.7.1}Backend Development}{12}{subsubsection.2.7.1}%
+\contentsline {subsubsection}{\numberline {2.7.2}Frontend Development}{12}{subsubsection.2.7.2}%
+\contentsline {section}{\numberline {3}Class Diagram}{12}{section.3}%
+\contentsline {subsection}{\numberline {3.1}Class Diagram Overview}{13}{subsection.3.1}%
+\contentsline {subsection}{\numberline {3.2}Domain Model Classes}{13}{subsection.3.2}%
+\contentsline {subsubsection}{\numberline {3.2.1}Core Entities}{13}{subsubsection.3.2.1}%
+\contentsline {subsubsection}{\numberline {3.2.2}IoT and Infrastructure}{13}{subsubsection.3.2.2}%
+\contentsline {subsubsection}{\numberline {3.2.3}Business Entities}{14}{subsubsection.3.2.3}%
+\contentsline {subsubsection}{\numberline {3.2.4}Supporting Entities}{14}{subsubsection.3.2.4}%
+\contentsline {subsection}{\numberline {3.3}Service Layer Classes}{14}{subsection.3.3}%
+\contentsline {subsubsection}{\numberline {3.3.1}Business Services}{14}{subsubsection.3.3.1}%
+\contentsline {subsection}{\numberline {3.4}Controller Layer Classes}{15}{subsection.3.4}%
+\contentsline {subsubsection}{\numberline {3.4.1}API Controllers}{15}{subsubsection.3.4.1}%
+\contentsline {subsection}{\numberline {3.5}Frontend Types}{15}{subsection.3.5}%
+\contentsline {subsubsection}{\numberline {3.5.1}UI Mapping Types}{15}{subsubsection.3.5.1}%
+\contentsline {subsection}{\numberline {3.6}Key Relationships}{15}{subsection.3.6}%
+\contentsline {subsubsection}{\numberline {3.6.1}Inheritance Relationships}{15}{subsubsection.3.6.1}%
+\contentsline {subsubsection}{\numberline {3.6.2}Association Relationships}{15}{subsubsection.3.6.2}%
+\contentsline {subsubsection}{\numberline {3.6.3}Dependency Relationships}{16}{subsubsection.3.6.3}%
+\contentsline {subsection}{\numberline {3.7}Design Patterns Applied}{16}{subsection.3.7}%
+\contentsline {subsubsection}{\numberline {3.7.1}Structural Patterns}{16}{subsubsection.3.7.1}%
+\contentsline {subsubsection}{\numberline {3.7.2}Behavioral Patterns}{16}{subsubsection.3.7.2}%
+\contentsline {subsection}{\numberline {3.8}Database Mapping}{16}{subsection.3.8}%
+\contentsline {subsubsection}{\numberline {3.8.1}MongoDB Collections}{16}{subsubsection.3.8.1}%
+\contentsline {subsubsection}{\numberline {3.8.2}Indexing Strategy}{17}{subsubsection.3.8.2}%
+\contentsline {subsubsection}{\numberline {3.8.3}Denormalization Strategy}{17}{subsubsection.3.8.3}%
+\contentsline {section}{\numberline {4}Method Descriptions}{17}{section.4}%
+\contentsline {subsection}{\numberline {4.1}Domain Model Methods}{17}{subsection.4.1}%
+\contentsline {subsubsection}{\numberline {4.1.1}User Class}{17}{subsubsection.4.1.1}%
+\contentsline {subsubsection}{\numberline {4.1.2}ParkingSession Class}{17}{subsubsection.4.1.2}%
+\contentsline {subsubsection}{\numberline {4.1.3}Zone Class}{18}{subsubsection.4.1.3}%
+\contentsline {subsubsection}{\numberline {4.1.4}ParkingSlot Class}{18}{subsubsection.4.1.4}%
+\contentsline {subsubsection}{\numberline {4.1.5}IoTDevice Classes}{18}{subsubsection.4.1.5}%
+\contentsline {subsection}{\numberline {4.2}Service Layer Methods}{18}{subsection.4.2}%
+\contentsline {subsubsection}{\numberline {4.2.1}AuthService Class}{18}{subsubsection.4.2.1}%
+\contentsline {subsubsection}{\numberline {4.2.2}BillingService Class}{19}{subsubsection.4.2.2}%
+\contentsline {subsubsection}{\numberline {4.2.3}NavigationService Class}{19}{subsubsection.4.2.3}%
+\contentsline {subsubsection}{\numberline {4.2.4}ReportService Class}{20}{subsubsection.4.2.4}%
+\contentsline {subsubsection}{\numberline {4.2.5}SystemAdminService Class}{20}{subsubsection.4.2.5}%
+\contentsline {subsubsection}{\numberline {4.2.6}SystemLogService Class}{21}{subsubsection.4.2.6}%
+\contentsline {subsection}{\numberline {4.3}Controller Layer Methods}{21}{subsection.4.3}%
+\contentsline {subsubsection}{\numberline {4.3.1}EntryExitController Class}{21}{subsubsection.4.3.1}%
+\contentsline {subsubsection}{\numberline {4.3.2}PaymentController Class}{22}{subsubsection.4.3.2}%
+\contentsline {subsubsection}{\numberline {4.3.3}SessionController Class}{22}{subsubsection.4.3.3}%
+\contentsline {subsection}{\numberline {4.4}Frontend Component Methods}{23}{subsection.4.4}%
+\contentsline {subsubsection}{\numberline {4.4.1}PlacedDevice Class}{23}{subsubsection.4.4.1}%
+\contentsline {subsubsection}{\numberline {4.4.2}CanvasTransform Class}{23}{subsubsection.4.4.2}%
+\contentsline {subsubsection}{\numberline {4.4.3}ParkingMap Class}{23}{subsubsection.4.4.3}%
+\contentsline {subsection}{\numberline {4.5}Supporting Class Methods}{23}{subsection.4.5}%
+\contentsline {subsubsection}{\numberline {4.5.1}MappingConfig Class}{23}{subsubsection.4.5.1}%
+\contentsline {subsubsection}{\numberline {4.5.2}InfrastructureAlert Class}{23}{subsubsection.4.5.2}%
+\contentsline {subsubsection}{\numberline {4.5.3}SystemConfig Class}{23}{subsubsection.4.5.3}%
+\contentsline {subsubsection}{\numberline {4.5.4}AuditLog Class}{23}{subsubsection.4.5.4}%
+\contentsline {subsubsection}{\numberline {4.5.5}SystemLog Class}{23}{subsubsection.4.5.5}%
+\contentsline {subsubsection}{\numberline {4.5.6}TemporaryCard Class}{23}{subsubsection.4.5.6}%
+\contentsline {subsubsection}{\numberline {4.5.7}Location Class}{24}{subsubsection.4.5.7}%
+\contentsline {subsubsection}{\numberline {4.5.8}Invoice Class}{24}{subsubsection.4.5.8}%
+\contentsline {section}{\numberline {5}Test Cases}{24}{section.5}%
+\contentsline {subsection}{\numberline {5.1}Backend Unit Tests}{24}{subsection.5.1}%
+\contentsline {subsubsection}{\numberline {5.1.1}Authentication Middleware Tests}{24}{subsubsection.5.1.1}%
+\contentsline {subsubsection}{\numberline {5.1.2}User Model Tests}{24}{subsubsection.5.1.2}%
+\contentsline {subsubsection}{\numberline {5.1.3}Card Controller Tests}{25}{subsubsection.5.1.3}%
+\contentsline {subsubsection}{\numberline {5.1.4}Session Controller Tests}{25}{subsubsection.5.1.4}%
+\contentsline {subsection}{\numberline {5.2}Frontend Unit Tests}{25}{subsection.5.2}%
+\contentsline {subsubsection}{\numberline {5.2.1}API Service Tests}{25}{subsubsection.5.2.1}%
+\contentsline {subsubsection}{\numberline {5.2.2}Monitoring Service Tests}{26}{subsubsection.5.2.2}%
+\contentsline {subsubsection}{\numberline {5.2.3}Pricing Policy Service Tests}{26}{subsubsection.5.2.3}%
+\contentsline {subsection}{\numberline {5.3}Integration Test Scenarios}{26}{subsection.5.3}%
+\contentsline {subsubsection}{\numberline {5.3.1}Authentication Flow Integration}{26}{subsubsection.5.3.1}%
+\contentsline {subsubsection}{\numberline {5.3.2}Parking Session Flow Integration}{27}{subsubsection.5.3.2}%
+\contentsline {subsubsection}{\numberline {5.3.3}Payment Flow Integration}{27}{subsubsection.5.3.3}%
+\contentsline {subsection}{\numberline {5.4}Test Coverage Metrics}{27}{subsection.5.4}%
+\contentsline {subsubsection}{\numberline {5.4.1}Backend Test Coverage}{27}{subsubsection.5.4.1}%
+\contentsline {subsubsection}{\numberline {5.4.2}Frontend Test Coverage}{28}{subsubsection.5.4.2}%
+\contentsline {subsection}{\numberline {5.5}Test Execution Results}{28}{subsection.5.5}%
+\contentsline {subsubsection}{\numberline {5.5.1}Automated Test Suite}{28}{subsubsection.5.5.1}%
+\contentsline {subsubsection}{\numberline {5.5.2}Performance Benchmarks}{28}{subsubsection.5.5.2}%
+\contentsline {subsection}{\numberline {5.6}Quality Assurance Process}{28}{subsection.5.6}%
+\contentsline {subsubsection}{\numberline {5.6.1}Code Quality Gates}{28}{subsubsection.5.6.1}%
+\contentsline {subsubsection}{\numberline {5.6.2}Continuous Integration Pipeline}{29}{subsubsection.5.6.2}%

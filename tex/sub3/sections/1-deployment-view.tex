@@ -1,0 +1,146 @@
+\section{Deployment View}
+
+The deployment view illustrates how the Smart Parking IoT system components are distributed across physical and virtual infrastructure. The system is designed for scalability, reliability, and ease of deployment using modern cloud platforms.
+
+\subsection{Deployment Architecture}
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[node distance=2cm, auto]
+    % Cloud platforms
+    \node[draw, fill=blue!10, minimum width=3cm, minimum height=1cm] (vercel) at (0,3) {Vercel};
+    \node[draw, fill=green!10, minimum width=3cm, minimum height=1cm] (railway) at (6,3) {Railway};
+    \node[draw, fill=orange!10, minimum width=3cm, minimum height=1cm] (mongodb) at (6,0) {MongoDB Atlas};
+
+    % Application components
+    \node[draw, fill=blue!20, minimum width=2.5cm, minimum height=0.8cm] (frontend) at (0,1.5) {Frontend\\(React/Vite)};
+    \node[draw, fill=green!20, minimum width=2.5cm, minimum height=0.8cm] (backend) at (6,1.5) {Backend\\(Node.js/Express)};
+    \node[draw, fill=purple!20, minimum width=2.5cm, minimum height=0.8cm] (iot) at (3,-1) {IoT Gateway\\(MQTT - Planned)};
+
+    % Users and devices
+    \node[draw, fill=gray!20, minimum width=2cm, minimum height=0.6cm] (users) at (-2,0) {Users\\(Web/Mobile)};
+    \node[draw, fill=gray!20, minimum width=2cm, minimum height=0.6cm] (devices) at (3,-2.5) {IoT Devices\\(Sensors/Gates)};
+
+    % Connections
+    \draw[->, thick] (users) -- (frontend);
+    \draw[->, thick] (frontend) -- (backend);
+    \draw[->, thick] (backend) -- (mongodb);
+    \draw[->, thick, dashed] (devices) -- (iot);
+    \draw[->, thick, dashed] (iot) -- (backend);
+
+    % Platform connections
+    \draw[->, thick] (frontend) -- (vercel);
+    \draw[->, thick] (backend) -- (railway);
+    \draw[->, thick] (mongodb) -- (railway);
+
+    % Labels
+    \node at (0,3.5) {\textbf{Frontend Hosting}};
+    \node at (6,3.5) {\textbf{Backend Hosting}};
+    \node at (3,-3) {\textbf{IoT Integration (Future)}};
+\end{tikzpicture}
+\caption{Deployment Architecture Overview}
+\label{fig:deployment-arch}
+\end{figure}
+
+\subsection{Infrastructure Components}
+
+\subsubsection{Frontend Deployment (Vercel)}
+\begin{itemize}
+\item \textbf{Platform:} Vercel - Static site hosting with global CDN
+\item \textbf{Technology:} React 18 + Vite + TypeScript
+\item \textbf{Build Process:} Automatic builds from Git repository
+\item \textbf{Features:} Global CDN, automatic HTTPS, preview deployments
+\end{itemize}
+
+\subsubsection{Backend Deployment (Railway)}
+\begin{itemize}
+\item \textbf{Platform:} Railway - Cloud application hosting
+\item \textbf{Technology:} Node.js/Express 5 + TypeScript
+\item \textbf{Database:} Railway MongoDB (managed MongoDB service)
+\item \textbf{Features:} Automatic scaling, environment management, logging
+\end{itemize}
+
+\subsubsection{Database (Railway MongoDB)}
+\begin{itemize}
+\item \textbf{Service:} Railway MongoDB - Managed MongoDB instance
+\item \textbf{Features:} Automatic backups, high availability, connection pooling
+\item \textbf{Security:} Encrypted connections, access control
+\end{itemize}
+
+\subsubsection{IoT Integration (Planned)}
+\begin{itemize}
+\item \textbf{Protocol:} MQTT for device communication
+\item \textbf{Gateway:} Cloud-based MQTT broker
+\item \textbf{Current Status:} Mockup implementation
+\item \textbf{Future:} Real IoT device integration via MQTT topics
+\end{itemize}
+
+\subsection{Business Flow Integration}
+
+\subsubsection{Authentication Flow}
+\begin{enumerate}
+\item User accesses frontend application on Vercel
+\item Frontend redirects to HCMUT SSO for authentication
+\item SSO returns JWT token to frontend
+\item Frontend stores token and calls backend APIs
+\item Backend validates JWT with Railway-hosted service
+\end{enumerate}
+
+\subsubsection{Billing and Payment Flow}
+\begin{enumerate}
+\item User initiates parking session via frontend
+\item Backend calculates fees using pricing policies
+\item Payment request sent to BKPay integration
+\item Payment confirmation updates session status in MongoDB
+\item Real-time updates sent to frontend via WebSocket/SSE
+\end{enumerate}
+
+\subsubsection{IoT Data Flow (Planned)}
+\begin{enumerate}
+\item IoT sensors publish data to MQTT topics
+\item MQTT gateway receives and processes messages
+\item Processed data sent to Railway backend
+\item Backend updates parking slot status in MongoDB
+\item Real-time updates broadcast to connected frontends
+\end{enumerate}
+
+\subsection{Security Considerations}
+
+\subsubsection{Data Protection}
+\begin{itemize}
+\item HTTPS encryption for all communications
+\item JWT tokens for API authentication
+\item MongoDB access control and encryption
+\item Secure environment variable management
+\end{itemize}
+
+\subsubsection{Network Security}
+\begin{itemize}
+\item Vercel automatic HTTPS certificates
+\item Railway firewall and access controls
+\item API rate limiting and request validation
+\item CORS configuration for frontend-backend communication
+\end{itemize}
+
+\subsection{Scalability and Performance}
+
+\subsubsection{Frontend Scaling}
+\begin{itemize}
+\item Vercel's global CDN for low-latency content delivery
+\item Static asset optimization and caching
+\item Automatic scaling based on traffic
+\end{itemize}
+
+\subsubsection{Backend Scaling}
+\begin{itemize}
+\item Railway's horizontal scaling capabilities
+\item MongoDB connection pooling and indexing
+\item API response caching and optimization
+\end{itemize}
+
+\subsubsection{Database Scaling}
+\begin{itemize}
+\item MongoDB Atlas auto-scaling
+\item Read/write splitting capabilities
+\item Backup and disaster recovery
+\end{itemize}

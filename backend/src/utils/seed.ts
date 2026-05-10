@@ -6,11 +6,13 @@ import { Location } from '../models/Location';
 import { ParkingSlot } from '../models/ParkingSlot';
 import { IoTDevice } from '../models/IoTDevice';
 import { InfrastructureAlert } from '../models/InfrastructureAlert';
-import { Zone } from '../models/Zone';
+import { Zone as ParkingZone } from '../models/Zone';
 import { ParkingSession } from '../models/ParkingSession';
 import { User } from '../models/User';
 import { PricingPolicy } from '../models/PricingPolicy';
 import { TemporaryCard } from '../models/TemporaryCard';
+import { ReconciliationRequest } from '../models/ReconciliationRequest';
+import { Invoice } from '../models/Invoice';
 
 dotenv.config();
 
@@ -26,11 +28,13 @@ const seedDatabase = async () => {
     await ParkingSlot.deleteMany({});
     await IoTDevice.deleteMany({});
     await InfrastructureAlert.deleteMany({});
-    await Zone.deleteMany({});
+    await ParkingZone.deleteMany({});
     await ParkingSession.deleteMany({});
     await User.deleteMany({});
     await PricingPolicy.deleteMany({});
     await TemporaryCard.deleteMany({});
+    await ReconciliationRequest.deleteMany({});
+    await Invoice.deleteMany({});
     console.log('Cleared existing collections.');
 
     // 1. Create Pricing Policies
@@ -109,7 +113,7 @@ const seedDatabase = async () => {
     // 2. Create TemporaryCards (50 cards in pool)
     const tempCards = [];
     for (let i = 1; i <= 50; i++) {
-      tempCards.push({ cardId: `CARD_TEMP_${String(i).padStart(3, '0')}` });
+      tempCards.push({ tempCardID: `CARD_TEMP_${String(i).padStart(3, '0')}`, cardStatus: 'ACTIVATING' });
     }
     await TemporaryCard.insertMany(tempCards);
     console.log('Created 50 temporary cards.');
@@ -124,7 +128,7 @@ const seedDatabase = async () => {
       userMap[`USER_${i}`] = role;
       users.push({
         userId: `USER_${i}`,
-        schoolCardId: 100000 + i,
+        schoolCardId: String(100000 + i),
         fullName: `User Full Name ${i}`,
         role: role,
         email: `user${i}@example.com`,
@@ -134,9 +138,6 @@ const seedDatabase = async () => {
     }
     await User.insertMany(users);
     console.log('Created 20 users.');
-
-    // ... (Zones, Slots, Devices logic)
-    // (Omitted unchanged code for brevity, assuming it remains intact)
 
     // 4. Create Zones and Slots
     const zoneConfigs = [
@@ -148,7 +149,7 @@ const seedDatabase = async () => {
     ];
 
     for (const z of zoneConfigs) {
-      await Zone.create({
+      await ParkingZone.create({
         zoneId: z.id,
         zoneName: z.name,
         capacity: z.capacity,
@@ -183,7 +184,10 @@ const seedDatabase = async () => {
         deviceType: 'CAMERA',
         locationId: entryGateId,
         deviceName: `${z.name} Entry Cam`,
-        status: 'ONLINE'
+        status: 'ONLINE',
+        lastOnline: new Date(),
+        streamURL: `rtsp://cam/${z.id}/entry`,
+        resolution: '1080p'
       });
       devices.push({
         deviceId: `CAM_EXIT_${z.id}`,
@@ -191,17 +195,23 @@ const seedDatabase = async () => {
         deviceType: 'CAMERA',
         locationId: exitGateId,
         deviceName: `${z.name} Exit Cam`,
-        status: 'ONLINE'
+        status: 'ONLINE',
+        lastOnline: new Date(),
+        streamURL: `rtsp://cam/${z.id}/exit`,
+        resolution: '1080p'
       });
 
-      // Gateway for the zone
+      // Gateway (Gate) for the zone
       devices.push({
         deviceId: `GW_${z.id}`,
         zoneId: z.id,
-        deviceType: 'GATEWAY',
+        deviceType: 'GATE',
+        gateType: 'ENTRY',
         locationId: entryGateId,
-        deviceName: `${z.name} Main Gateway`,
-        status: 'ONLINE'
+        deviceName: `${z.name} Entrance Controller`,
+        status: 'ONLINE',
+        lastOnline: new Date(),
+        isAutoOpen: true
       });
 
       // Signage for the zone
@@ -211,7 +221,10 @@ const seedDatabase = async () => {
         deviceType: 'SIGNAGE',
         locationId: entryGateId,
         deviceName: `${z.name} Info Board`,
-        status: 'ONLINE'
+        status: 'ONLINE',
+        lastOnline: new Date(),
+        message: 'Welcome',
+        brightness: 100
       });
 
       // Slots
@@ -246,7 +259,10 @@ const seedDatabase = async () => {
             deviceType: 'SENSOR',
             locationId: slotId,
             deviceName: `Sensor ${r}-${c}`,
-            status: status
+            status: status,
+            lastOnline: new Date(),
+            parkingSlotId: slotId,
+            sensitivity: 0.8
           });
 
           if (status === 'ERROR') {
@@ -266,7 +282,7 @@ const seedDatabase = async () => {
       
       // Update usage
       const occupiedCount = slots.filter(s => !s.isAvailable).length;
-      await Zone.updateOne({ zoneId: z.id }, { currentUsage: occupiedCount });
+      await ParkingZone.updateOne({ zoneId: z.id }, { currentUsage: occupiedCount });
     }
     console.log(`Created ${zoneConfigs.length} zones with slots and devices.`);
 
@@ -282,8 +298,8 @@ const seedDatabase = async () => {
       const vehicleType = vehicleTypes[Math.floor(Math.random() * vehicleTypes.length)];
       const startTime = new Date();
       startTime.setHours(startTime.getHours() - Math.floor(Math.random() * 5));
-      const subjectId = type === 'REGISTERED' ? `USER_${Math.floor(Math.random() * 20) + 1}` : `CARD_${1000 + i}`;
-      const userRole = type === 'REGISTERED' ? (userMap[subjectId] || 'LEARNER') : 'VISITOR';
+      const subjectID = type === 'REGISTERED' ? `USER_${Math.floor(Math.random() * 20) + 1}` : `CARD_${1000 + i}`;
+      const userRole = type === 'REGISTERED' ? (userMap[subjectID] || 'LEARNER') : 'VISITOR';
 
       sessions.push({
         sessionId: uuidv4(),
@@ -293,7 +309,7 @@ const seedDatabase = async () => {
         type: type,
         userRole: userRole,
         vehicleType: vehicleType,
-        subjectId: subjectId,
+        subjectID: subjectID,
         plateNumber: `${platePrefixes[Math.floor(Math.random() * platePrefixes.length)]}-${Math.floor(10000 + Math.random() * 90000)}`,
         fee: 0
       });
@@ -314,8 +330,8 @@ const seedDatabase = async () => {
       const endTime = new Date(startTime);
       endTime.setHours(startTime.getHours() + durationHours);
 
-      const subjectId = type === 'REGISTERED' ? `USER_${Math.floor(Math.random() * 20) + 1}` : `CARD_${2000 + i}`;
-      const userRole = type === 'REGISTERED' ? (userMap[subjectId] || 'LEARNER') : 'VISITOR';
+      const subjectID = type === 'REGISTERED' ? `USER_${Math.floor(Math.random() * 20) + 1}` : `CARD_${2000 + i}`;
+      const userRole = type === 'REGISTERED' ? (userMap[subjectID] || 'LEARNER') : 'VISITOR';
 
       let fee = 0;
       if (userRole === 'VISITOR') {
@@ -335,7 +351,7 @@ const seedDatabase = async () => {
         type: type,
         userRole: userRole,
         vehicleType: vehicleType,
-        subjectId: subjectId,
+        subjectID: subjectID,
         plateNumber: `${platePrefixes[Math.floor(Math.random() * platePrefixes.length)]}-${Math.floor(10000 + Math.random() * 90000)}`,
         fee: fee,
         invoiceId: `INV-${Date.now()}-${i}`
@@ -344,6 +360,51 @@ const seedDatabase = async () => {
 
     await ParkingSession.insertMany(sessions);
     console.log(`Created ${sessions.length} parking sessions.`);
+
+    // 6. Create Invoices for completed sessions
+    const invoices = sessions
+      .filter(s => s.sessionStatus === 'COMPLETED' && s.invoiceId)
+      .map(s => ({
+        invoiceId: s.invoiceId,
+        amount: s.fee, // Default to match fee
+        paymentStatus: 'PAID',
+        issueDate: s.endTime
+      }));
+    
+    // Add some discrepancies for reconciliation demo
+    if (invoices.length > 0) {
+      invoices[0].amount += 5000; // Invoice is 5k more than calculated fee
+    }
+
+    await Invoice.insertMany(invoices);
+    console.log(`Created ${invoices.length} invoices.`);
+
+    // 7. Create Reconciliation Requests
+    const completed = sessions.filter(s => s.sessionStatus === 'COMPLETED');
+    if (completed.length >= 2) {
+      const reconRequests = [
+        {
+          sessionId: completed[0].sessionId,
+          userId: completed[0].subjectID,
+          userName: 'John Doe (Simulated)',
+          licensePlate: completed[0].plateNumber,
+          description: 'Calculated fee seems lower than what I paid in BKPay.',
+          status: 'pending',
+          reportedAt: new Date()
+        },
+        {
+          sessionId: completed[1].sessionId,
+          userId: completed[1].subjectID,
+          userName: 'Jane Smith (Simulated)',
+          licensePlate: completed[1].plateNumber,
+          description: 'Session is marked as PAID but I want to contest the duration.',
+          status: 'pending',
+          reportedAt: new Date(Date.now() - 3600000)
+        }
+      ];
+      await ReconciliationRequest.insertMany(reconRequests);
+      console.log('Created 2 reconciliation requests.');
+    }
 
     console.log('Seeding completed successfully with large dataset!');
     process.exit(0);

@@ -12,4 +12,5 @@ export interface SystemConfig {
   hotlineSupport: string;
   alertEmail: string;
   enableEmailAlerts: boolean;
+  pricingCycleDays: number;
 }

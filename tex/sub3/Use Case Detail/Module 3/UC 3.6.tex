@@ -1,0 +1,34 @@
+\begin{longtblr}[
+  caption = {UC 3.6: Report payment issue},
+]{
+  colspec = {Q[l, 3.5cm] Q[l, 11cm]}, 
+  hlines, vlines,
+  row{1} = {bg=gray9, font=\bfseries}, 
+  rowhead = 0, 
+}
+Field & Details \\
+Use Case ID & 3.6 \\
+Use Case Name & Report payment issue \\
+Actors & Primary: Learners, Faculty Members \& Staff. \par Supporting: HCMUT Finance Office, BKPAY, Parking Operators. \\
+Description & This use case allows registered users to submit a formal dispute or report an error regarding their parking fees. The system captures the issue and routes it as a support ticket for investigation and resolution. \\
+Trigger & The user navigates to the ``Billing History'' module and clicks the ``Report Issue'' button next to a specific parking session or payment transaction. \\
+Pre-conditions & 1. The user has successfully authenticated and logged in via HCMUT\_SSO. \par 2. The user has an existing parking session or transaction record in the system to report against. \\
+Post-conditions & 1. A support ticket is successfully created with a ``Pending Review'' status. \par 2. The disputed transaction is flagged as ``Under Investigation''. \par 3. The HCMUT Finance Office (and relevant support teams) is notified. \\
+Main Flow & 
+1. The user views their transaction list in the ``Billing History'' module. \par
+2. The user identifies a problematic transaction and clicks the ``Report Issue'' button associated with it. \par
+3. The system displays a ``Dispute/Report Issue'' form pre-filled with the Transaction ID, Date, and relevant fee details. \par
+4. The user selects an ``Issue Category'' from a dropdown menu (e.g., ``Overcharged'', ``Bank Deducted but Status Unpaid''). \par
+5. The user types a detailed description of the problem in the text area. \par
+6. The user uploads supporting evidence (e.g., a screenshot of the banking app deduction receipt). \par
+7. The user clicks ``Submit Report''. \par
+8. The system validates the form data (checking mandatory fields and file constraints). \par
+9. The system creates a support ticket, links it to the original transaction, and updates the transaction state to ``Under Investigation''. \par
+10. The system routes the ticket to the HCMUT Finance Office dashboard. \par
+11. The system displays a success message containing the Ticket ID and estimated resolution time, and sends a confirmation email. \\
+Alternate Flows & 
+\textbf{A1 - Cancel Report:} At step 5 or 6, the user decides not to proceed and clicks ``Cancel''. The system closes the form, discards all inputs, and returns the user to the Billing History view. \\
+Exception Flows & 
+\textbf{E1 - Invalid File Upload:} At step 8, if the uploaded screenshot exceeds the limit (>5MB) or is in an unsupported format, the system rejects the submission and displays: ``File size must be under 5MB and in JPG, PNG, or PDF format. Please re-upload your proof.'' \par \vspace{0.5em}
+\textbf{E2 - Missing Mandatory Information:} At step 8, if the user leaves the Description or Issue Category blank, the system prevents submission and highlights the missing fields in red. \\
+\end{longtblr}

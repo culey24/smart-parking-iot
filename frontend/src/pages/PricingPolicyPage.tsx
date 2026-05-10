@@ -17,6 +17,11 @@ import {
   getPricingPolicy,
   savePricingPolicy,
 } from "@/services/pricingPolicyService";
+import {
+  getSystemConfig,
+  saveSystemConfig,
+} from "@/services/systemConfigService";
+import type { SystemConfig } from "@/types/systemConfig";
 import type {
   PricingPolicy,
   PricingPolicyConfig,
@@ -299,6 +304,7 @@ function VehicleConfigForm({
 
 export function PricingPolicyPage() {
   const [config, setConfig] = useState<PricingPolicyConfig>([]);
+  const [globalConfig, setGlobalConfig] = useState<SystemConfig | null>(null);
   const [saving, setSaving] = useState(false);
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [activeRole, setActiveRole] = useState<UserRole>("LEARNER");
@@ -318,7 +324,7 @@ export function PricingPolicyPage() {
             billingIntervalMinutes: 60,
             specialRules: [],
             discountPercent: 0,
-          };
+            };
 
           if (!finalPolicy.specialRules || finalPolicy.specialRules.length === 0) {
             finalPolicy.specialRules = [
@@ -331,6 +337,8 @@ export function PricingPolicyPage() {
       });
       setConfig(fullConfig);
     });
+
+    getSystemConfig().then(setGlobalConfig);
   }, []);
 
   const updatePolicy = (updated: PricingPolicy) => {
@@ -343,6 +351,9 @@ export function PricingPolicyPage() {
     setSaving(true);
     setConfirmOpen(false);
     try {
+      if (globalConfig) {
+        await saveSystemConfig(globalConfig);
+      }
       for (const policy of config) {
         await savePricingPolicy(policy);
       }
@@ -393,6 +404,46 @@ export function PricingPolicyPage() {
           {saving ? "Deploying..." : "Push Policies"}
         </Button>
       </div>
+
+      {globalConfig && (
+        <Card className="border-[#003087]/10 shadow-xl shadow-[#003087]/5 rounded-[2.5rem] overflow-hidden bg-white">
+          <CardContent className="p-8 flex flex-col md:flex-row items-center justify-between gap-8">
+            <div className="flex items-center gap-6">
+              <div className="w-16 h-16 bg-[#003087]/5 rounded-[1.5rem] flex items-center justify-center">
+                <Clock className="h-8 w-8 text-[#003087]" />
+              </div>
+              <div>
+                <h3 className="text-xl font-black text-[#003087] tracking-tight">Global Settlement Cycle</h3>
+                <p className="text-sm text-[#003087]/50 font-bold uppercase tracking-wider mt-0.5">
+                  Automated bill generation interval
+                </p>
+              </div>
+            </div>
+            
+            <div className="flex items-center gap-4 bg-[#003087]/[0.03] p-4 rounded-[2rem] border border-[#003087]/10 w-full md:w-auto">
+              <div className="flex flex-col gap-1">
+                <span className="text-[10px] font-black text-[#003087]/40 uppercase ml-2">Cycle Interval</span>
+                <div className="flex items-center gap-3">
+                  <Input
+                    type="number"
+                    min={1}
+                    value={globalConfig.pricingCycleDays}
+                    onChange={(e) => setGlobalConfig({ ...globalConfig, pricingCycleDays: Number(e.target.value) })}
+                    className="w-24 h-12 rounded-2xl border-[#003087]/20 focus:border-[#003087] font-black text-[#003087] text-xl text-center"
+                  />
+                  <span className="text-lg font-black text-[#003087] uppercase tracking-tighter">Days</span>
+                </div>
+              </div>
+              <div className="h-10 w-px bg-[#003087]/10 mx-2 hidden md:block" />
+              <div className="hidden md:block">
+                <p className="text-xs font-bold text-[#003087]/60 max-w-[200px]">
+                  Billing occurs at 11:55 PM on the last day of each cycle.
+                </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       <div className="space-y-8">
         <div className="flex gap-3 p-2 bg-white border border-[#003087]/10 rounded-[2.5rem] shadow-sm overflow-x-auto no-scrollbar">

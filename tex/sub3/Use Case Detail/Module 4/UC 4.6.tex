@@ -1,0 +1,30 @@
+\begin{longtblr}[
+  caption = {UC 4.6: Manage IoT Devices list},
+]{
+  colspec = {Q[l, 3.5cm] Q[l, 11cm]}, 
+  hlines, vlines,
+  row{1} = {bg=gray9, font=\bfseries}, 
+  rowhead = 0, 
+}
+Field & Details \\
+Use Case ID & 4.6 \\
+Use Case Name & Manage IoT Devices list \\
+Actors & Primary: System Administrator, IT Team. \par Supporting actors: Sensors, Gateway, Signage. \\
+Description & This process allows technical staff to maintain the physical infrastructure of the smart parking system by adding, removing, or modifying the configuration of IoT hardware (sensors, gateways, and signs) within the network. \\
+Trigger & Actor navigates to the ``IoT Device Management'' portal in the Web application. \\
+Pre-conditions & 1. User has successfully authenticated and has Administrative or IT Team privileges. \par 2. The IoT devices are physically installed and connected to the university's local network. \\
+Post-conditions & 1. The system is updated with the new device configurations. \par 2. The central monitoring system begins receiving data from new/modified sensors or sending data to updated signage. \par 3. An audit log entry is created detailing the change made to the hardware list. \\
+Main Flow & 
+1. Actor navigates to the ``IoT Device Management'' portal in the Web application. \par
+2. System displays a list of all currently registered Sensors, Gateways, and Signage devices. \par
+3. Actor selects an action: Add (new device), Edit (modify existing configuration), or Remove. \par
+4. System processes the raw data and renders visual statistics on the dashboard. \par
+5. System validates the device connection and saves the configuration. \par
+6. System updates the live monitoring dashboard and signage display logic to include the change. \\
+Exception Flows & 
+\textbf{E1: Device Not Found:} System fails to ping the new device. Display ``Device Not Reachable'' error message. Actor checks physical connection. \par \vspace{0.5em}
+\textbf{E2: Unauthorized Modification Attempt:} A user without proper RBAC privileges tries to delete a critical Gateway. System rejects the request and displays ``Access Denied: Insufficient Privileges.'' The incident is logged in the Audit System Logs. \par \vspace{0.5em}
+\textbf{E3: Connection to authentication module is lost:} Display failsafe page indicating the connection lost to authentication pipeline. Actor refreshes page to check connection status. \par \vspace{0.5em}
+\textbf{E4: Connection to Central Database is lost:} Display message indication the connection lost to Central Database. Returns empty lists on affected information. Actor refreshes page to check connection status. \par \vspace{0.5em}
+\textbf{E5: Connection to host is lost:} Display failsafe page indicating the connection lost to the host. Actor refreshes page to check connection status. \\
+\end{longtblr}

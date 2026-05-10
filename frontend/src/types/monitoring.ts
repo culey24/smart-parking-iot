@@ -12,7 +12,8 @@ export interface Slot {
   deviceStatus: DeviceStatus;
 }
 
-export type DeviceType = "gateway" | "signage" | "camera";
+export type DeviceType = "gate" | "signage" | "camera";
+
 
 export interface InfrastructureDevice {
   id: string;

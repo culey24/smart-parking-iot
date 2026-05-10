@@ -1,0 +1,30 @@
+\begin{longtblr}[
+  caption = {UC 4.4: Audit system logs},
+]{
+  colspec = {Q[l, 3.5cm] Q[l, 11cm]}, 
+  hlines, vlines,
+  row{1} = {bg=gray9, font=\bfseries}, 
+  rowhead = 0, 
+}
+Field & Details \\
+Use Case ID & 4.4 \\
+Use Case Name & Audit system logs \\
+Actors & Primary: System Admin, IT Team. \\
+Description & Oversight of activity loggings and system logging to ensure transparency and track operational/technical issues. \\
+Pre-conditions & Actor passes authentication check (UC 4.1). \\
+Post-conditions & Actor gains oversight over reports and loggings of system and onsite activities. \\
+Main Flow & 
+1. After passing authentication, the actor navigates to the system log sector. \par
+2. The system fetches logs from the central database and displays them in categorized lists: \par
+\hspace{1em} - \textbf{System Log:} Records of system events and operations. \par
+\hspace{1em} - \textbf{Fee Policy Log:} Tracks changes to parking fee rules and privileges. \par
+\hspace{1em} - \textbf{Onsite Activity Log:} Captures physical parking activities. \par
+\hspace{1em} - \textbf{Onsite Error Report:} Logs errors occurring at the physical infrastructure level. \par
+\hspace{1em} - \textbf{System Error Report:} Captures backend/software failures. \par
+3. The actor may search for specific entries using keys (Name, ID, Time, Keywords). \par
+4. The actor may filter through the lists using the filter feature to narrow down results. \\
+Alternate Flows & None. \\
+Exception Flows & 
+\textbf{E1 - Connection to Authentication/Host Lost:} Displays a failsafe page. The actor must refresh to check the connection status. \par \vspace{0.5em}
+\textbf{E2 - Connection to Central Database Lost:} Displays a connection lost message and returns empty lists for the affected categories. \\
+\end{longtblr}

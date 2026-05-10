@@ -10,7 +10,7 @@
 #   make test-frontend → Chạy test frontend
 #   make install       → Cài npm cho cả backend và frontend
 
-.PHONY: dev backend frontend db seed test test-backend test-frontend install
+.PHONY: dev backend frontend db seed test test-backend test-frontend install lint lint-fix format
 
 # ── Màu terminal ──────────────────────────────────────────────────────────────
 CYAN   := \033[0;36m
@@ -73,7 +73,7 @@ lint:
 	cd frontend && npm run lint
 
 ## lint:fix: Auto-fix linting issues
-lint:fix:
+lint-fix:
 	@echo "$(CYAN)▶ Auto-fixing Backend Lint...$(RESET)"
 	cd backend && npm run lint:fix || true
 	@echo "$(CYAN)▶ Auto-fixing Frontend Lint...$(RESET)"

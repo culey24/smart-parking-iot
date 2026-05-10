@@ -13,7 +13,7 @@ app.use(requestLogger);
 app.use(cors({
   origin: [/localhost:\d+$/, /127\.0\.0\.1:\d+$/, /frontend:\d+$/],
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'Accept', 'Cache-Control'],
   credentials: true,
 }));
 app.use(express.json());

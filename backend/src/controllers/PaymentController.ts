@@ -6,14 +6,14 @@ export class PaymentController {
   static async initiateCyclePayment(req: Request, res: Response) {
     try {
       // Yêu cầu Frontend gửi thời gian của chu kỳ
-      const { subjectId: subjectId, startDate, endDate } = req.body;
+      const { subjectID, startDate, endDate } = req.body;
 
-      if (!subjectId || !startDate || !endDate) {
-        return res.status(400).json({ success: false, message: 'Missing subjectId, startDate or endDate' });
+      if (!subjectID || !startDate || !endDate) {
+        return res.status(400).json({ success: false, message: 'Missing subjectID, startDate or endDate' });
       }
 
       const unpaidSessionsInCycle = await ParkingSession.find({
-        subjectId: subjectId,
+        subjectID: subjectID,
         sessionStatus: 'COMPLETED',
         paymentStatus: 'UNPAID',
         endTime: {
@@ -44,7 +44,7 @@ export class PaymentController {
         message: `Created payment request for ${unpaidSessionsInCycle.length} parking sessions in the cycle`,
         data: {
           transactionId: mockTransactionId,
-          subjectId: subjectId,
+          subjectID: subjectID,
           cycleStart: startDate,
           cycleEnd: endDate,
           totalAmount: totalCycleAmount,
@@ -104,7 +104,7 @@ export class PaymentController {
 
       // Query Database
       const history = await ParkingSession.find({
-        subjectId: userId,
+        subjectID: userId,
         createdAt: { $gte: cutoffDate }
       }).sort({ createdAt: -1 });
 
@@ -116,8 +116,8 @@ export class PaymentController {
 
   static async getHistoryAdmin(req: Request, res: Response) {
     try {
-      // Lấy tham số subjectId từ query (nếu có)
-      const { startDate, endDate, subjectId } = req.query;
+      // Lấy tham số subjectID từ query (nếu có)
+      const { startDate, endDate, subjectID } = req.query;
 
       if (!startDate || !endDate) {
         return res.status(400).json({ success: false, message: 'Missing query parameters: startDate and endDate are required' });
@@ -137,9 +137,9 @@ export class PaymentController {
         createdAt: { $gte: start, $lte: end }
       };
 
-      // Nếu Admin truyền thêm mã user (subjectId) , thêm vào điều kiện lọc
-      if (subjectId) {
-        query.subjectId = subjectId;
+      // Nếu Admin truyền thêm mã user (subjectID) , thêm vào điều kiện lọc
+      if (subjectID) {
+        query.subjectID = subjectID;
       }
 
       // Bỏ biến query vào lệnh find
@@ -154,13 +154,13 @@ export class PaymentController {
 
   static async getDebt(req: Request, res: Response) {
     try {
-      const subjectId = req.query.subjectId as string;
-      if (!subjectId) {
-        return res.status(400).json({ success: false, message: 'Missing query subjectId' });
+      const subjectID = req.query.subjectID as string;
+      if (!subjectID) {
+        return res.status(400).json({ success: false, message: 'Missing query subjectID' });
       }
 
       const unpaidSessions = await ParkingSession.find({
-        subjectId: subjectId,
+        subjectID: subjectID,
         sessionStatus: 'COMPLETED',
         paymentStatus: 'UNPAID'
       });
@@ -170,7 +170,7 @@ export class PaymentController {
       res.json({
         success: true,
         data: {
-          subjectId: subjectId,
+          subjectID: subjectID,
           totalDebt: totalDebt,
           unpaidCount: unpaidSessions.length
         }
