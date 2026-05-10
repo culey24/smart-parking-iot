@@ -4,6 +4,7 @@ import usersRoutes from './users.routes';
 import gateRoutes from './gate.routes';
 import cardsRoutes from './cards.routes';
 import billingRoutes from './billing.routes';
+import dashboardRoutes from './dashboard.routes';
 import reconciliationRoutes from './reconciliation.routes';
 
 const router = Router();
@@ -13,6 +14,7 @@ router.use('/users', usersRoutes);
 router.use('/gates', gateRoutes);
 router.use('/cards', cardsRoutes);
 router.use('/billing', billingRoutes);
+router.use('/dashboard', dashboardRoutes);
 router.use('/reconciliation', reconciliationRoutes);
 
 export default router;
