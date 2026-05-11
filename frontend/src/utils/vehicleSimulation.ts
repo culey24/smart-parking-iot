@@ -7,7 +7,15 @@ export interface VehicleAgent {
   startTime: number;       // Date.now() timestamp
   plateNumber: string;
   color: string;           // hex
-  direction: "ENTER" | "EXIT";
+  direction: "ENTER" | "EXIT" | "REJECTED";
+  targetDeviceId?: string; // the sensor it's heading to
+  animDuration?: number;
+  returnPath?: { x: number; y: number }[]; // for rejected entries
+}
+
+export interface PathResult {
+  path: PlacedDevice[];
+  returnPath?: { x: number; y: number }[]; // from last sensor back to gate
 }
 
 /** Build an adjacency list from connections in the layout */
@@ -26,18 +34,24 @@ export function buildGraph(devices: PlacedDevice[], connections: PlacedDevice[])
 
 /**
  * BFS from startId to first device matching targetType that is idle (not occupied).
- * Returns ordered list of PlacedDevices (the path).
+ * Collects ALL sensor candidates across all zones; returns first idle one.
+ * If no idle sensors found, returns { path: [], returnPath } for rejection animation.
  */
 export function findPath(
   graph: Map<string, string[]>,
   devices: PlacedDevice[],
   startId: string,
   targetType: string,
-  liveData: MonitoringData | null
-): PlacedDevice[] {
-  const visited = new Set<string>();
+  occupiedIds: Set<string> | null
+): PathResult {
+  // Guard: treat null/undefined as empty set
+  if (!occupiedIds) occupiedIds = new Set();
+
+  const visited = new Set<string>([startId]); // exclude start from revisit
   const queue: string[][] = [[startId]];
-  visited.add(startId);
+
+  // Collect all sensor candidates encountered during BFS
+  const sensorCandidates: { path: string[], node: PlacedDevice }[] = [];
 
   while (queue.length > 0) {
     const path = queue.shift()!;
@@ -46,17 +60,7 @@ export function findPath(
     if (!node) continue;
 
     if (node.type === targetType && nodeId !== startId) {
-      // Check if idle (not occupied in live data)
-      if (liveData && node.deviceId) {
-        const dev = liveData.devices.find((d: any) => d.id === node.deviceId);
-        if (dev?.status === "occupied" || dev?.status === "error" || dev?.status === "offline") {
-          // Skip occupied sensors
-        } else {
-          return path.map((id) => devices.find((d) => d.id === id)!).filter(Boolean);
-        }
-      } else {
-        return path.map((id) => devices.find((d) => d.id === id)!).filter(Boolean);
-      }
+      sensorCandidates.push({ path, node });
     }
 
     for (const neighbor of graph.get(nodeId) ?? []) {
@@ -67,7 +71,40 @@ export function findPath(
     }
   }
 
-  return []; // no path found
+  // Return first idle sensor
+  for (const candidate of sensorCandidates) {
+    if (candidate.node.deviceId && occupiedIds.has(candidate.node.deviceId)) {
+      continue; // skip occupied or reserved
+    }
+    return {
+      path: candidate.path.map((id) => devices.find((d) => d.id === id)!).filter(Boolean),
+    };
+  }
+
+  // No idle sensors — build return path from last sensor back to gate
+  if (sensorCandidates.length > 0) {
+    const lastSensor = sensorCandidates[sensorCandidates.length - 1];
+    const gateNode = devices.find(d => d.type === "gate");
+    if (gateNode && lastSensor.node.id !== gateNode.id) {
+      // Exclude sensor itself from reverse BFS visited set
+      const reversePath = findPath(graph, devices, lastSensor.node.id, "gate", new Set([lastSensor.node.id]));
+      if (reversePath.path.length >= 2) {
+        return {
+          path: [],
+          returnPath: reversePath.path.map(d => ({ x: d.x, y: d.y })),
+        };
+      }
+    }
+    // Fallback: returnPath = straight line from last sensor back to gate
+    return {
+      path: [],
+      returnPath: gateNode
+        ? [{ x: lastSensor.node.x, y: lastSensor.node.y }, { x: gateNode.x, y: gateNode.y }]
+        : [],
+    };
+  }
+
+  return { path: [], returnPath: [] }; // truly no path found
 }
 
 /**

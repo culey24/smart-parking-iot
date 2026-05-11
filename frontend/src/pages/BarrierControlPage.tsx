@@ -336,7 +336,7 @@ function GatewayDisplayPanel({
             <div className="space-y-2">
               <div className="flex items-center gap-2 text-xs font-medium text-muted-foreground">
                 <User className="h-3.5 w-3.5" />
-                Khuôn mặt
+                Face
               </div>
               <div className="overflow-hidden rounded-lg border bg-muted/50 shadow-inner">
                 <img

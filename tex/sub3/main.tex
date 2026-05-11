@@ -1,14 +1,13 @@
+\pdfminorversion=7
 \documentclass[12pt]{article}
 \renewcommand{\refname}{}
 % --- Encoding & fonts ---
+\usepackage[T1]{fontenc}
 \usepackage[utf8]{inputenc}
 % \usepackage{lmodern}        % Latin Modern fonts - removed to avoid font issues
 \usepackage{tikz}
 \usepackage{eso-pic}
 \usetikzlibrary{positioning,arrows.meta}
-% --- Hyperlinks (clickable TOC, links) ---
-\usepackage{hyperref}
-\hypersetup{colorlinks=true, linkcolor=blue, urlcolor=blue, citecolor=blue}
 
 % --- Page geometry & headers/footers ---
 \usepackage{geometry}
@@ -40,8 +39,6 @@
 
 % --- Tables & floats ---
 \usepackage{booktabs}
-\usepackage{tabularray}
-\UseTblrLibrary{booktabs}
 \usepackage{float}
 \usepackage{tabularx}
 
@@ -78,7 +75,7 @@
 % --- textcomp ---
 \usepackage{textcomp}
 
-% --- multirow ---\
+% --- multirow ---
 \usepackage{multirow}
 
 %---- tabularx -----
@@ -87,12 +84,17 @@
 \usepackage{seqsplit}
 \usepackage{ragged2e}
 
-
 % pseudocode
 \usepackage[ruled,vlined]{algorithm2e}
 
+% --- Hyperlinks (clickable TOC, links) ---
+% hyperref should be loaded last
+\usepackage{hyperref}
+\hypersetup{colorlinks=true, linkcolor=blue, urlcolor=blue, citecolor=blue}
+
 \begin{document}
 
+\pagenumbering{roman}
 \begin{titlepage}
       \begin{tikzpicture}[remember picture,overlay,inner sep=0,outer sep=0]
      \draw[blue!70!black,line width=4pt] ([xshift=-1.5cm,yshift=-2cm]current page.north east) coordinate (A)--([xshift=1.5cm,yshift=-2cm]current page.north west) coordinate(B)--([xshift=1.5cm,yshift=2cm]current page.south west) coordinate (C)--([xshift=-1.5cm,yshift=2cm]current page.south east) coordinate(D)--cycle;
@@ -142,6 +144,7 @@
     DANG TRAN THAI BAO & 2452120\\
     \hline
   \end{tabular}
+  \caption{List of Team Members}
   \label{tab:students}
 \end{table}
   {\footnotesize Ho Chi Minh City, March 1, 2026}
@@ -149,11 +152,10 @@
 
 
 \newpage
-\input{sections/contribution}
-\newpage
 \tableofcontents
 
 \newpage
+\pagenumbering{arabic}
 \input{sections/1-deployment-view}
 \input{sections/2-development-view}
 \input{sections/3-class-diagram}

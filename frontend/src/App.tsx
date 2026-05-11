@@ -21,6 +21,7 @@ import { PricingPolicyPage } from "@/pages/PricingPolicyPage";
 import { FeeReconciliationPage } from "@/pages/FeeReconciliationPage";
 import { RevenueStatusPage } from "@/pages/RevenueStatusPage";
 import { ActivityStatsPage } from "@/pages/ActivityStatsPage";
+import { AdminSessionsPage } from "@/pages/AdminSessionsPage";
 import { PlaceholderPage } from "@/pages/PlaceholderPage";
 
 function App() {
@@ -52,6 +53,7 @@ function App() {
             <Route path="pricing-policy" element={<PricingPolicyPage />} />
             <Route path="fee-reconciliation" element={<FeeReconciliationPage />} />
             <Route path="revenue-status" element={<RevenueStatusPage />} />
+            <Route path="admin-sessions" element={<AdminSessionsPage />} />
             <Route path="activity-stats" element={<ActivityStatsPage />} />
             <Route path="support" element={<SupportPage />} />
             <Route path="learning" element={<PlaceholderPage />} />

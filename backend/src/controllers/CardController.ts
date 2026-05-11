@@ -1,7 +1,9 @@
 import { Request, Response } from 'express';
 import { ParkingSession } from '../models/ParkingSession';
 import { TemporaryCard } from '../models/TemporaryCard';
+import { SensorDevice } from '../models/IoTDevice';
 import { SystemLogService } from '../services/SystemLogService';
+import { eventBus } from '../utils/eventBus';
 
 export class CardController {
 
@@ -74,12 +76,23 @@ export class CardController {
         return res.status(503).json({ success: false, message: 'Không còn thẻ tạm khả dụng' });
       }
 
-      // Note: In the V3 spec, we only have ACTIVATING and DEACTIVATED.
-      // We'll keep the card as ACTIVATING but linked to a session.
+      // Find + atomically lock an available sensor (same pattern as checkIn)
+      const occupiedDeviceIds = (await ParkingSession.find({ sessionStatus: 'ACTIVE', deviceId: { $ne: null } }).select('deviceId'))
+        .map((s: any) => s.deviceId);
+      const availableSensor = await SensorDevice.findOneAndUpdate(
+        {
+          status: 'ONLINE',
+          deviceId: { $nin: occupiedDeviceIds },
+        } as any,
+        { $set: { status: 'OCCUPIED' } },
+        { new: true, includeResultMetadata: false }
+      );
+
+      const sessionId = `SESS_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
 
       // Tạo parking session
       const session = await ParkingSession.create({
-        sessionId: `SESS_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
+        sessionId,
         type: 'TEMPORARY',
         vehicleType,
         subjectID: card.tempCardID,
@@ -87,13 +100,21 @@ export class CardController {
         sessionStatus: 'ACTIVE',
         paymentStatus: 'UNPAID',
         fee: 0,
-        userRole: 'VISITOR' // Default for temporary cards
+        userRole: 'VISITOR',
+        deviceId: (availableSensor as any)?.deviceId || null,
       });
 
       await SystemLogService.log('INFO', 'CARD', `Visitor entry requested — checking temp card availability for ${plateNumber.toUpperCase()}`);
       await SystemLogService.log('SUCCESS', 'CARD', `Temp card ${card.tempCardID} assigned to ${plateNumber.toUpperCase()} (${vehicleType})`, { sessionId: session.sessionId });
-      await SystemLogService.log('SUCCESS', 'SESSION', `Visitor session ${session.sessionId} created — ${plateNumber.toUpperCase()} admitted`, { sessionId: session.sessionId });
+      if (availableSensor) {
+        await SystemLogService.log('SUCCESS', 'SESSION', `Visitor session ${session.sessionId} created — ${plateNumber.toUpperCase()} admitted, sensor: ${(availableSensor as any).deviceId}`, { sessionId: session.sessionId });
+      } else {
+        await SystemLogService.log('WARNING', 'SESSION', `Visitor session ${session.sessionId} created — ${plateNumber.toUpperCase()} admitted, NO SENSOR AVAILABLE`, { sessionId: session.sessionId });
+      }
       await SystemLogService.log('INFO', 'GATE', `Barrier lifted — visitor ${plateNumber.toUpperCase()} entered facility`);
+
+      // Broadcast SSE snapshot so monitoring UI updates immediately
+      eventBus.emit('monitoring:snapshot');
 
       res.json({
         success: true,
@@ -101,6 +122,7 @@ export class CardController {
           tempCardID: card.tempCardID,
           sessionId: session.sessionId,
           plateNumber: session.plateNumber,
+          deviceId: (availableSensor as any)?.deviceId || null,
         },
         message: 'Thẻ tạm đã được cấp thành công',
       });
@@ -125,6 +147,14 @@ export class CardController {
         return res.status(404).json({ success: false, message: 'Thẻ không tồn tại' });
       }
 
+      // Tìm session trước khi đóng để lấy deviceId
+      const activeSession = await ParkingSession.findOne({ subjectID: tempCardID, sessionStatus: 'ACTIVE' });
+
+      // Reset sensor trước khi đóng session
+      if (activeSession?.deviceId) {
+        await SensorDevice.updateOne({ deviceId: activeSession.deviceId }, { $set: { status: 'ONLINE' } });
+      }
+
       // Tìm và đóng session
       const session = await ParkingSession.findOneAndUpdate(
         { subjectID: tempCardID, sessionStatus: 'ACTIVE' },
@@ -132,11 +162,15 @@ export class CardController {
           sessionStatus: 'COMPLETED',
           endTime: new Date(),
           paymentStatus: 'PAID',
+          deviceId: null,
         },
         { new: true }
       );
 
       await SystemLogService.log('SUCCESS', 'CARD', `Temp card ${card.tempCardID} returned. Fee: ${session?.fee ?? 0}đ`);
+
+      // Broadcast SSE snapshot so monitoring UI updates immediately
+      eventBus.emit('monitoring:snapshot');
 
       res.json({
         success: true,

@@ -289,17 +289,23 @@ const seedDatabase = async () => {
     // 5. Create Parking Sessions (Historical & Active)
     const sessions = [];
     const vehicleTypes = ['MOTORBIKE', 'CAR', 'BICYCLE'];
-    const platePrefixes = ['29A', '30F', '51G', '43H'];
-    
-    // Active Sessions (ongoing)
-    const activeSessionsCount = 50;
+    const platePrefixes = ['29A', '30F', '51G', '43H', '92K', '64M', '75P'];
+
+    // Collect all sensor deviceIds for binding
+    const sensors = await IoTDevice.find({ deviceType: 'SENSOR', status: 'ONLINE' }).limit(100);
+    const sensorPool = sensors.map(s => s.deviceId);
+
+    // Active Sessions (ongoing) — 80 sessions bound to sensors
+    const activeSessionsCount = 80;
     for (let i = 0; i < activeSessionsCount; i++) {
-      const type = Math.random() > 0.3 ? 'REGISTERED' : 'TEMPORARY';
-      const vehicleType = vehicleTypes[Math.floor(Math.random() * vehicleTypes.length)];
+      const type = i < 50 ? 'REGISTERED' : 'TEMPORARY';
+      const vehicleType = vehicleTypes[i % vehicleTypes.length];
       const startTime = new Date();
-      startTime.setHours(startTime.getHours() - Math.floor(Math.random() * 5));
-      const subjectID = type === 'REGISTERED' ? `USER_${Math.floor(Math.random() * 20) + 1}` : `CARD_${1000 + i}`;
-      const userRole = type === 'REGISTERED' ? (userMap[subjectID] || 'LEARNER') : 'VISITOR';
+      startTime.setHours(startTime.getHours() - Math.floor(Math.random() * 8));
+      const userNum = (i % 20) + 1;
+      const subjectID = type === 'REGISTERED' ? `USER_${userNum}` : `CARD_TEMP_${String(100 + i).padStart(3, '0')}`;
+      const userRole = type === 'REGISTERED' ? (userMap[`USER_${userNum}`] || 'LEARNER') : 'VISITOR';
+      const sensorId = sensorPool[i % sensorPool.length] || null;
 
       sessions.push({
         sessionId: uuidv4(),
@@ -310,10 +316,18 @@ const seedDatabase = async () => {
         userRole: userRole,
         vehicleType: vehicleType,
         subjectID: subjectID,
-        plateNumber: `${platePrefixes[Math.floor(Math.random() * platePrefixes.length)]}-${Math.floor(10000 + Math.random() * 90000)}`,
-        fee: 0
+        plateNumber: `${platePrefixes[i % platePrefixes.length]}-${Math.floor(10000 + Math.random() * 90000)}`,
+        fee: 0,
+        deviceId: sensorId,
       });
     }
+
+    // Mark some sensors as occupied
+    const occupiedSensors = sensorPool.slice(0, activeSessionsCount);
+    await IoTDevice.updateMany(
+      { deviceId: { $in: occupiedSensors } },
+      { $set: { status: 'OCCUPIED' } }
+    );
 
     // Completed Sessions (last 30 days)
     const completedSessionsCount = 500;

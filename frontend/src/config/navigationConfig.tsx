@@ -14,6 +14,7 @@ import {
   FileText,
   SlidersHorizontal,
   Banknote,
+  Search,
 } from "lucide-react";
 import type { UserRole } from "@/types/roles";
 
@@ -147,6 +148,12 @@ export const navigationConfig: NavItem[] = [
         icon: SlidersHorizontal,
         path: "/system-config",
         roles: ["ADMIN", "SUPER"],
+      },
+      {
+        label: "Session Monitor",
+        icon: Search,
+        path: "/admin-sessions",
+        roles: ["ADMIN", "OPERATOR", "SUPER"],
       },
     ],
   },

@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import { ParkingSession } from '../models/ParkingSession';
 import { ParkingZone } from '../models/Zone';
+import { IoTDevice, SensorDevice } from '../models/IoTDevice';
 import { v4 as uuidv4 } from 'uuid';
 import { User } from '../models/User';
 import { BillingService } from '../services/BillingService';
@@ -13,17 +14,30 @@ export class EntryExitController {
   static async checkIn(req: Request, res: Response) {
     try {
       const { subjectID, plateNumber, type, vehicleType, zoneId } = req.body;
-      
+
+      // Find an available sensor (ONLINE, not occupied by any active session)
+      const occupiedDeviceIds = (await ParkingSession.find({ sessionStatus: 'ACTIVE', deviceId: { $ne: null } }).select('deviceId'))
+        .map(s => s.deviceId);
+      const availableSensor = await SensorDevice.findOneAndUpdate(
+        {
+          status: 'ONLINE',
+          deviceId: { $nin: occupiedDeviceIds },
+        } as any,
+        { $set: { status: 'OCCUPIED' } },
+        { new: true, includeResultMetadata: false }
+      );
+
       // BỔ SUNG: Kiểm tra bãi đỗ xem còn chỗ không
       if (zoneId) {
         const zone = await ParkingZone.findOne({ zoneId });
         if (!zone) {
+          if (availableSensor) await SensorDevice.updateOne({ deviceId: (availableSensor as any).deviceId }, { $set: { status: 'ONLINE' } });
           return res.status(404).json({ success: false, message: 'Zone not found' });
         }
         if (zone.currentUsage >= zone.capacity) {
+          if (availableSensor) await SensorDevice.updateOne({ deviceId: (availableSensor as any).deviceId }, { $set: { status: 'ONLINE' } });
           return res.status(400).json({ success: false, message: 'Zone is full' });
         }
-        
         // Tăng số lượng xe trong bãi
         zone.currentUsage += 1;
         await zone.save();
@@ -47,22 +61,29 @@ export class EntryExitController {
       const sessionId = uuidv4();
       await SystemLogService.log('INFO', 'SESSION', `Creating parking session for ${plateNumber.toUpperCase()} • ${vehicleType} • Role: ${userRole}`);
 
-      const session = new ParkingSession({
+      const sessionData: any = {
         sessionId,
         subjectID,
         plateNumber: plateNumber.toUpperCase(),
         type,
         userRole,
         vehicleType,
-        sessionStatus: 'ACTIVE'
-      });
+        sessionStatus: 'ACTIVE',
+        deviceId: (availableSensor as any)?.deviceId || null,
+      };
 
+      const session = new ParkingSession(sessionData);
       await session.save();
-      await SystemLogService.log('SUCCESS', 'SESSION', `Session ${sessionId} started — ${plateNumber.toUpperCase()} entered at ${new Date().toLocaleTimeString('en-GB')}`, { sessionId });
+
+      if (availableSensor) {
+        await SystemLogService.log('SUCCESS', 'SESSION', `Session ${sessionId} started — ${plateNumber.toUpperCase()} entered at ${new Date().toLocaleTimeString('en-GB')}, sensor: ${(availableSensor as any).deviceId}`, { sessionId });
+      } else {
+        await SystemLogService.log('WARNING', 'SESSION', `Session ${sessionId} started — ${plateNumber.toUpperCase()} entered at ${new Date().toLocaleTimeString('en-GB')}, NO SENSOR AVAILABLE`, { sessionId });
+      }
       await SystemLogService.log('INFO', 'GATE', `Barrier lifted — vehicle ${plateNumber.toUpperCase()} admitted into facility`);
       eventBus.emit('monitoring:snapshot');
 
-      res.json({ success: true, data: session, message: 'Check-in successful' });
+      res.json({ success: true, data: { ...session.toObject(), deviceId: (availableSensor as any)?.deviceId || null }, message: 'Check-in successful' });
     } catch (error: any) {
       res.status(500).json({ success: false, message: error.message });
     }
@@ -73,9 +94,15 @@ export class EntryExitController {
     try {
       const { sessionId, zoneId } = req.body;
       const session = await ParkingSession.findOne({ sessionId, sessionStatus: 'ACTIVE' });
-      
+
       if (!session) {
         return res.status(404).json({ success: false, message: 'Active Session not found' });
+      }
+
+      // Clear sensor binding BEFORE marking complete
+      if (session.deviceId) {
+        await SensorDevice.updateOne({ deviceId: session.deviceId }, { $set: { status: 'ONLINE' } });
+        session.set('deviceId', undefined);
       }
 
       // Set end time and status first

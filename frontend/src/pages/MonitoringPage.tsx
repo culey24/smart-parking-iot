@@ -11,8 +11,9 @@ import { API_BASE, TOKEN_KEY } from "@/config/api";
 const W = CAMPUS_PARKING_ALPHA.dimensions.width;
 const H = CAMPUS_PARKING_ALPHA.dimensions.height;
 const px = (pct: number, dim: number) => (pct / 100) * dim;
-const ICON_CHARS: Record<string, string> = { sensor:"◉", gate:"⊞", signage:"◫", camera:"⊙", entrance:"→", exit:"←", waypoint:"·" };
+const ICON_CHARS: Record<string, string> = { sensor: "◉", gate: "⊞", signage: "◫", camera: "⊙", entrance: "→", exit: "←", waypoint: "·" };
 const ANIM_DURATION = 4000;
+const REJECTED_DURATION = 6000; // forward + return
 
 function getStatusColor(liveData: any, deviceId?: string): string {
   if (!deviceId || !liveData) return "#2563eb";
@@ -40,7 +41,10 @@ export function MonitoringPage() {
   const [scale, setScale] = useState(0.55);
   const [offset, setOffset] = useState({ x: 0, y: 0 });
   const [agents, setAgents] = useState<VehicleAgent[]>([]);
-  const [simStatus, setSimStatus] = useState<"idle"|"running">("idle");
+  const [simStatus, setSimStatus] = useState<"idle" | "running">("idle");
+  const [fastEnterActive, setFastEnterActive] = useState(false);
+  const [batchExitActive, setBatchExitActive] = useState(false);
+  const fastEnterInflight = useRef<Set<string>>(new Set());
   const [toast, setToast] = useState<string | null>(null);
   const isPanning = useRef(false);
   const lastMouse = useRef({ x: 0, y: 0 });
@@ -57,8 +61,8 @@ export function MonitoringPage() {
   const mapSensors = layout.filter(d => d.type === "sensor");
   const mapTotalSlots = mapSensors.length;
   const mapOccupied = mapSensors.filter(d => getStatusColor(liveData, d.deviceId) === "#16a34a").length;
-  const mapFault    = mapSensors.filter(d => getStatusColor(liveData, d.deviceId) === "#ef4444").length;
-  const mapFree     = mapTotalSlots - mapOccupied - mapFault;
+  const mapFault = mapSensors.filter(d => getStatusColor(liveData, d.deviceId) === "#ef4444").length;
+  const mapFree = mapTotalSlots - mapOccupied - mapFault;
 
   // Animation loop (Direct DOM manipulation for 60FPS smooth routing)
   useEffect(() => {
@@ -74,7 +78,8 @@ export function MonitoringPage() {
         const el = document.getElementById(`agent-${agent.id}`);
         if (!el) return;
 
-        const progress = Math.min((now - agent.startTime) / ANIM_DURATION, 1);
+        const duration = agent.animDuration || ANIM_DURATION;
+        const progress = Math.min((now - agent.startTime) / duration, 1);
         if (progress < 1) {
           activeCount++;
           const pos = interpolateAlongPath(agent.path, progress, W, H);
@@ -86,17 +91,18 @@ export function MonitoringPage() {
 
       if (activeCount === 0) {
         setSimStatus("idle");
-        // Clean up finished agents
-        setAgents(prev => prev.filter(a => (Date.now() - a.startTime) < ANIM_DURATION));
+        setFastEnterActive(false);
+        setBatchExitActive(false);
+        setAgents(prev => prev.filter(a => (Date.now() - a.startTime) < (a.animDuration || ANIM_DURATION)));
       } else {
         animRef.current = requestAnimationFrame(step);
       }
     };
-    
+
     animRef.current = requestAnimationFrame(step);
-    return () => { 
+    return () => {
       isActive = false;
-      if (animRef.current) cancelAnimationFrame(animRef.current); 
+      if (animRef.current) cancelAnimationFrame(animRef.current);
     };
   }, [agents]);
 
@@ -119,31 +125,154 @@ export function MonitoringPage() {
   const onMouseUp = () => { isPanning.current = false; };
 
   // Build nav graph
-  const hardware = layout.filter(d => !["zone","connection","road"].includes(d.type));
+  const hardware = layout.filter(d => !["zone", "connection", "road"].includes(d.type));
   const connections = layout.filter(d => d.type === "connection");
   const roads = layout.filter(d => d.type === "road");
   const zones = layout.filter(d => d.type === "zone");
   const graph = buildGraph(hardware, connections);
 
-  const startAnimation = (sessionId: string, plateNumber: string, color: string, startType: string, endType: string): string | null => {
+  const startAnimation = (
+    sessionId: string,
+    plateNumber: string,
+    color: string,
+    startType: string,
+    endType: string,
+    duration = ANIM_DURATION
+  ): { targetDeviceId: string | null; returnPath?: { x: number; y: number }[] } => {
     const startNode = hardware.find(d => d.type === startType);
-    if (!startNode) return null;
-    const path = findPath(graph, hardware, startNode.id, endType, liveData);
-    let finalNode;
-    if (path.length < 2) {
-      // Fallback: straight line from start to center
-      finalNode = hardware.find(d => d.type === endType);
-      const fallbackPath = finalNode ? [{ x: startNode.x, y: startNode.y }, { x: finalNode.x, y: finalNode.y }] : [{ x: startNode.x, y: startNode.y }, { x: 50, y: 50 }];
-      setAgents(prev => [...prev, { id: sessionId, path: fallbackPath, startTime: Date.now(), plateNumber, color, direction: "ENTER" }]);
-    } else {
-      finalNode = path[path.length - 1];
-      setAgents(prev => [...prev, { id: sessionId, path: path.map(d => ({ x: d.x, y: d.y })), startTime: Date.now(), plateNumber, color, direction: "ENTER" }]);
+    if (!startNode) return { targetDeviceId: null };
+
+    // Build occupied set BEFORE calling findPath
+    const occupiedDeviceIds = new Set<string>();
+    if (liveData?.devices && Array.isArray(liveData.devices)) {
+      for (const dev of liveData.devices) {
+        if (dev.status === 'occupied' || dev.status === 'error' || dev.status === 'offline') {
+          occupiedDeviceIds.add(dev.id);
+        }
+      }
     }
-    return finalNode?.deviceId || null;
+    // Also reserve sensors being targeted by vehicles currently in transit
+    agents.forEach(a => {
+      if (a.targetDeviceId) occupiedDeviceIds.add(a.targetDeviceId);
+    });
+
+    const result = findPath(graph, hardware, startNode.id, endType, occupiedDeviceIds);
+
+    if (result.path.length < 2) {
+      // No idle sensor — build rejection path (gate → sensor → gate)
+      if (result.returnPath && result.returnPath.length >= 2) {
+        const finalNode = hardware.find(d => d.type === endType);
+        const rejectPath = finalNode
+          ? [{ x: startNode.x, y: startNode.y }, ...result.returnPath]
+          : [{ x: startNode.x, y: startNode.y }, { x: 50, y: 50 }];
+        setAgents(prev => [...prev, {
+          id: sessionId,
+          path: rejectPath,
+          startTime: Date.now(),
+          plateNumber,
+          color,
+          direction: "REJECTED",
+          returnPath: result.returnPath,
+          animDuration: REJECTED_DURATION,
+        }]);
+        return { targetDeviceId: null, returnPath: result.returnPath };
+      }
+      // Truly no path
+      return { targetDeviceId: null };
+    }
+
+    const finalNode = result.path[result.path.length - 1];
+    const targetId = finalNode?.deviceId || null;
+
+    setAgents(prev => [...prev, {
+      id: sessionId,
+      path: result.path.map(d => ({ x: d.x, y: d.y })),
+      startTime: Date.now(),
+      plateNumber,
+      color,
+      direction: "ENTER",
+      targetDeviceId: targetId || undefined,
+      animDuration: duration,
+    }]);
+    return { targetDeviceId: targetId };
+  };
+
+  // Animate vehicle directly to a specific sensor deviceId (server assigned)
+  const startAnimationWithDeviceId = (
+    sessionId: string,
+    plateNumber: string,
+    color: string,
+    targetDeviceId: string
+  ): { targetDeviceId: string | null; returnPath?: { x: number; y: number }[] } => {
+    const sensorNode = hardware.find(d => d.type === "sensor" && d.deviceId === targetDeviceId);
+    const startNode = hardware.find(d => d.type === "gate");
+    if (!startNode) return { targetDeviceId: null };
+
+    let path: { x: number; y: number }[];
+    const returnPath: { x: number; y: number }[] = sensorNode
+      ? [{ x: sensorNode.x, y: sensorNode.y }, { x: startNode.x, y: startNode.y }]
+      : [{ x: 50, y: 50 }, { x: startNode.x, y: startNode.y }];
+
+    if (sensorNode) {
+      // BFS to find path to the SPECIFIC targetDeviceId sensor.
+      // findPath stops at the first idle sensor — if that's not our target,
+      // we do a manual BFS collecting ALL sensor candidates and pick the right one.
+      const visited = new Set<string>([startNode.id]);
+      const queue: string[][] = [[startNode.id]];
+      let foundPath: string[] | null = null;
+
+      bfsLoop: while (queue.length > 0) {
+        const current = queue.shift()!;
+        const nodeId = current[current.length - 1];
+        const node = hardware.find(d => d.id === nodeId);
+        if (!node) continue;
+
+        if (node.type === "sensor" && node.deviceId === targetDeviceId) {
+          foundPath = current;
+          break bfsLoop;
+        }
+
+        // Don't traverse through OTHER sensors (dead-ends in parking layout)
+        if (node.type === "sensor" && nodeId !== startNode.id) continue;
+
+        for (const neighbor of graph.get(nodeId) ?? []) {
+          if (!visited.has(neighbor)) {
+            visited.add(neighbor);
+            queue.push([...current, neighbor]);
+          }
+        }
+      }
+
+      if (foundPath && foundPath.length >= 2) {
+        path = foundPath
+          .map(id => hardware.find(d => d.id === id))
+          .filter(Boolean)
+          .map(d => ({ x: d!.x, y: d!.y }));
+      } else {
+        // Fallback: straight line gate → sensor
+        path = [{ x: startNode.x, y: startNode.y }, { x: sensorNode.x, y: sensorNode.y }];
+      }
+    } else {
+      // No layout mapping for this deviceId — animate to center as placeholder
+      path = [{ x: startNode.x, y: startNode.y }, { x: 50, y: 50 }];
+    }
+
+    setAgents(prev => [...prev, {
+      id: sessionId,
+      path,
+      startTime: Date.now(),
+      plateNumber,
+      color,
+      direction: "ENTER",
+      targetDeviceId,
+      animDuration: ANIM_DURATION,
+      returnPath,
+    }]);
+    return { targetDeviceId };
   };
 
   const apiCall = async (method: string, endpoint: string, body?: any, token?: string) => {
-    const headers: Record<string,string> = { "Content-Type": "application/json" };
+    const headers: Record<string, string> = { "Content-Type": "application/json" };
     const storedToken = token || localStorage.getItem(TOKEN_KEY);
     if (storedToken) headers["Authorization"] = `Bearer ${storedToken}`;
     const res = await fetch(`${API_BASE}${endpoint}`, { method, headers, body: body ? JSON.stringify(body) : undefined });
@@ -162,11 +291,11 @@ export function MonitoringPage() {
       const sessRes = await apiCall("GET", "/api/sessions");
       const activeSessions = sessRes.data?.filter((s: any) => s.sessionStatus === "ACTIVE") ?? [];
       const usedIds = new Set(activeSessions.map((s: any) => s.subjectID));
-      
+
       // Find available seeded user
       const available = SEEDED_SCHOOL_CARD_IDS.filter(id => !usedIds.has(`USER_${parseInt(id) - 100000}`));
       if (available.length === 0) { showToast("⚠️ No available users — all are currently parked"); setSimStatus("idle"); return; }
-      
+
       const schoolCardId = available[Math.floor(Math.random() * available.length)];
       const plateNumber = randomPlate();
       const vehicleType = randomVehicleType();
@@ -182,16 +311,19 @@ export function MonitoringPage() {
       if (!checkinRes.success) { showToast("❌ Check-in failed"); setSimStatus("idle"); return; }
 
       const role = loginRes.data.user.role;
+      const serverDeviceId = checkinRes.data?.deviceId || null;
       showToast(`✅ ${plateNumber} (${vehicleType}) entered as ${role}`);
-      const targetDeviceId = startAnimation(checkinRes.data.sessionId, plateNumber, "#2563eb", "gate", "sensor");
+      const { targetDeviceId, returnPath } = serverDeviceId
+        ? startAnimationWithDeviceId(checkinRes.data.sessionId, plateNumber, "#2563eb", serverDeviceId)
+        : startAnimation(checkinRes.data.sessionId, plateNumber, "#2563eb", "gate", "sensor");
       if (targetDeviceId) {
+        setSimStatus("idle");
+      } else if (returnPath) {
+        showToast(`🚫 ${plateNumber} (${vehicleType}) — lot full, turned away`);
         setTimeout(async () => {
-          try {
-            const bindRes = await apiCall("POST", "/api/monitoring/bind", { sessionId: checkinRes.data.sessionId, deviceId: targetDeviceId }, jwt);
-            if (!bindRes.success) showToast("❌ Target Binding Failed: " + bindRes.message);
-          } catch(e:any) { showToast("❌ Bind Error: " + e.message); }
+          await apiCall("POST", "/api/gates/check-out", { sessionId: checkinRes.data.sessionId }, jwt).catch(() => { });
           setSimStatus("idle");
-        }, ANIM_DURATION + 500);
+        }, REJECTED_DURATION + 500);
       } else {
         showToast("❌ Animation failed: Target sensor has no deviceId mapped");
         setSimStatus("idle");
@@ -211,32 +343,39 @@ export function MonitoringPage() {
       const vehicleType = randomVehicleType();
       const res = await apiCall("POST", "/api/cards/issue", { plateNumber, vehicleType });
       if (!res.success) { showToast("❌ No cards available"); setSimStatus("idle"); return; }
-      showToast(`✅ ${plateNumber} (${vehicleType}) entered as visitor`);
-      const targetDeviceId = startAnimation(res.data.sessionId, plateNumber, "#d97706", "gate", "sensor");
+
+      const serverDeviceId = res.data?.deviceId || null;
+
+      // Use server-assigned sensor if available, otherwise find one from layout
+      const { targetDeviceId, returnPath } = serverDeviceId
+        ? startAnimationWithDeviceId(res.data.sessionId, plateNumber, "#d97706", serverDeviceId)
+        : startAnimation(res.data.sessionId, plateNumber, "#d97706", "gate", "sensor");
+
       if (targetDeviceId) {
+        showToast(`✅ ${plateNumber} (${vehicleType}) entered as visitor`);
+        setSimStatus("idle");
+      } else if (returnPath) {
+        showToast(`🚫 ${plateNumber} (${vehicleType}) — lot full, turned away`);
         setTimeout(async () => {
-          try {
-            const bindRes = await apiCall("POST", "/api/monitoring/bind", { sessionId: res.data.sessionId, deviceId: targetDeviceId });
-            if (!bindRes.success) showToast("❌ Target Binding Failed: " + bindRes.message);
-          } catch(e:any) { showToast("❌ Bind Error: " + e.message); }
+          await apiCall("POST", "/api/gates/check-out", { sessionId: res.data.sessionId }).catch(() => {});
           setSimStatus("idle");
-        }, ANIM_DURATION + 500);
+        }, REJECTED_DURATION + 500);
       } else {
-        showToast("❌ Animation failed: Target sensor has no deviceId mapped");
+        showToast("❌ No path to sensor found");
         setSimStatus("idle");
       }
     } catch (e: any) { showToast("❌ Error: " + e.message); setSimStatus("idle"); }
   };
 
   const exitUser = async () => {
+    if (simStatus === "running") return;
     setSimStatus("running");
     try {
       const sessRes = await apiCall("GET", "/api/sessions");
       const active = sessRes.data?.filter((s: any) => s.sessionStatus === "ACTIVE") ?? [];
       const visible = active.filter((s: any) => s.deviceId);
+      if (visible.length === 0) { showToast("⚠️ No parked vehicles to exit"); setSimStatus("idle"); return; }
       const pool = visible.length > 0 ? visible : active;
-      if (pool.length === 0) { showToast("⚠️ No active sessions to exit"); setSimStatus("idle"); return; }
-      
       const session = pool[Math.floor(Math.random() * pool.length)];
 
       // Reverse BFS: from sensor node → gate node
@@ -245,16 +384,16 @@ export function MonitoringPage() {
 
       let exitPath: { x: number; y: number }[];
       if (sensorNode && gateNode) {
-        const reversePath = findPath(graph, hardware, sensorNode.id, "gate", null);
-        exitPath = reversePath.length >= 2
-          ? reversePath.map(d => ({ x: d.x, y: d.y }))
+        const reverseResult = findPath(graph, hardware, sensorNode.id, "gate", new Set());
+        exitPath = reverseResult.path.length >= 2
+          ? reverseResult.path.map(d => ({ x: d.x, y: d.y }))
           : [{ x: sensorNode.x, y: sensorNode.y }, { x: gateNode.x, y: gateNode.y }];
       } else {
         exitPath = [{ x: 50, y: 50 }, { x: 50, y: 90 }];
       }
 
-      setAgents(prev => [...prev, { id: session.sessionId + "_exit", path: exitPath, startTime: Date.now(), plateNumber: session.plateNumber, color: "#dc2626", direction: "EXIT" }]);
-      
+      setAgents(prev => [...prev, { id: session.sessionId + "_exit", path: exitPath, startTime: Date.now(), plateNumber: session.plateNumber, color: "#dc2626", direction: "EXIT", animDuration: ANIM_DURATION }]);
+
       // Call APIs after animation completes
       setTimeout(async () => {
         await apiCall("POST", "/api/gates/check-out", { sessionId: session.sessionId });
@@ -266,6 +405,100 @@ export function MonitoringPage() {
       }, ANIM_DURATION + 500);
     } catch (e: any) { showToast("❌ Error: " + e.message); setSimStatus("idle"); }
 
+  };
+
+  // Fast Enter — sequential rapid-fire visitors (bypasses simStatus lock)
+  const fastEnter = async () => {
+    if (fastEnterActive || mapFree <= 0) {
+      if (mapFree <= 0) showToast("❌ Entry Denied: Parking lot is completely full!");
+      return;
+    }
+    setFastEnterActive(true);
+    setSimStatus("running");
+
+    const FAST_DURATION = 2000; // faster animation for demo mode
+
+    const enterOne = async (i: number): Promise<void> => {
+      if (i >= 5) {
+        setFastEnterActive(false);
+        setSimStatus("idle");
+        return;
+      }
+      try {
+        const plateNumber = randomPlate();
+        const vehicleType = randomVehicleType();
+        const res = await apiCall("POST", "/api/cards/issue", { plateNumber, vehicleType });
+        if (!res.success) { showToast(`❌ Fast: No cards available`); return; }
+        const sessionId = res.data.sessionId;
+        const serverDeviceId = res.data?.deviceId || null;
+        fastEnterInflight.current.add(sessionId);
+        const { targetDeviceId, returnPath } = serverDeviceId
+          ? startAnimationWithDeviceId(sessionId, plateNumber, "#d97706", serverDeviceId)
+          : startAnimation(sessionId, plateNumber, "#d97706", "gate", "sensor", FAST_DURATION);
+
+        if (targetDeviceId) {
+          showToast(`⚡ Fast #${i + 1}: ${plateNumber} (${vehicleType}) entered`);
+          await new Promise(r => setTimeout(r, FAST_DURATION + 400));
+          fastEnterInflight.current.delete(sessionId);
+        } else if (returnPath) {
+          showToast(`🚫 Fast #${i + 1}: ${plateNumber} — lot full, turned away`);
+          setTimeout(async () => {
+            await apiCall("POST", "/api/gates/check-out", { sessionId }).catch(() => { });
+            fastEnterInflight.current.delete(sessionId);
+          }, REJECTED_DURATION + 300);
+          await new Promise(r => setTimeout(r, REJECTED_DURATION + 400));
+        } else {
+          fastEnterInflight.current.delete(sessionId);
+        }
+      } catch (e: any) { showToast(`❌ Fast #${i + 1} Error: ${e.message}`); fastEnterInflight.current.delete(res?.data?.sessionId); }
+      if (fastEnterInflight.current.size === 0 || !fastEnterActive) {
+        await enterOne(i + 1);
+      }
+    };
+
+    enterOne(0);
+  };
+
+  // Batch Exit — all parked vehicles exit simultaneously
+  const batchExit = async () => {
+    if (batchExitActive || simStatus === "running") return;
+    try {
+      const sessRes = await apiCall("GET", "/api/sessions");
+      const active = sessRes.data?.filter((s: any) => s.sessionStatus === "ACTIVE" && s.deviceId) ?? [];
+      if (active.length === 0) { showToast("⚠️ No parked vehicles to exit"); return; }
+      setBatchExitActive(true);
+      setSimStatus("running");
+
+      const gateNode = hardware.find(d => d.type === "gate");
+      const exitAll = active.map((session: any) => {
+        const sensorNode = hardware.find(d => d.deviceId === session.deviceId && d.type === "sensor");
+        let exitPath: { x: number; y: number }[] = [{ x: 50, y: 50 }, { x: 50, y: 90 }];
+        if (sensorNode && gateNode) {
+          const reverseResult = findPath(graph, hardware, sensorNode.id, "gate", new Set());
+          exitPath = reverseResult.path.length >= 2
+            ? reverseResult.path.map(d => ({ x: d.x, y: d.y }))
+            : [{ x: sensorNode.x, y: sensorNode.y }, { x: gateNode.x, y: gateNode.y }];
+        }
+        const exitId = session.sessionId + "_batch_" + Date.now() + Math.random();
+        setAgents(prev => [...prev, { id: exitId, path: exitPath, startTime: Date.now(), plateNumber: session.plateNumber, color: "#dc2626", direction: "EXIT", animDuration: ANIM_DURATION }]);
+        return { exitId, sessionId: session.sessionId, type: session.type, subjectID: session.subjectID };
+      });
+
+      showToast(`🚀 Batch exit: ${active.length} vehicles exiting`);
+      const maxDuration = Math.max(...exitAll.map(() => ANIM_DURATION + 500));
+
+      setTimeout(async () => {
+        await Promise.allSettled(exitAll.map(s =>
+          Promise.all([
+            apiCall("POST", "/api/gates/check-out", { sessionId: s.sessionId }),
+            s.type === "TEMPORARY" ? apiCall("POST", "/api/cards/return", { tempCardID: s.subjectID }) : Promise.resolve(),
+          ])
+        ));
+        showToast(`✅ Batch exit complete: ${exitAll.length} vehicles left`);
+        setBatchExitActive(false);
+        setSimStatus("idle");
+      }, maxDuration);
+    } catch (e: any) { showToast("❌ Batch exit error: " + e.message); setBatchExitActive(false); setSimStatus("idle"); }
   };
 
   // BFS through connection graph from a start node, collecting all sensors in the zone
@@ -295,7 +528,7 @@ export function MonitoringPage() {
   const getSignageInfo = (signageId: string) => {
     const signage = layout.find(d => d.id === signageId);
     if (!signage) return [];
-    
+
     const directTargets = connections
       .filter(c => c.sourceId === signageId)
       .map(c => layout.find(d => d.id === c.targetId))
@@ -305,10 +538,10 @@ export function MonitoringPage() {
       // Calculate geometric direction relative to signage
       let directionLabel = "TARGET";
       const angle = Math.atan2(target.y - signage.y, target.x - signage.x) * (180 / Math.PI);
-      if (angle > -45 && angle <= 45)       directionLabel = "→ EAST";
-      else if (angle > 45 && angle <= 135)  directionLabel = "↓ SOUTH";
+      if (angle > -45 && angle <= 45) directionLabel = "→ EAST";
+      else if (angle > 45 && angle <= 135) directionLabel = "↓ SOUTH";
       else if (angle > 135 || angle <= -135) directionLabel = "← WEST";
-      else                                   directionLabel = "↑ NORTH";
+      else directionLabel = "↑ NORTH";
 
       // BFS to collect all sensors reachable via this specific target path
       const zoneSensors = bfsReachableSensors(target.id);
@@ -318,11 +551,11 @@ export function MonitoringPage() {
         return color === "#2563eb"; // idle = blue = free
       }).length;
 
-      return { 
-        targetName: target.label || target.type.toUpperCase(), 
-        directionLabel, 
-        totalSlots, 
-        freeSlots 
+      return {
+        targetName: target.label || target.type.toUpperCase(),
+        directionLabel,
+        totalSlots,
+        freeSlots
       };
     });
   };
@@ -384,9 +617,11 @@ export function MonitoringPage() {
               { label: "Enter Learner/Staff", color: "bg-blue-600 hover:bg-blue-700", action: enterStaff },
               { label: "Enter Visitor", color: "bg-amber-500 hover:bg-amber-600", action: enterVisitor },
               { label: "Exit User", color: "bg-red-500 hover:bg-red-600", action: exitUser },
+              { label: "⚡ Fast Enter", color: "bg-yellow-500 hover:bg-yellow-600 text-slate-900", action: fastEnter, disabled: fastEnterActive || mapFree <= 0 },
+              { label: batchExitActive ? "Batch Exiting..." : "🚀 Batch Exit", color: "bg-red-700 hover:bg-red-800", action: batchExit, disabled: batchExitActive || simStatus === "running" },
             ].map(btn => (
-              <button key={btn.label} onClick={btn.action} 
-                disabled={simStatus === "running" || (btn.label.includes("Enter") && mapFree <= 0)}
+              <button key={btn.label} onClick={btn.action}
+                disabled={btn.disabled || (simStatus === "running" && !btn.label.includes("Fast") && !btn.label.includes("Batch"))}
                 className={`w-full text-white text-[11px] font-bold py-2 px-3 rounded-xl transition-all ${btn.color} disabled:opacity-40 disabled:cursor-not-allowed`}>
                 {simStatus === "running" && agents.length > 0 ? "Simulating..." : btn.label}
               </button>
@@ -396,7 +631,7 @@ export function MonitoringPage() {
 
         {/* Zoom controls */}
         <div className="absolute bottom-6 right-6 z-10 flex flex-col gap-1">
-          {[{l:"+", fn:()=>setScale(s=>Math.min(s*1.2,4))},{l:"−",fn:()=>setScale(s=>Math.max(s*0.8,0.15))},{l:"⊙",fn:()=>{setScale(0.55);setOffset({x:0,y:0});}}].map(b=>(
+          {[{ l: "+", fn: () => setScale(s => Math.min(s * 1.2, 4)) }, { l: "−", fn: () => setScale(s => Math.max(s * 0.8, 0.15)) }, { l: "⊙", fn: () => { setScale(0.55); setOffset({ x: 0, y: 0 }); } }].map(b => (
             <button key={b.l} onClick={b.fn} className="h-9 w-9 bg-white shadow border border-slate-200 rounded-xl text-slate-700 font-bold flex items-center justify-center hover:bg-slate-50 text-sm">{b.l}</button>
           ))}
         </div>
@@ -415,11 +650,10 @@ export function MonitoringPage() {
               <>
                 {/* Big free number */}
                 <div className="text-center mb-3">
-                  <span className={`text-4xl font-black ${
-                    mapFree === 0         ? "text-red-500"   :
-                    mapFree < mapTotalSlots * 0.3 ? "text-amber-500" :
-                    "text-green-500"
-                  }`}>{mapFree}</span>
+                  <span className={`text-4xl font-black ${mapFree === 0 ? "text-red-500" :
+                      mapFree < mapTotalSlots * 0.3 ? "text-amber-500" :
+                        "text-green-500"
+                    }`}>{mapFree}</span>
                   <span className="text-slate-400 text-sm"> / {mapTotalSlots}</span>
                   <p className="text-[10px] text-slate-400 mt-0.5">slots available</p>
                 </div>
@@ -427,28 +661,28 @@ export function MonitoringPage() {
                 {/* Segmented progress bar: occupied | fault | free */}
                 <div className="h-2.5 bg-slate-100 rounded-full overflow-hidden flex mb-3">
                   <div className="bg-green-500 h-full transition-all duration-700"
-                    style={{ width: `${(mapFree / mapTotalSlots) * 100}%` }}/>
+                    style={{ width: `${(mapFree / mapTotalSlots) * 100}%` }} />
                   <div className="bg-red-400 h-full transition-all duration-700"
-                    style={{ width: `${(mapOccupied / mapTotalSlots) * 100}%` }}/>
+                    style={{ width: `${(mapOccupied / mapTotalSlots) * 100}%` }} />
                   {mapFault > 0 && (
                     <div className="bg-amber-400 h-full transition-all duration-700"
-                      style={{ width: `${(mapFault / mapTotalSlots) * 100}%` }}/>
+                      style={{ width: `${(mapFault / mapTotalSlots) * 100}%` }} />
                   )}
                 </div>
 
                 {/* Counts row */}
                 <div className="space-y-1 text-[10px]">
                   <div className="flex justify-between">
-                    <span className="flex items-center gap-1.5 text-green-600"><div className="h-2 w-2 rounded-full bg-green-500"/>Free</span>
+                    <span className="flex items-center gap-1.5 text-green-600"><div className="h-2 w-2 rounded-full bg-green-500" />Free</span>
                     <span className="font-bold text-green-600">{mapFree}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="flex items-center gap-1.5 text-red-500"><div className="h-2 w-2 rounded-full bg-red-400"/>Occupied</span>
+                    <span className="flex items-center gap-1.5 text-red-500"><div className="h-2 w-2 rounded-full bg-red-400" />Occupied</span>
                     <span className="font-bold text-red-500">{mapOccupied}</span>
                   </div>
                   {mapFault > 0 && (
                     <div className="flex justify-between group relative cursor-help">
-                      <span className="flex items-center gap-1.5 text-amber-500"><div className="h-2 w-2 rounded-full bg-amber-400"/>Fault</span>
+                      <span className="flex items-center gap-1.5 text-amber-500"><div className="h-2 w-2 rounded-full bg-amber-400" />Fault</span>
                       <span className="font-bold text-amber-500">{mapFault}</span>
                       <div className="absolute hidden group-hover:block right-0 -top-16 bg-slate-800 text-white p-2 rounded text-[10px] w-44 z-50 text-center shadow-lg border border-slate-700">
                         Reflects real backend ERROR/OFFLINE hardware status.
@@ -466,9 +700,9 @@ export function MonitoringPage() {
 
           {/* Legend */}
           <div className="flex items-center gap-3 bg-white shadow border border-slate-200 px-4 py-2 rounded-2xl justify-center">
-            {[["#2563eb","Idle"],["#16a34a","Active"],["#ef4444","Fault"]].map(([c,l])=>(
+            {[["#2563eb", "Idle"], ["#16a34a", "Active"], ["#ef4444", "Fault"]].map(([c, l]) => (
               <div key={l} className="flex items-center gap-1.5">
-                <div className="h-2.5 w-2.5 rounded-full" style={{backgroundColor:c}}/>
+                <div className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: c }} />
                 <span className="text-[11px] text-slate-500">{l}</span>
               </div>
             ))}
@@ -478,39 +712,39 @@ export function MonitoringPage() {
 
         {/* SVG Canvas */}
         <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-          <div style={{ transform:`translate(${offset.x}px,${offset.y}px) scale(${scale})`, transformOrigin:"center", pointerEvents:"all" }}>
+          <div style={{ transform: `translate(${offset.x}px,${offset.y}px) scale(${scale})`, transformOrigin: "center", pointerEvents: "all" }}>
             <svg width={W} height={H} viewBox={`0 0 ${W} ${H}`} className="rounded-xl shadow-xl overflow-visible">
-              <rect width={W} height={H} fill="#f8fafc" rx="12"/>
-              {CAMPUS_PARKING_ALPHA.zones.map((z:any) => z.bounds && (
-                <rect key={z.id} x={z.bounds.x} y={z.bounds.y} width={z.bounds.width} height={z.bounds.height} fill="#f1f5f9" stroke="#e2e8f0" strokeWidth="1" rx="6"/>
+              <rect width={W} height={H} fill="#f8fafc" rx="12" />
+              {CAMPUS_PARKING_ALPHA.zones.map((z: any) => z.bounds && (
+                <rect key={z.id} x={z.bounds.x} y={z.bounds.y} width={z.bounds.width} height={z.bounds.height} fill="#f1f5f9" stroke="#e2e8f0" strokeWidth="1" rx="6" />
               ))}
               <defs>
-                <marker id="arr" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto"><polygon points="0 0,10 3.5,0 7" fill="#3b82f6"/></marker>
-                <marker id="arr-road" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto"><polygon points="0 0,10 3.5,0 7" fill="#94a3b8"/></marker>
+                <marker id="arr" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto"><polygon points="0 0,10 3.5,0 7" fill="#3b82f6" /></marker>
+                <marker id="arr-road" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto"><polygon points="0 0,10 3.5,0 7" fill="#94a3b8" /></marker>
               </defs>
 
               {/* Roads */}
               {roads.map(d => d.points && d.points.length >= 2 && [
-                <polyline key={d.id+"bg"} points={d.points.map(p=>`${px(p.x,W)},${px(p.y,H)}`).join(" ")} fill="none" stroke="#e2e8f0" strokeWidth="14" strokeLinecap="round" strokeLinejoin="round"/>,
-                <polyline key={d.id+"ln"} points={d.points.map(p=>`${px(p.x,W)},${px(p.y,H)}`).join(" ")} fill="none" stroke="#94a3b8" strokeWidth="2" strokeLinecap="round" strokeDasharray="10 10" markerEnd="url(#arr-road)"/>
+                <polyline key={d.id + "bg"} points={d.points.map(p => `${px(p.x, W)},${px(p.y, H)}`).join(" ")} fill="none" stroke="#e2e8f0" strokeWidth="14" strokeLinecap="round" strokeLinejoin="round" />,
+                <polyline key={d.id + "ln"} points={d.points.map(p => `${px(p.x, W)},${px(p.y, H)}`).join(" ")} fill="none" stroke="#94a3b8" strokeWidth="2" strokeLinecap="round" strokeDasharray="10 10" markerEnd="url(#arr-road)" />
               ])}
 
               {/* User zones */}
               {zones.map(z => z.points && (
                 <g key={z.id}>
-                  <polygon points={z.points.map(p=>`${px(p.x,W)},${px(p.y,H)}`).join(" ")} fill="rgba(59,130,246,0.06)" stroke="#93c5fd" strokeWidth="2" strokeDasharray="6 4"/>
-                  <text x={px(z.x,W)} y={px(z.y,H)} textAnchor="middle" fill="#93c5fd" fontSize="11" fontWeight="bold">{z.label}</text>
+                  <polygon points={z.points.map(p => `${px(p.x, W)},${px(p.y, H)}`).join(" ")} fill="rgba(59,130,246,0.06)" stroke="#93c5fd" strokeWidth="2" strokeDasharray="6 4" />
+                  <text x={px(z.x, W)} y={px(z.y, H)} textAnchor="middle" fill="#93c5fd" fontSize="11" fontWeight="bold">{z.label}</text>
                 </g>
               ))}
 
               {/* Connections */}
               {connections.map(conn => {
-                const s = layout.find(d=>d.id===conn.sourceId), t = layout.find(d=>d.id===conn.targetId);
-                if (!s||!t) return null;
+                const s = layout.find(d => d.id === conn.sourceId), t = layout.find(d => d.id === conn.targetId);
+                if (!s || !t) return null;
                 return (
                   <g key={conn.id}>
-                    <line x1={px(s.x,W)} y1={px(s.y,H)} x2={px(t.x,W)} y2={px(t.y,H)} stroke="transparent" strokeWidth="14"/>
-                    <line x1={px(s.x,W)} y1={px(s.y,H)} x2={px(t.x,W)} y2={px(t.y,H)} stroke="#3b82f6" strokeWidth={t.type==="sensor"?1.5:2.5} strokeDasharray={t.type==="sensor"?"5 5":"0"} markerEnd="url(#arr)"/>
+                    <line x1={px(s.x, W)} y1={px(s.y, H)} x2={px(t.x, W)} y2={px(t.y, H)} stroke="transparent" strokeWidth="14" />
+                    <line x1={px(s.x, W)} y1={px(s.y, H)} x2={px(t.x, W)} y2={px(t.y, H)} stroke="#3b82f6" strokeWidth={t.type === "sensor" ? 1.5 : 2.5} strokeDasharray={t.type === "sensor" ? "5 5" : "0"} markerEnd="url(#arr)" />
                   </g>
                 );
               })}
@@ -519,14 +753,14 @@ export function MonitoringPage() {
               {hardware.map(d => {
                 const color = getStatusColor(liveData, d.deviceId);
                 const isSel = selectedId === d.id;
-                const cx = px(d.x,W), cy = px(d.y,H);
-                const r = (d.type==="sensor"||d.type==="waypoint") ? 10 : 16;
+                const cx = px(d.x, W), cy = px(d.y, H);
+                const r = (d.type === "sensor" || d.type === "waypoint") ? 10 : 16;
                 return (
-                  <g key={d.id} style={{cursor:"pointer"}} onClick={e=>{e.stopPropagation();setSelectedId(d.id);}}>
-                    {color==="#ef4444" && <circle cx={cx} cy={cy} r={r+8} fill="#ef4444" opacity="0.15"/>}
-                    {isSel && <circle cx={cx} cy={cy} r={r+6} fill="none" stroke="#1d4ed8" strokeWidth="2" opacity="0.7"/>}
-                    <circle cx={cx} cy={cy} r={r} fill={color+"18"} stroke={color} strokeWidth={isSel?2.5:1.5}/>
-                    <text x={cx} y={cy+4} textAnchor="middle" fill={color} fontSize={r*0.9} fontWeight="bold">{ICON_CHARS[d.type]??"·"}</text>
+                  <g key={d.id} style={{ cursor: "pointer" }} onClick={e => { e.stopPropagation(); setSelectedId(d.id); }}>
+                    {color === "#ef4444" && <circle cx={cx} cy={cy} r={r + 8} fill="#ef4444" opacity="0.15" />}
+                    {isSel && <circle cx={cx} cy={cy} r={r + 6} fill="none" stroke="#1d4ed8" strokeWidth="2" opacity="0.7" />}
+                    <circle cx={cx} cy={cy} r={r} fill={color + "18"} stroke={color} strokeWidth={isSel ? 2.5 : 1.5} />
+                    <text x={cx} y={cy + 4} textAnchor="middle" fill={color} fontSize={r * 0.9} fontWeight="bold">{ICON_CHARS[d.type] ?? "·"}</text>
                   </g>
                 );
               })}
@@ -537,9 +771,9 @@ export function MonitoringPage() {
                 const pos = interpolateAlongPath(agent.path, 0, W, H);
                 return (
                   <g key={agent.id} id={`agent-${agent.id}`} transform={`translate(${pos.x}, ${pos.y})`}>
-                    <circle cx={0} cy={0} r={11} fill={agent.color} stroke="white" strokeWidth="2.5" style={{filter:"drop-shadow(0 2px 6px rgba(0,0,0,0.25))"}}/>
+                    <circle cx={0} cy={0} r={11} fill={agent.color} stroke="white" strokeWidth="2.5" style={{ filter: "drop-shadow(0 2px 6px rgba(0,0,0,0.25))" }} />
                     <text x={0} y={-16} textAnchor="middle" fill={agent.color} fontSize="9" fontWeight="bold"
-                      style={{filter:"drop-shadow(0 1px 2px rgba(255,255,255,0.8))"}}>{agent.plateNumber}</text>
+                      style={{ filter: "drop-shadow(0 1px 2px rgba(255,255,255,0.8))" }}>{agent.plateNumber}</text>
                   </g>
                 );
               })}
@@ -553,16 +787,16 @@ export function MonitoringPage() {
         {selectedDevice ? (
           <div className="flex flex-1 flex-col overflow-y-auto">
             <div className="p-4 flex items-center justify-between border-b border-slate-100 bg-slate-50">
-              <span className="text-xs font-black uppercase tracking-widest text-slate-400 flex items-center gap-2"><Info className="h-3.5 w-3.5"/> Device</span>
-              <button onClick={()=>setSelectedId(null)} className="text-slate-400 hover:text-slate-700"><ChevronRight className="h-4 w-4"/></button>
+              <span className="text-xs font-black uppercase tracking-widest text-slate-400 flex items-center gap-2"><Info className="h-3.5 w-3.5" /> Device</span>
+              <button onClick={() => setSelectedId(null)} className="text-slate-400 hover:text-slate-700"><ChevronRight className="h-4 w-4" /></button>
             </div>
             <div className="p-5 space-y-5">
               <div className="flex flex-col items-center gap-3 py-4 bg-slate-50 rounded-xl border border-slate-100">
                 <div className="p-4 bg-white rounded-full shadow ring-4 ring-slate-100">
-                  <span style={{color:getStatusColor(liveData,selectedDevice.deviceId),fontSize:"28px"}}>{ICON_CHARS[selectedDevice.type]??"·"}</span>
+                  <span style={{ color: getStatusColor(liveData, selectedDevice.deviceId), fontSize: "28px" }}>{ICON_CHARS[selectedDevice.type] ?? "·"}</span>
                 </div>
                 <div className="text-center">
-                  <p className="font-bold text-slate-800">{selectedDevice.label||"Unlabeled"}</p>
+                  <p className="font-bold text-slate-800">{selectedDevice.label || "Unlabeled"}</p>
                   <p className="text-[10px] text-slate-400 uppercase tracking-widest mt-0.5">{selectedDevice.type}</p>
                 </div>
               </div>
@@ -592,17 +826,17 @@ export function MonitoringPage() {
                     </div>
                     <div className="space-y-1">
                       <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">IoT Binding</label>
-                      <div className="bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm text-slate-700 font-mono">{selectedDevice.deviceId||"Unbound"}</div>
+                      <div className="bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm text-slate-700 font-mono">{selectedDevice.deviceId || "Unbound"}</div>
                     </div>
                   </>
                 );
               })() : (
                 [
-                  ["Status", (() => { const c=getStatusColor(liveData,selectedDevice.deviceId); return c==="#16a34a"?"Occupied":c==="#ef4444"?"Fault":"Idle/Online"; })()],
-                  ["IoT Binding", selectedDevice.deviceId||"Unbound"],
+                  ["Status", (() => { const c = getStatusColor(liveData, selectedDevice.deviceId); return c === "#16a34a" ? "Occupied" : c === "#ef4444" ? "Fault" : "Idle/Online"; })()],
+                  ["IoT Binding", selectedDevice.deviceId || "Unbound"],
                   ["Position", `X:${selectedDevice.x.toFixed(1)}%  Y:${selectedDevice.y.toFixed(1)}%`],
-                  ["Connections", String(connections.filter(c=>c.sourceId===selectedDevice.id||c.targetId===selectedDevice.id).length)],
-                ].map(([k,v])=>(
+                  ["Connections", String(connections.filter(c => c.sourceId === selectedDevice.id || c.targetId === selectedDevice.id).length)],
+                ].map(([k, v]) => (
                   <div key={k} className="space-y-1">
                     <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{k}</label>
                     <div className="bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm text-slate-700 font-mono">{v}</div>
@@ -614,8 +848,8 @@ export function MonitoringPage() {
         ) : (
           <div className="flex flex-1 flex-col overflow-hidden">
             <div className="p-4 border-b border-slate-100 bg-slate-50 flex items-center justify-between">
-              <span className="text-xs font-black uppercase tracking-widest text-slate-400 flex items-center gap-2"><Terminal className="h-3.5 w-3.5"/> System Log</span>
-              <Activity className={`h-3.5 w-3.5 ${connected?"text-green-500 animate-pulse":"text-slate-300"}`}/>
+              <span className="text-xs font-black uppercase tracking-widest text-slate-400 flex items-center gap-2"><Terminal className="h-3.5 w-3.5" /> System Log</span>
+              <Activity className={`h-3.5 w-3.5 ${connected ? "text-green-500 animate-pulse" : "text-slate-300"}`} />
             </div>
             <div className="flex-1 overflow-y-auto bg-slate-900">
               <div className="p-3 space-y-0.5 font-mono text-[11px]">
@@ -626,31 +860,30 @@ export function MonitoringPage() {
                   <div key={log.logId ?? i} className="px-2 py-1.5 rounded hover:bg-white/5 cursor-default border-b border-white/5">
                     <div className="flex items-center gap-1.5 mb-0.5">
                       <span className="text-slate-600 flex items-center gap-0.5 shrink-0">
-                        <Clock className="h-2.5 w-2.5"/>
-                        {new Date(log.timestamp).toLocaleTimeString("en-GB",{hour:"2-digit",minute:"2-digit",second:"2-digit"})}
+                        <Clock className="h-2.5 w-2.5" />
+                        {new Date(log.timestamp).toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit", second: "2-digit" })}
                       </span>
                       <span className={`text-[9px] px-1.5 py-0.5 rounded border font-bold uppercase tracking-wider ${sourceTagColor(log.source)}`}>
                         {log.source}
                       </span>
-                      <div className={`h-1.5 w-1.5 rounded-full shrink-0 ${
-                        log.level === "SUCCESS" ? "bg-green-400" : log.level === "ERROR" ? "bg-red-400" : log.level === "WARNING" ? "bg-amber-400" : "bg-blue-400"
-                      }`}/>
+                      <div className={`h-1.5 w-1.5 rounded-full shrink-0 ${log.level === "SUCCESS" ? "bg-green-400" : log.level === "ERROR" ? "bg-red-400" : log.level === "WARNING" ? "bg-amber-400" : "bg-blue-400"
+                        }`} />
                     </div>
                     <p className={`leading-relaxed pl-0.5 ${logLevelColor(log.level)}`}>{log.message}</p>
                   </div>
                 ))}
                 <div className="flex items-center gap-2 px-2 py-2 text-blue-400/50">
-                  <span>▸</span><div className="w-1.5 h-3.5 bg-blue-400 animate-pulse rounded-sm"/>
+                  <span>▸</span><div className="w-1.5 h-3.5 bg-blue-400 animate-pulse rounded-sm" />
                 </div>
               </div>
             </div>
             <div className="p-4 border-t border-slate-100 bg-slate-50">
               <div className="flex items-center gap-2 mb-2">
-                <ShieldAlert className="h-3.5 w-3.5 text-amber-500"/>
+                <ShieldAlert className="h-3.5 w-3.5 text-amber-500" />
                 <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">Active Alerts</span>
                 {liveData?.alerts.length ? <span className="ml-auto text-[10px] bg-red-500 text-white px-1.5 py-0.5 rounded-full font-bold">{liveData.alerts.length}</span> : null}
               </div>
-              {liveData?.alerts.slice(0,2).map((a:any)=>(
+              {liveData?.alerts.slice(0, 2).map((a: any) => (
                 <div key={a.id} className="text-[11px] text-red-700 bg-red-50 rounded-lg px-2 py-1.5 mb-1 border border-red-100">{a.message}</div>
               ))}
               {!liveData?.alerts.length && <p className="text-[11px] text-slate-400 italic">No active alerts</p>}

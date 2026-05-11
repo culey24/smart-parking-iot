@@ -6,27 +6,35 @@ The development view describes the software architecture and implementation deta
 
 \begin{figure}[H]
 \centering
-\begin{tikzpicture}[node distance=2cm, auto]
-    % Layers
-    \node[draw, fill=blue!10, minimum width=4cm, minimum height=1cm] (presentation) at (0,4) {Presentation Layer};
-    \node[draw, fill=green!10, minimum width=4cm, minimum height=1cm] (application) at (0,2) {Application Layer};
-    \node[draw, fill=orange!10, minimum width=4cm, minimum height=1cm] (domain) at (0,0) {Domain Layer};
-    \node[draw, fill=red!10, minimum width=4cm, minimum height=1cm] (infrastructure) at (0,-2) {Infrastructure Layer};
+\begin{tikzpicture}[auto, font=\small]
+    % Layer labels on the left
+    \node at (-3.2,5.5) {\textbf{Presentation}};
+    \node at (-3.2,3.5) {\textbf{Application}};
+    \node at (-3.2,1.5) {\textbf{Domain}};
+    \node at (-3.2,-0.5) {\textbf{Infrastructure}};
 
-    % Components
-    \node[draw, fill=blue!20, minimum width=2.5cm, minimum height=0.8cm] (frontend) at (-3,4) {React Frontend};
-    \node[draw, fill=blue!20, minimum width=2.5cm, minimum height=0.8cm] (api) at (3,4) {REST API};
+    % Presentation Layer Components
+    \node[draw, fill=blue!20, minimum width=2.2cm, minimum height=0.8cm, text centered] (frontend) at (-0.8,5.5) {React\newline Frontend};
+    \node[draw, fill=blue!20, minimum width=2.2cm, minimum height=0.8cm, text centered] (api) at (2,5.5) {REST\newline API};
 
-    \node[draw, fill=green!20, minimum width=2.5cm, minimum height=0.8cm] (controllers) at (-3,2) {Controllers};
-    \node[draw, fill=green!20, minimum width=2.5cm, minimum height=0.8cm] (services) at (3,2) {Services};
+    % Application Layer Components
+    \node[draw, fill=green!20, minimum width=2.2cm, minimum height=0.8cm] (controllers) at (-0.8,3.5) {Controllers};
+    \node[draw, fill=green!20, minimum width=2.2cm, minimum height=0.8cm] (services) at (2,3.5) {Services};
 
-    \node[draw, fill=orange!20, minimum width=2.5cm, minimum height=0.8cm] (models) at (-3,0) {Domain Models};
-    \node[draw, fill=orange!20, minimum width=2.5cm, minimum height=0.8cm] (business) at (3,0) {Business Logic};
+    % Domain Layer Components
+    \node[draw, fill=orange!20, minimum width=2.2cm, minimum height=0.8cm, text centered] (models) at (-0.8,1.5) {Domain\newline Models};
+    \node[draw, fill=orange!20, minimum width=2.2cm, minimum height=0.8cm, text centered] (business) at (2,1.5) {Business\newline Logic};
 
-    \node[draw, fill=red!20, minimum width=2.5cm, minimum height=0.8cm] (database) at (-3,-2) {MongoDB};
-    \node[draw, fill=red!20, minimum width=2.5cm, minimum height=0.8cm] (external) at (3,-2) {External APIs};
+    % Infrastructure Layer Components
+    \node[draw, fill=red!20, minimum width=2.2cm, minimum height=0.8cm] (database) at (-0.8,-0.5) {MongoDB};
+    \node[draw, fill=red!20, minimum width=2.2cm, minimum height=0.8cm, text centered] (external) at (2,-0.5) {External\newline APIs};
 
-    % Connections
+    % Layer separators (light lines)
+    \draw[gray, dashed, very thin] (-4,4.5) -- (4.5,4.5);
+    \draw[gray, dashed, very thin] (-4,2.5) -- (4.5,2.5);
+    \draw[gray, dashed, very thin] (-4,0.5) -- (4.5,0.5);
+
+    % Connections within and between layers
     \draw[->, thick] (frontend) -- (controllers);
     \draw[->, thick] (api) -- (controllers);
     \draw[->, thick] (controllers) -- (services);
@@ -118,32 +126,34 @@ Linting & ESLint & Code quality checking \\
 \subsubsection{Backend Package Structure}
 \begin{figure}[H]
 \centering
-\begin{tikzpicture}[node distance=1.5cm, auto, font=\small]
+\begin{tikzpicture}[node distance=0.8cm, auto, font=\small]
     % Root
-    \node[draw, fill=blue!10] (backend) {backend/};
+    \node[draw, fill=blue!10, minimum width=2cm, minimum height=0.7cm] (backend) at (0,7) {backend/};
 
-    % Main directories
-    \node[draw, fill=green!10, below of=backend] (src) {src/};
-    \node[draw, fill=yellow!10, right of=src] (tests) {\_\_tests\_\_/};
-    \node[draw, fill=gray!10, right of=tests] (scripts) {scripts/};
+    % Main directories - tier 1
+    \node[draw, fill=green!10, minimum width=1.8cm, minimum height=0.65cm] (src) at (-3,5.2) {src/};
+    \node[draw, fill=yellow!10, minimum width=1.8cm, minimum height=0.65cm] (tests) at (0,5.2) {\_\_tests\_\_/};
+    \node[draw, fill=gray!10, minimum width=1.8cm, minimum height=0.65cm] (scripts) at (3,5.2) {scripts/};
 
-    % src subdirectories
-    \node[draw, fill=orange!10, below of=src, xshift=-2cm] (controllers) {controllers/};
-    \node[draw, fill=orange!10, right of=controllers] (services) {services/};
-    \node[draw, fill=orange!10, right of=services] (models) {models/};
-    \node[draw, fill=orange!10, below of=controllers, xshift=1cm] (routes) {routes/};
-    \node[draw, fill=orange!10, right of=routes] (middlewares) {middlewares/};
-    \node[draw, fill=orange!10, right of=middlewares] (utils) {utils/};
-    \node[draw, fill=orange!10, below of=routes] (config) {config/};
+    % src subdirectories - tier 2
+    \node[draw, fill=orange!10, minimum width=1.6cm, minimum height=0.6cm] (controllers) at (-5.5,3) {controllers/};
+    \node[draw, fill=orange!10, minimum width=1.6cm, minimum height=0.6cm] (services) at (-3.8,3) {services/};
+    \node[draw, fill=orange!10, minimum width=1.6cm, minimum height=0.6cm] (models) at (-2.1,3) {models/};
+    \node[draw, fill=orange!10, minimum width=1.6cm, minimum height=0.6cm] (routes) at (-0.4,3) {routes/};
+    \node[draw, fill=orange!10, minimum width=1.6cm, minimum height=0.6cm] (middlewares) at (1.3,3) {middlewares/};
+    \node[draw, fill=orange!10, minimum width=1.6cm, minimum height=0.6cm] (utils) at (3,3) {utils/};
+    \node[draw, fill=orange!10, minimum width=1.6cm, minimum height=0.6cm] (config) at (4.7,3) {config/};
 
-    % Files
-    \node[draw, fill=white, below of=config, xshift=-1cm] (app) {app.ts};
-    \node[draw, fill=white, right of=app] (server) {server.ts};
+    % Files - tier 3
+    \node[draw, fill=white, minimum width=1.4cm, minimum height=0.55cm] (app) at (-4.5,0.8) {app.ts};
+    \node[draw, fill=white, minimum width=1.4cm, minimum height=0.55cm] (server) at (-3,0.8) {server.ts};
 
-    % Connections
+    % Connections from root
     \draw[->] (backend) -- (src);
     \draw[->] (backend) -- (tests);
     \draw[->] (backend) -- (scripts);
+
+    % Connections from src
     \draw[->] (src) -- (controllers);
     \draw[->] (src) -- (services);
     \draw[->] (src) -- (models);
@@ -151,6 +161,8 @@ Linting & ESLint & Code quality checking \\
     \draw[->] (src) -- (middlewares);
     \draw[->] (src) -- (utils);
     \draw[->] (src) -- (config);
+
+    % Connections to files
     \draw[->] (src) -- (app);
     \draw[->] (src) -- (server);
 \end{tikzpicture}
@@ -161,43 +173,51 @@ Linting & ESLint & Code quality checking \\
 \subsubsection{Frontend Package Structure}
 \begin{figure}[H]
 \centering
-\begin{tikzpicture}[node distance=1.5cm, auto, font=\small]
+\begin{tikzpicture}[node distance=0.8cm, auto, font=\small]
     % Root
-    \node[draw, fill=blue!10] (frontend) {frontend/};
+    \node[draw, fill=blue!10, minimum width=2cm, minimum height=0.7cm] (frontend) at (0,7) {frontend/};
 
-    % Main directories
-    \node[draw, fill=green!10, below of=frontend] (src) {src/};
-    \node[draw, fill=yellow!10, right of=src] (tests) {\_\_tests\_\_/};
-    \node[draw, fill=gray!10, right of=tests] (public) {public/};
+    % Main directories - tier 1
+    \node[draw, fill=green!10, minimum width=1.8cm, minimum height=0.65cm] (src) at (-3,5.2) {src/};
+    \node[draw, fill=yellow!10, minimum width=1.8cm, minimum height=0.65cm] (tests) at (0,5.2) {\_\_tests\_\_/};
+    \node[draw, fill=gray!10, minimum width=1.8cm, minimum height=0.65cm] (public) at (3,5.2) {public/};
 
-    % src subdirectories
-    \node[draw, fill=orange!10, below of=src, xshift=-2cm] (components) {components/};
-    \node[draw, fill=orange!10, right of=components] (pages) {pages/};
-    \node[draw, fill=orange!10, right of=pages] (services) {services/};
-    \node[draw, fill=orange!10, below of=components, xshift=1cm] (hooks) {hooks/};
-    \node[draw, fill=orange!10, right of=hooks] (contexts) {contexts/};
-    \node[draw, fill=orange!10, right of=contexts] (types) {types/};
-    \node[draw, fill=orange!10, below of=hooks] (utils) {utils/};
-    \node[draw, fill=orange!10, right of=utils] (lib) {lib/};
-    \node[draw, fill=orange!10, right of=lib] (config) {config/};
+    % src subdirectories - tier 2 (top row)
+    \node[draw, fill=orange!10, minimum width=1.6cm, minimum height=0.6cm] (components) at (-5.5,3) {components/};
+    \node[draw, fill=orange!10, minimum width=1.6cm, minimum height=0.6cm] (pages) at (-3.8,3) {pages/};
+    \node[draw, fill=orange!10, minimum width=1.6cm, minimum height=0.6cm] (services) at (-2.1,3) {services/};
+    \node[draw, fill=orange!10, minimum width=1.6cm, minimum height=0.6cm] (hooks) at (-0.4,3) {hooks/};
+    \node[draw, fill=orange!10, minimum width=1.6cm, minimum height=0.6cm] (contexts) at (1.3,3) {contexts/};
+    \node[draw, fill=orange!10, minimum width=1.6cm, minimum height=0.6cm] (types) at (3,3) {types/};
 
-    % Files
-    \node[draw, fill=white, below of=config, xshift=-1cm] (app) {App.tsx};
-    \node[draw, fill=white, right of=app] (main) {main.tsx};
+    % src subdirectories - tier 2 (bottom row)
+    \node[draw, fill=orange!10, minimum width=1.6cm, minimum height=0.6cm] (utils) at (-5.5,1) {utils/};
+    \node[draw, fill=orange!10, minimum width=1.6cm, minimum height=0.6cm] (lib) at (-3.8,1) {lib/};
+    \node[draw, fill=orange!10, minimum width=1.6cm, minimum height=0.6cm] (config) at (-2.1,1) {config/};
 
-    % Connections
+    % Files - tier 3
+    \node[draw, fill=white, minimum width=1.4cm, minimum height=0.55cm] (app) at (-4.5,-1) {App.tsx};
+    \node[draw, fill=white, minimum width=1.4cm, minimum height=0.55cm] (main) at (-3,-1) {main.tsx};
+
+    % Connections from root
     \draw[->] (frontend) -- (src);
     \draw[->] (frontend) -- (tests);
     \draw[->] (frontend) -- (public);
+
+    % Connections from src to tier 2 (top row)
     \draw[->] (src) -- (components);
     \draw[->] (src) -- (pages);
     \draw[->] (src) -- (services);
     \draw[->] (src) -- (hooks);
     \draw[->] (src) -- (contexts);
     \draw[->] (src) -- (types);
+
+    % Connections from src to tier 2 (bottom row)
     \draw[->] (src) -- (utils);
     \draw[->] (src) -- (lib);
     \draw[->] (src) -- (config);
+
+    % Connections to files
     \draw[->] (src) -- (app);
     \draw[->] (src) -- (main);
 \end{tikzpicture}
