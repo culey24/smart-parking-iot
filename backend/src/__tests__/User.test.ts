@@ -21,7 +21,7 @@ describe('User model', () => {
         userId: 'TEST_1',
         schoolCardId: 999999,
         fullName: 'Test User',
-        role: 'USER',
+        role: 'LEARNER',
         email: 'test@example.com',
         password: 'plaintext123',
       });
@@ -37,7 +37,7 @@ describe('User model', () => {
         userId: 'TEST_2',
         schoolCardId: 999998,
         fullName: 'Test User 2',
-        role: 'USER',
+        role: 'LEARNER',
         email: 'test2@example.com',
         password: 'mypassword',
       });
@@ -56,7 +56,7 @@ describe('User model', () => {
         userId: 'TEST_3',
         schoolCardId: 999997,
         fullName: 'Test User 3',
-        role: 'USER',
+        role: 'LEARNER',
         email: 'test3@example.com',
         password: 'correctPassword',
       });
@@ -72,7 +72,7 @@ describe('User model', () => {
         userId: 'TEST_4',
         schoolCardId: 999996,
         fullName: 'Test User 4',
-        role: 'USER',
+        role: 'LEARNER',
         email: 'test4@example.com',
         password: 'correctPassword',
       });
@@ -90,7 +90,7 @@ describe('User model', () => {
         userId: 'TEST_5',
         schoolCardId: 999995,
         fullName: 'Test User 5',
-        role: 'USER',
+        role: 'LEARNER',
         email: 'test5@example.com',
       });
 
@@ -102,7 +102,7 @@ describe('User model', () => {
         userId: 'TEST_6',
         schoolCardId: 999994,
         fullName: 'Test User 6',
-        role: 'USER',
+        role: 'LEARNER',
         email: 'test6@example.com',
         password: 'pass',
       });
@@ -111,7 +111,7 @@ describe('User model', () => {
         userId: 'TEST_7',
         schoolCardId: 999994,
         fullName: 'Test User 7',
-        role: 'USER',
+        role: 'LEARNER',
         email: 'test7@example.com',
         password: 'pass',
       })).rejects.toThrow();

@@ -13,13 +13,13 @@ The deployment view illustrates how the Smart Parking IoT system components are 
     \node[draw, fill=orange!10, minimum width=3cm, minimum height=1cm] (mongodb) at (6,0) {MongoDB Atlas};
 
     % Application components
-    \node[draw, fill=blue!20, minimum width=2.5cm, minimum height=0.8cm] (frontend) at (0,1.5) {Frontend\\(React/Vite)};
-    \node[draw, fill=green!20, minimum width=2.5cm, minimum height=0.8cm] (backend) at (6,1.5) {Backend\\(Node.js/Express)};
-    \node[draw, fill=purple!20, minimum width=2.5cm, minimum height=0.8cm] (iot) at (3,-1) {IoT Gateway\\(MQTT - Planned)};
+    \node[draw, fill=blue!20, minimum width=2.5cm, minimum height=0.8cm, align=center] (frontend) at (0,1.5) {Frontend\\(React/Vite)};
+    \node[draw, fill=green!20, minimum width=2.5cm, minimum height=0.8cm, align=center] (backend) at (6,1.5) {Backend\\(Node.js/Express)};
+    \node[draw, fill=purple!20, minimum width=2.5cm, minimum height=0.8cm, align=center] (iot) at (3,-1) {IoT Gateway\\(MQTT - Planned)};
 
     % Users and devices
-    \node[draw, fill=gray!20, minimum width=2cm, minimum height=0.6cm] (users) at (-2,0) {Users\\(Web/Mobile)};
-    \node[draw, fill=gray!20, minimum width=2cm, minimum height=0.6cm] (devices) at (3,-2.5) {IoT Devices\\(Sensors/Gates)};
+    \node[draw, fill=gray!20, minimum width=2cm, minimum height=0.6cm, align=center] (users) at (-2,0) {Users\\(Web/Mobile)};
+    \node[draw, fill=gray!20, minimum width=2cm, minimum height=0.6cm, align=center] (devices) at (3,-2.5) {IoT Devices\\(Sensors/Gates)};
 
     % Connections
     \draw[->, thick] (users) -- (frontend);
@@ -44,35 +44,27 @@ The deployment view illustrates how the Smart Parking IoT system components are 
 
 \subsection{Infrastructure Components}
 
-\subsubsection{Frontend Deployment (Vercel)}
+\subsubsection{Frontend Deployment}
 \begin{itemize}
-\item \textbf{Platform:} Vercel - Static site hosting with global CDN
+\item \textbf{Deploy Platform:} Vercel.
 \item \textbf{Technology:} React 18 + Vite + TypeScript
 \item \textbf{Build Process:} Automatic builds from Git repository
 \item \textbf{Features:} Global CDN, automatic HTTPS, preview deployments
 \end{itemize}
 
-\subsubsection{Backend Deployment (Railway)}
+\subsubsection{Backend Deployment}
 \begin{itemize}
-\item \textbf{Platform:} Railway - Cloud application hosting
+\item \textbf{Deploy Platform:} Railway - Cloud application hosting
 \item \textbf{Technology:} Node.js/Express 5 + TypeScript
 \item \textbf{Database:} Railway MongoDB (managed MongoDB service)
 \item \textbf{Features:} Automatic scaling, environment management, logging
 \end{itemize}
 
-\subsubsection{Database (Railway MongoDB)}
+\subsubsection{Database}
 \begin{itemize}
-\item \textbf{Service:} Railway MongoDB - Managed MongoDB instance
+\item \textbf{Service:} Railway's MongoDB.
 \item \textbf{Features:} Automatic backups, high availability, connection pooling
 \item \textbf{Security:} Encrypted connections, access control
-\end{itemize}
-
-\subsubsection{IoT Integration (Planned)}
-\begin{itemize}
-\item \textbf{Protocol:} MQTT for device communication
-\item \textbf{Gateway:} Cloud-based MQTT broker
-\item \textbf{Current Status:} Mockup implementation
-\item \textbf{Future:} Real IoT device integration via MQTT topics
 \end{itemize}
 
 \subsection{Business Flow Integration}

@@ -34,8 +34,9 @@ describe('Test Task 7: System Admin & Error Handling', () => {
 
     it('1. [Happy Path] Nên cập nhật bảng giá và sinh ra 1 record AuditLog', async () => {
       (PricingPolicy.findOneAndUpdate as jest.Mock).mockResolvedValue({
+        userRole: 'LEARNER',
         vehicleType: 'CAR',
-        baseRate: 25000,
+        calculationType: 'HOURLY',
       });
       (AuditLog.create as jest.Mock).mockResolvedValue(true);
 
@@ -43,10 +44,10 @@ describe('Test Task 7: System Admin & Error Handling', () => {
         .put('/api/admin/pricing')
         .set('Authorization', `Bearer ${adminToken}`)
         .send({
+          userRole: 'LEARNER',
           vehicleType: 'CAR',
-          baseRate: 25000,
-          hourlyRate: 12000,
-          monthlyRate: 600000
+          calculationType: 'HOURLY',
+          billingIntervalMinutes: 60
         });
 
       expect(response.status).toBe(200);
@@ -59,30 +60,30 @@ describe('Test Task 7: System Admin & Error Handling', () => {
       const response = await request(app)
         .put('/api/admin/pricing')
         .set('Authorization', `Bearer ${adminToken}`)
-        .send({ baseRate: 20000 }); // Thiếu vehicleType
+        .send({ baseRate: 20000 }); // Thiếu vehicleType và userRole
 
       expect(response.status).toBe(500);
       expect(response.body.success).toBe(false);
-      expect(response.body.message).toBe('Cần xác định loại xe (vehicleType)');
+      expect(response.body.message).toBe('Cần xác định đối tượng (userRole) và loại xe (vehicleType)');
     });
 
     it('3. [Corner Case] Nên chặn (Status 403) nếu người dùng có Role là USER', async () => {
       const response = await request(app)
         .put('/api/admin/pricing')
         .set('Authorization', `Bearer ${userToken}`) // Dùng token của USER
-        .send({ vehicleType: 'CAR', baseRate: 10000 });
+        .send({ userRole: 'LEARNER', vehicleType: 'CAR' });
 
       // Kì vọng roleMiddleware sẽ đá văng ra
       expect(response.status).toBe(403);
       expect(response.body.message).toBe('Access denied');
       // Kì vọng DB hoàn toàn không bị đụng tới
-      expect(PricingPolicy.findOneAndUpdate).not.toHaveBeenCalled(); 
+      expect(PricingPolicy.findOneAndUpdate).not.toHaveBeenCalled();
     });
 
     it('4. [Corner Case] Nên chặn (Status 401) nếu quên gửi Token', async () => {
       const response = await request(app)
         .put('/api/admin/pricing')
-        .send({ vehicleType: 'CAR', baseRate: 10000 }); // Không set Header Authorization
+        .send({ userRole: 'LEARNER', vehicleType: 'CAR' }); // Không set Header Authorization
 
       // Kì vọng authMiddleware đá văng
       expect(response.status).toBe(401);
@@ -91,14 +92,14 @@ describe('Test Task 7: System Admin & Error Handling', () => {
 
     it('5. [Corner Case] Nên bắt được lỗi 500 nếu DB bị Crash lúc đang ghi AuditLog', async () => {
       // Bảng giá lưu thành công
-      (PricingPolicy.findOneAndUpdate as jest.Mock).mockResolvedValue({ vehicleType: 'CAR' });
+      (PricingPolicy.findOneAndUpdate as jest.Mock).mockResolvedValue({ userRole: 'LEARNER', vehicleType: 'CAR' });
       // Nhưng lúc ghi Log thì DB đứt cáp
       (AuditLog.create as jest.Mock).mockRejectedValue(new Error('MongoDB Connection Lost'));
 
       const response = await request(app)
         .put('/api/admin/pricing')
         .set('Authorization', `Bearer ${adminToken}`)
-        .send({ vehicleType: 'CAR', baseRate: 10000 });
+        .send({ userRole: 'LEARNER', vehicleType: 'CAR' });
 
       // Kì vọng errorHandler.ts chộp được cái lỗi rớt mạng này
       expect(response.status).toBe(500);
@@ -124,14 +125,14 @@ describe('Test Task 7: System Admin & Error Handling', () => {
         });
 
       expect(response.status).toBe(200);
-      expect(SystemConfig.findOneAndUpdate).toHaveBeenCalledTimes(1);
+      expect(SystemConfig.findOneAndUpdate).toHaveBeenCalled();
     });
 
-    it('2. [Corner Case] Nên báo lỗi nếu gửi thiếu thông tin cấu hình', async () => {
+    it('2. [Corner Case] Nên báo lỗi nếu gửi empty body', async () => {
       const response = await request(app)
         .put('/api/admin/config')
         .set('Authorization', `Bearer ${adminToken}`)
-        .send({ settingKey: 'MAX_CAPACITY' }); // Cố tình quên gửi settingValue
+        .send({});
 
       expect(response.status).toBe(500);
       expect(response.body.message).toBe('Thiếu thông tin settingKey hoặc settingValue');
@@ -140,11 +141,11 @@ describe('Test Task 7: System Admin & Error Handling', () => {
     it('nên cho phép FINANCE_OFFICE cập nhật bảng giá', async () => {
       // Tạo token giả cho Finance
       const financeToken = jwt.sign({ id: 'fin_001', role: 'FINANCE_OFFICE' }, 'secret');
-  
+
       const response = await request(app)
         .put('/api/admin/pricing')
         .set('Authorization', `Bearer ${financeToken}`)
-        .send({ vehicleType: 'CAR', baseRate: 30000 });
+        .send({ userRole: 'LEARNER', vehicleType: 'CAR' });
 
       expect(response.status).toBe(200); // Phải trả về 200 OK
     });

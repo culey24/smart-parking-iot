@@ -17,7 +17,7 @@ describe('monitoringService', () => {
       devices: [],
       alerts: [],
     };
-    (apiFetch as any).mockResolvedValue(mockData);
+    (apiFetch as any).mockResolvedValue({ success: true, data: mockData });
 
     const result = await getMonitoringData();
 

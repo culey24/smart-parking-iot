@@ -99,8 +99,9 @@ describe('Task 1: Core Database Models Validation', () => {
         sessionId: 'SESS-001',
         type: 'TEMPORARY',
         vehicleType: 'MOTORBIKE',
-        subjectId: 'GUEST-1',
-        plateNumber: '59-P1'
+        subjectID: 'GUEST-1',
+        plateNumber: '59-P1',
+        userRole: 'VISITOR'
       });
       const savedSession = await session.save();
       expect(savedSession.sessionStatus).toBe('ACTIVE');

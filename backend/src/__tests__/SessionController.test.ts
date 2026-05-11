@@ -35,14 +35,14 @@ describe('SessionController', () => {
   describe('getByUser', () => {
     it('should return { success: true, data: sessions } filtered by userId', async () => {
       mockReq.params = { userId: 'user123' };
-      const sessions = [{ _id: '2', subjectId: 'user123' }];
+      const sessions = [{ _id: '2', subjectID: 'user123' }];
       (ParkingSession.find as jest.Mock).mockReturnValue({
         sort: jest.fn().mockResolvedValue(sessions),
       });
 
       await SessionController.getByUser(mockReq as Request, mockRes as Response);
 
-      expect(ParkingSession.find).toHaveBeenCalledWith({ subjectId: 'user123' });
+      expect(ParkingSession.find).toHaveBeenCalledWith({ subjectID: 'user123' });
       expect(mockJson).toHaveBeenCalledWith({ success: true, data: sessions });
     });
   });

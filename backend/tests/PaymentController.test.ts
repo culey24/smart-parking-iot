@@ -27,31 +27,31 @@ describe('PaymentController (Supertest)', () => {
   });
 
   describe('GET /api/payment/debt', () => {
-    it('Should return 400 error if subjectId is missing', async () => {
+    it('Should return 400 error if subjectID is missing', async () => {
       // User supertest calling GET API directly (without passing query)
       const res = await request(app).get('/api/payment/debt');
 
       expect(res.status).toBe(400);
       expect(res.body.success).toBe(false);
-      expect(res.body.message).toBe('Missing query subjectId');
+      expect(res.body.message).toBe('Missing query subjectID');
     });
 
     it('Should return the correct total debt of the User', async () => {
       // Simulate Database finding 2 unpaid sessions
       (ParkingSession.find as any).mockResolvedValue([
-        { subjectId: 'SV001', fee: 2000 },
-        { subjectId: 'SV001', fee: 3000 }
+        { subjectID: 'SV001', fee: 2000 },
+        { subjectID: 'SV001', fee: 3000 }
       ]);
 
       // Use supertest to call the API with query parameters
-      const res = await request(app).get('/api/payment/debt?subjectId=SV001');
+      const res = await request(app).get('/api/payment/debt?subjectID=SV001');
 
       expect(ParkingSession.find).toHaveBeenCalled();
       expect(res.status).toBe(200);
       expect(res.body).toEqual({
         success: true,
         data: {
-          subjectId: 'SV001',
+          subjectID: 'SV001',
           totalDebt: 5000,
           unpaidCount: 2
         }
@@ -62,7 +62,7 @@ describe('PaymentController (Supertest)', () => {
   describe('GET /api/payment/history', () => {
     it("Should return the User's parking history using the default number of days (30)", async () => {
       const mockHistory = [
-        { sessionId: 'S1', subjectId: 'SV001', createdAt: new Date() }
+        { sessionId: 'S1', subjectID: 'SV001', createdAt: new Date() }
       ];
       (ParkingSession.find as any).mockReturnValue({
         sort: jest.fn().mockReturnValue(Promise.resolve(mockHistory))
@@ -74,10 +74,10 @@ describe('PaymentController (Supertest)', () => {
       expect(res.body.success).toBe(true);
       expect(res.body.data).toEqual(JSON.parse(JSON.stringify(mockHistory)));
 
-      // Verify find was called with correct filter (subjectId and createdAt limit)
+      // Verify find was called with correct filter (subjectID and createdAt limit)
       expect(ParkingSession.find).toHaveBeenCalledWith(
         expect.objectContaining({
-          subjectId: 'SV001',
+          subjectID: 'SV001',
           createdAt: expect.any(Object) // Contains $gte
         })
       );
@@ -87,7 +87,7 @@ describe('PaymentController (Supertest)', () => {
       process.env.HISTORY_VIEW_DAYS_LIMIT = '15';
 
       const mockHistory = [
-        { sessionId: 'S2', subjectId: 'SV001', createdAt: new Date() }
+        { sessionId: 'S2', subjectID: 'SV001', createdAt: new Date() }
       ];
       const sortMock = jest.fn().mockReturnValue(Promise.resolve(mockHistory));
       (ParkingSession.find as any).mockReturnValue({ sort: sortMock });
@@ -126,7 +126,7 @@ describe('PaymentController (Supertest)', () => {
       // Generate 76 mock rows
       const mockLargeHistory = Array.from({ length: 76 }, (_, i) => ({
         sessionId: `S${i}`,
-        subjectId: i % 2 === 0 ? 'SV001' : 'SV002',
+        subjectID: i % 2 === 0 ? 'SV001' : 'SV002',
         createdAt: new Date()
       }));
 
@@ -142,18 +142,18 @@ describe('PaymentController (Supertest)', () => {
       const findCallArgs = (ParkingSession.find as any).mock.calls[0][0];
       expect(findCallArgs.createdAt.$gte).toBeDefined();
       expect(findCallArgs.createdAt.$lte).toBeDefined();
-      expect(findCallArgs.subjectId).toBeUndefined(); // No subjectId was passed
+      expect(findCallArgs.subjectID).toBeUndefined(); // No subjectID was passed
     });
 
-    it('Should apply subjectId to the query if provided', async () => {
+    it('Should apply subjectID to the query if provided', async () => {
       const sortMock = jest.fn().mockReturnValue(Promise.resolve([]));
       (ParkingSession.find as any).mockReturnValue({ sort: sortMock });
 
-      const res = await request(app).get('/api/payment/history/admin?startDate=2026-01-01&endDate=2026-01-31&subjectId=SV001');
+      const res = await request(app).get('/api/payment/history/admin?startDate=2026-01-01&endDate=2026-01-31&subjectID=SV001');
 
       expect(res.status).toBe(200);
       const findCallArgs = (ParkingSession.find as any).mock.calls[0][0];
-      expect(findCallArgs.subjectId).toBe('SV001'); // Ensure it queried with the correct subjectId
+      expect(findCallArgs.subjectID).toBe('SV001'); // Ensure it queried with the correct subjectID
     });
 
     it('Should return 400 if startDate or endDate is missing', async () => {
@@ -166,7 +166,7 @@ describe('PaymentController (Supertest)', () => {
   describe('POST /api/payment/cycle', () => {
     it('Should successfully initiate payment and return a mock link', async () => {
       const payload = {
-        subjectId: 'SV001',
+        subjectID: 'SV001',
         startDate: '2026-04-01',
         endDate: '2026-04-30'
       };
@@ -190,7 +190,7 @@ describe('PaymentController (Supertest)', () => {
 
     it('Should return a message if there are no sessions that require payment', async () => {
       const payload = {
-        subjectId: 'SV001',
+        subjectID: 'SV001',
         startDate: '2026-04-01',
         endDate: '2026-04-30'
       };
@@ -206,7 +206,7 @@ describe('PaymentController (Supertest)', () => {
 
     it('Should smoothly handle initiating payment for 50 parking sessions', async () => {
       const payload = {
-        subjectId: 'SV_VIP_001',
+        subjectID: 'SV_VIP_001',
         startDate: '2026-04-01',
         endDate: '2026-04-30'
       };
@@ -219,7 +219,7 @@ describe('PaymentController (Supertest)', () => {
 
         return {
           sessionId: `SESSION_${i}`,
-          subjectId: 'SV_VIP_001',
+          subjectID: 'SV_VIP_001',
           fee: fee,
           paymentStatus: 'UNPAID',
           save: jest.fn()
@@ -231,7 +231,7 @@ describe('PaymentController (Supertest)', () => {
 
       const res = await request(app).post('/api/payment/cycle').send(payload);
 
-      console.warn(`\n💳 User: ${payload.subjectId} | Số lượt: 50 | Output API: ${res.body.data.totalAmount}đ | Kỳ vọng: ${expectedTotalAmount}đ`);
+      console.warn(`\n💳 User: ${payload.subjectID} | Số lượt: 50 | Output API: ${res.body.data.totalAmount}đ | Kỳ vọng: ${expectedTotalAmount}đ`);
 
       mockBulkSessions.forEach(session => {
         expect(session.save).toHaveBeenCalled();

@@ -7,11 +7,13 @@ This section provides detailed descriptions of all methods in the class diagram,
 \subsubsection{User Class}
 \begin{table}[H]
 \centering
-\begin{tabularx}{\textwidth}{|l|l|l|X|}
+\small
+\renewcommand{\arraystretch}{1.3}
+\begin{tabularx}{\textwidth}{|>{\raggedright\arraybackslash}p{2.5cm}|>{\raggedright\arraybackslash}p{2.5cm}|>{\raggedright\arraybackslash}p{2.5cm}|>{\raggedright\arraybackslash}X|}
 \hline
 \textbf{Method} & \textbf{Parameters} & \textbf{Return Type} & \textbf{Description} \\
 \hline
-comparePassword & password: string & Promise<boolean> & Compares provided password with stored hash using bcrypt \\
+\texttt{comparePassword} & \texttt{password: string} & \texttt{Promise<boolean>} & Compares provided password with stored hash using bcrypt \\
 \hline
 \end{tabularx}
 \caption{User Class Methods}
@@ -35,7 +37,9 @@ No public methods defined - data container classes with device-specific attribut
 \subsubsection{AuthService Class}
 \begin{table}[H]
 \centering
-\begin{tabularx}{\textwidth}{|p{1.8cm}|p{2cm}|p{2.5cm}|X|}
+\small
+\renewcommand{\arraystretch}{1.3}
+\begin{tabularx}{\textwidth}{|>{\raggedright\arraybackslash}p{2.5cm}|>{\raggedright\arraybackslash}p{2.5cm}|>{\raggedright\arraybackslash}p{2.5cm}|>{\raggedright\arraybackslash}X|}
 \hline
 \textbf{Method} & \textbf{Parameters} & \textbf{Return Type} & \textbf{Description} \\
 \hline
@@ -49,7 +53,9 @@ login & cardId: string, password: string & Promise<\{token: string, user: User\}
 \subsubsection{BillingService Class}
 \begin{table}[H]
 \centering
-\begin{tabularx}{\textwidth}{|p{1.8cm}|p{2cm}|p{2.5cm}|X|}
+\small
+\renewcommand{\arraystretch}{1.3}
+\begin{tabularx}{\textwidth}{|>{\raggedright\arraybackslash}p{2.5cm}|>{\raggedright\arraybackslash}p{2.5cm}|>{\raggedright\arraybackslash}p{2.5cm}|>{\raggedright\arraybackslash}X|}
 \hline
 \textbf{Method} & \textbf{Parameters} & \textbf{Return Type} & \textbf{Description} \\
 \hline
@@ -65,7 +71,9 @@ calculateCycleFee & sessions: ParkingSession[] & Promise<number> & Calculates to
 \subsubsection{NavigationService Class}
 \begin{table}[H]
 \centering
-\begin{tabularx}{\textwidth}{|p{1.8cm}|p{2cm}|p{2.5cm}|X|}
+\small
+\renewcommand{\arraystretch}{1.3}
+\begin{tabularx}{\textwidth}{|>{\raggedright\arraybackslash}p{2.5cm}|>{\raggedright\arraybackslash}p{2.5cm}|>{\raggedright\arraybackslash}p{2.5cm}|>{\raggedright\arraybackslash}X|}
 \hline
 \textbf{Method} & \textbf{Parameters} & \textbf{Return Type} & \textbf{Description} \\
 \hline
@@ -81,7 +89,9 @@ getStats & - & Promise<\{totalCapacity: number, totalUsage: number, utilizationR
 \subsubsection{ReportService Class}
 \begin{table}[H]
 \centering
-\begin{tabularx}{\textwidth}{|p{1.8cm}|p{2cm}|p{2.5cm}|X|}
+\small
+\renewcommand{\arraystretch}{1.3}
+\begin{tabularx}{\textwidth}{|>{\raggedright\arraybackslash}p{2.5cm}|>{\raggedright\arraybackslash}p{2.5cm}|>{\raggedright\arraybackslash}p{2.5cm}|>{\raggedright\arraybackslash}X|}
 \hline
 \textbf{Method} & \textbf{Parameters} & \textbf{Return Type} & \textbf{Description} \\
 \hline
@@ -97,7 +107,9 @@ getActivityStats & - & Promise<\{usageByHour: number[], avgOccupancyRate: number
 \subsubsection{SystemAdminService Class}
 \begin{table}[H]
 \centering
-\begin{tabularx}{\textwidth}{|p{1.8cm}|p{2cm}|p{2.5cm}|X|}
+\small
+\renewcommand{\arraystretch}{1.3}
+\begin{tabularx}{\textwidth}{|>{\raggedright\arraybackslash}p{2.5cm}|>{\raggedright\arraybackslash}p{2.5cm}|>{\raggedright\arraybackslash}p{2.5cm}|>{\raggedright\arraybackslash}X|}
 \hline
 \textbf{Method} & \textbf{Parameters} & \textbf{Return Type} & \textbf{Description} \\
 \hline
@@ -119,7 +131,9 @@ getAuditLogs & filter: AuditFilter & Promise<AuditLog[]> & Returns audit logs ba
 \subsubsection{SystemLogService Class}
 \begin{table}[H]
 \centering
-\begin{tabularx}{\textwidth}{|p{1.8cm}|p{2cm}|p{2.5cm}|X|}
+\small
+\renewcommand{\arraystretch}{1.3}
+\begin{tabularx}{\textwidth}{|>{\raggedright\arraybackslash}p{2.5cm}|>{\raggedright\arraybackslash}p{2.5cm}|>{\raggedright\arraybackslash}p{2.5cm}|>{\raggedright\arraybackslash}X|}
 \hline
 \textbf{Method} & \textbf{Parameters} & \textbf{Return Type} & \textbf{Description} \\
 \hline
@@ -137,7 +151,9 @@ getRecent & limit: number & Promise<SystemLog[]> & Retrieves most recent log ent
 \subsubsection{EntryExitController Class}
 \begin{table}[H]
 \centering
-\begin{tabularx}{\textwidth}{|p{1.8cm}|p{2cm}|p{2.5cm}|X|}
+\small
+\renewcommand{\arraystretch}{1.3}
+\begin{tabularx}{\textwidth}{|>{\raggedright\arraybackslash}p{2.5cm}|>{\raggedright\arraybackslash}p{2.5cm}|>{\raggedright\arraybackslash}p{2.5cm}|>{\raggedright\arraybackslash}X|}
 \hline
 \textbf{Method} & \textbf{Parameters} & \textbf{Return Type} & \textbf{Description} \\
 \hline
@@ -155,7 +171,9 @@ openGate & req: Request, res: Response & Promise<Response> & Controls physical g
 \subsubsection{PaymentController Class}
 \begin{table}[H]
 \centering
-\begin{tabularx}{\textwidth}{|p{1.8cm}|p{2cm}|p{2.5cm}|X|}
+\small
+\renewcommand{\arraystretch}{1.3}
+\begin{tabularx}{\textwidth}{|>{\raggedright\arraybackslash}p{2.5cm}|>{\raggedright\arraybackslash}p{2.5cm}|>{\raggedright\arraybackslash}p{2.5cm}|>{\raggedright\arraybackslash}X|}
 \hline
 \textbf{Method} & \textbf{Parameters} & \textbf{Return Type} & \textbf{Description} \\
 \hline
@@ -177,7 +195,9 @@ getDebt & req: Request, res: Response & Promise<Response> & Retrieves outstandin
 \subsubsection{SessionController Class}
 \begin{table}[H]
 \centering
-\begin{tabularx}{\textwidth}{|p{1.8cm}|p{2cm}|p{2.5cm}|X|}
+\small
+\renewcommand{\arraystretch}{1.3}
+\begin{tabularx}{\textwidth}{|>{\raggedright\arraybackslash}p{2.5cm}|>{\raggedright\arraybackslash}p{2.5cm}|>{\raggedright\arraybackslash}p{2.5cm}|>{\raggedright\arraybackslash}X|}
 \hline
 \textbf{Method} & \textbf{Parameters} & \textbf{Return Type} & \textbf{Description} \\
 \hline

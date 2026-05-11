@@ -4,7 +4,7 @@ import MappingConfig from '../models/MappingConfig';
 export const getLayoutMapping = async (req: Request, res: Response) => {
   try {
     const facilityId = String(req.query.facilityId || 'CAMPUS_PARKING_ALPHA');
-    let config = await MappingConfig.findOne({ facilityId });
+    const config = await MappingConfig.findOne({ facilityId });
     
     if (!config) {
       // Return empty layout if not found, don't error

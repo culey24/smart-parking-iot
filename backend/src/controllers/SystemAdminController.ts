@@ -41,11 +41,19 @@ export class SystemAdminController {
   static async updateConfig(req: AuthRequest, res: Response) {
     try {
       const configData = req.body;
-      const userId = req.user?.id || 'system'; 
+      const userId = req.user?.id || 'system';
+
+      // Validate at least one config key is provided
+      const keys = Object.keys(configData);
+      if (keys.length === 0) {
+        throw new Error('Thiếu thông tin settingKey hoặc settingValue');
+      }
 
       // Iteratively update all keys provided in the body
-      const keys = Object.keys(configData);
       for (const key of keys) {
+        if (!configData[key]) {
+          throw new Error('Thiếu thông tin settingKey hoặc settingValue');
+        }
         await SystemAdminService.updateConfig(key, configData[key]);
       }
 

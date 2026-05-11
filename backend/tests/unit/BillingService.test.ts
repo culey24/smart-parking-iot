@@ -11,8 +11,12 @@ describe('BillingService', () => {
 
   describe('calculateFee', () => {
     const mockPolicy = {
-      dayRate: 2000,
-      nightOrSundayRate: 3000
+      calculationType: 'PER_TURN',
+      specialRules: [
+        { name: 'Default', startHour: 0, endHour: 23, daysOfWeek: [], rate: 2000 },
+        { name: 'NightRate', startHour: 18, endHour: 23, daysOfWeek: [1,2,3,4,5,6], rate: 3000 },
+        { name: 'SundayRate', startHour: 0, endHour: 23, daysOfWeek: [0], rate: 3000 },
+      ]
     };
 
     it('Should return 3000 VND if the vehicle is picked up on a Sunday (regardless of the time)', async () => {
@@ -20,7 +24,7 @@ describe('BillingService', () => {
       (PricingPolicy.findOne as jest.Mock).mockResolvedValue(mockPolicy);
 
       const sundayDate = new Date('2026-05-10T10:00:00');
-      const fee = await BillingService.calculateFee(sundayDate, 'MOTORBIKE');
+      const fee = await BillingService.calculateFee(sundayDate, sundayDate, 'MOTORBIKE', 'LEARNER');
 
       expect(fee).toBe(3000);
       expect(PricingPolicy.findOne).toHaveBeenCalledTimes(1);
@@ -30,7 +34,7 @@ describe('BillingService', () => {
       (PricingPolicy.findOne as jest.Mock).mockResolvedValue(mockPolicy);
 
       const mondayNightDate = new Date('2026-05-11T18:30:00');
-      const fee = await BillingService.calculateFee(mondayNightDate, 'MOTORBIKE');
+      const fee = await BillingService.calculateFee(mondayNightDate, mondayNightDate, 'MOTORBIKE', 'LEARNER');
 
       expect(fee).toBe(3000);
     });
@@ -39,16 +43,17 @@ describe('BillingService', () => {
       (PricingPolicy.findOne as jest.Mock).mockResolvedValue(mockPolicy);
 
       const mondayAfternoonDate = new Date('2026-05-11T15:00:00');
-      const fee = await BillingService.calculateFee(mondayAfternoonDate, 'MOTORBIKE');
+      const fee = await BillingService.calculateFee(mondayAfternoonDate, mondayAfternoonDate, 'MOTORBIKE', 'LEARNER');
 
       expect(fee).toBe(2000);
     });
 
-    it('Should throw an error if no ACTIVE PricingPolicy is found', async () => {
+    it('Should return fallback fee 5000 if no policy found', async () => {
       (PricingPolicy.findOne as jest.Mock).mockResolvedValue(null);
       const someDate = new Date('2026-05-11T15:00:00');
 
-      await expect(BillingService.calculateFee(someDate, 'MOTORBIKE')).rejects.toThrow();
+      const fee = await BillingService.calculateFee(someDate, someDate, 'MOTORBIKE', 'LEARNER');
+      expect(fee).toBe(5000);
     });
   });
 

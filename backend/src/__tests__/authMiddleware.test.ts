@@ -7,7 +7,7 @@ describe('authMiddleware', () => {
   let mockNext: NextFunction;
 
   beforeEach(() => {
-    mockReq = { headers: {}, method: 'GET' };
+    mockReq = { headers: {}, method: 'GET', query: {} };
     mockRes = { status: jest.fn().mockReturnThis(), json: jest.fn() };
     mockNext = jest.fn();
   });

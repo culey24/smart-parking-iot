@@ -53,6 +53,13 @@ export function MonitoringPage() {
 
   const showToast = (msg: string) => { setToast(msg); setTimeout(() => setToast(null), 4000); };
 
+  // Map Slot Calculations
+  const mapSensors = layout.filter(d => d.type === "sensor");
+  const mapTotalSlots = mapSensors.length;
+  const mapOccupied = mapSensors.filter(d => getStatusColor(liveData, d.deviceId) === "#16a34a").length;
+  const mapFault    = mapSensors.filter(d => getStatusColor(liveData, d.deviceId) === "#ef4444").length;
+  const mapFree     = mapTotalSlots - mapOccupied - mapFault;
+
   // Animation loop (Direct DOM manipulation for 60FPS smooth routing)
   useEffect(() => {
     if (agents.length === 0) return;
@@ -144,6 +151,11 @@ export function MonitoringPage() {
   };
 
   const enterStaff = async () => {
+    if (simStatus === "running") return;
+    if (mapFree <= 0) {
+      showToast("❌ Entry Denied: Parking lot is completely full!");
+      return;
+    }
     setSimStatus("running");
     try {
       // Get active sessions to find used users
@@ -188,6 +200,11 @@ export function MonitoringPage() {
   };
 
   const enterVisitor = async () => {
+    if (simStatus === "running") return;
+    if (mapFree <= 0) {
+      showToast("❌ Entry Denied: Parking lot is completely full!");
+      return;
+    }
     setSimStatus("running");
     try {
       const plateNumber = randomPlate();
@@ -310,13 +327,6 @@ export function MonitoringPage() {
     });
   };
 
-  // Layout-aware availability: count only sensors placed on the current map
-  const mapSensors = hardware.filter(d => d.type === "sensor");
-  const mapTotalSlots = mapSensors.length;
-  const mapOccupied = mapSensors.filter(d => getStatusColor(liveData, d.deviceId) === "#16a34a").length;
-  const mapFault    = mapSensors.filter(d => getStatusColor(liveData, d.deviceId) === "#ef4444").length;
-  const mapFree     = mapTotalSlots - mapOccupied - mapFault;
-
   const selectedDevice = layout.find(d => d.id === selectedId);
   const logLevelColor = (level: string) =>
     level === "SUCCESS" ? "text-green-400" : level === "ERROR" ? "text-red-400" : level === "WARNING" ? "text-amber-400" : "text-slate-300";
@@ -375,7 +385,8 @@ export function MonitoringPage() {
               { label: "Enter Visitor", color: "bg-amber-500 hover:bg-amber-600", action: enterVisitor },
               { label: "Exit User", color: "bg-red-500 hover:bg-red-600", action: exitUser },
             ].map(btn => (
-              <button key={btn.label} onClick={btn.action} disabled={simStatus === "running"}
+              <button key={btn.label} onClick={btn.action} 
+                disabled={simStatus === "running" || (btn.label.includes("Enter") && mapFree <= 0)}
                 className={`w-full text-white text-[11px] font-bold py-2 px-3 rounded-xl transition-all ${btn.color} disabled:opacity-40 disabled:cursor-not-allowed`}>
                 {simStatus === "running" && agents.length > 0 ? "Simulating..." : btn.label}
               </button>

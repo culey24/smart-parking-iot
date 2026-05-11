@@ -28,12 +28,12 @@ export function isSensorInZone(
  * Checks if a point (in percentage) is within a polygon defined by vertices (in percentage).
  */
 export function isPointInPolygon(point: {x: number, y: number}, polygon: {x: number, y: number}[]) {
-  let x = point.x, y = point.y;
+  const { x, y } = point;
   let inside = false;
   for (let i = 0, j = polygon.length - 1; i < polygon.length; j = i++) {
-    let xi = polygon[i].x, yi = polygon[i].y;
-    let xj = polygon[j].x, yj = polygon[j].y;
-    let intersect = ((yi > y) !== (yj > y)) && (x < (xj - xi) * (y - yi) / (yj - yi) + xi);
+    const { x: xi, y: yi } = polygon[i];
+    const { x: xj, y: yj } = polygon[j];
+    const intersect = ((yi > y) !== (yj > y)) && (x < (xj - xi) * (y - yi) / (yj - yi) + xi);
     if (intersect) inside = !inside;
   }
   return inside;
@@ -66,8 +66,8 @@ function getClosestPointOnSegment(p: {x: number, y: number}, a: {x: number, y: n
   const atob = { x: b.x - a.x, y: b.y - a.y };
   const atop = { x: p.x - a.x, y: p.y - a.y };
   const lenSq = atob.x * atob.x + atob.y * atob.y;
-  let dot = atop.x * atob.x + atop.y * atob.y;
-  let t = Math.max(0, Math.min(1, dot / lenSq));
+  const dot = atop.x * atob.x + atop.y * atob.y;
+  const t = Math.max(0, Math.min(1, dot / lenSq));
   return { x: a.x + atob.x * t, y: a.y + atob.y * t };
 }
 

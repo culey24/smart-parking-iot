@@ -37,10 +37,12 @@ describe('pricingPolicyService', () => {
   describe('savePricingPolicy', () => {
     it('should call apiFetch with PUT method and correct body', async () => {
       const policy = {
+        userRole: 'LEARNER',
         vehicleType: 'MOTORBIKE',
-        dayRate: 1000,
-        nightOrSundayRate: 2000,
-        status: 'ACTIVE',
+        calculationType: 'HOURLY',
+        billingIntervalMinutes: 60,
+        specialRules: [],
+        discountPercent: 10,
       } as any;
       (apiFetch as any).mockResolvedValue({ success: true });
 
@@ -49,9 +51,12 @@ describe('pricingPolicyService', () => {
       expect(apiFetch).toHaveBeenCalledWith('/api/admin/pricing', {
         method: 'PUT',
         body: JSON.stringify({
+          userRole: 'LEARNER',
           vehicleType: 'MOTORBIKE',
-          dayRate: 1000,
-          nightOrSundayRate: 2000,
+          calculationType: 'HOURLY',
+          billingIntervalMinutes: 60,
+          specialRules: [],
+          discountPercent: 10,
         }),
       });
     });
