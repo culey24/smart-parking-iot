@@ -1,5 +1,4 @@
 import { Request, Response } from 'express';
-// Sau này bạn có thể import thêm model User hoặc TemporaryCard ở đây 
 
 export class CardController {
   
@@ -17,7 +16,7 @@ export class CardController {
           plateNumber: plate,
           status: 'ACTIVE'
         },
-        message: "Tra cứu thông tin thẻ thành công"
+        message: "Card information lookup successful."
       });
     } catch (error: any) {
       throw error; // Ném lỗi cho errorHandler
@@ -34,7 +33,7 @@ export class CardController {
 
       res.json({ 
         success: true, 
-        message: `Thẻ có mã ${cardId} đã được vô hiệu hóa thành công` 
+        message: `Card with ID ${cardId} has been disabled successfully` 
       });
     } catch (error: any) {
       throw error;
