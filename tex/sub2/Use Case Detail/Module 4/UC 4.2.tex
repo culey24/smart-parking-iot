@@ -1,0 +1,25 @@
+\begin{longtblr}[
+  caption = {UC 4.2: Manage user list and current sessions},
+]{
+  colspec = {Q[l, 3.5cm] Q[l, 11cm]}, 
+  hlines, vlines,
+  row{1} = {bg=gray9, font=\bfseries}, 
+  rowhead = 0, 
+}
+Field & Details \\
+Use Case ID & 4.2 \\
+Use Case Name & Manage user list and current sessions \\
+Actors & Primary: System Administrator, IT Team. \par Supporting: HCMUT\_DATACORE. \\
+Description & Manage the university user list, oversee role distribution via RBAC, and monitor all currently active parking sessions in real-time. \\
+Trigger & The Administrator or IT staff accesses the User Management or Session Oversight modules on the Web App. \\
+Pre-conditions & Actor passes authentication check (UC 4.1). \\
+Post-conditions & Actor gains control over user management, active oversight of current sessions, and role distribution. \\
+Main Flow & 
+\textbf{1. User Management:} After authentication, the actor navigates to the user management sector. The system synchronizes with HCMUT\_DATACORE to fetch and display user information. The actor can search (Name, Card ID, User ID) or filter (Type, Status, Faculty) the list. \par \vspace{0.5em}
+\textbf{2. Oversight of Role Distribution:} The actor navigates to the role distribution sector. The system fetches data from the Role Based Authentication Control (RBAC) module. The actor can search or filter based on roles and status. \par \vspace{0.5em}
+\textbf{3. Oversight of Current Sessions:} The actor navigates to the current sessions sector. The system fetches real-time information on active parking sessions. The actor can search or filter sessions using keys like License Plate, Card ID, or entry time. \\
+Exception Flows & 
+\textbf{E1 - Connection to Auth/Host Lost:} Displays a failsafe page. The actor must refresh to check the connection status. \par \vspace{0.5em}
+\textbf{E2 - Connection to HCMUT\_DATACORE Lost:} Displays a connection lost message and returns an empty user list. The actor must refresh to retry. \par \vspace{0.5em}
+\textbf{E3 - Connection to RBAC Module Lost:} Displays a connection error and returns an empty role-based information list. \\
+\end{longtblr}

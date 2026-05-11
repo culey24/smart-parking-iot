@@ -1,0 +1,29 @@
+\begin{longtblr}[
+  caption = {UC 2.1: Realtime park guidance for commuters},
+]{
+  colspec = {Q[l, 3.5cm] Q[l, 11cm]}, 
+  hlines, vlines,
+  row{1} = {bg=gray9, font=\bfseries}, 
+  rowhead = 0, 
+}
+Field & Details \\
+Use Case ID & 2.1 \\
+Use Case Name & Realtime park guidance for commuters \\
+Actors & Primary: Learners, Faculty Member \& Staff, Temporary Visitors. \par Supporting: Signages. \\
+Description & Main users and Temporary visitors get guidance via the parking signages. The available slots for each way/area is displayed on the signages. \\
+Trigger & A commuter arrives at the campus parking entrances or drives past key intersections. \\
+Pre-conditions & IoT parking sensors and local gateways are online. Signages are currently working. \\
+Post-conditions & The commuter successfully parks in an available slot, and the system updates the real-time availability on its signage. \\
+Main Flow & 
+1. The commuter arrives at the entrance of the parking lot. \par
+2. The commuter observes signage at the entrance which displays availability (full, almost full, available). \par
+3. The commuter enters the parking facility. \par
+4. At intersections, electronic signage provides directional information and available slots. \par
+5. The commuter finds the parking spot. \par
+6. IoT sensor detects new occupancy and relays information through local gateways; the system updates signages and maps. \\
+Alternate Flows & 
+\textbf{A1: Full Facility (at step 2):} Signage displays zero slots available. Gateway declines to open (UC 1.8). The commuters are redirected to other parking zones of HCMUT. \par \vspace{0.5em}
+\textbf{A2: Zone Full En Route (at step 4):} While driving towards Zone A, other vehicles occupy the remaining spots. The system detects the change, recalculates the nearest available zone (e.g., Zone B), and updates the Directional Signage to redirect the commuter. The commuter follows the updated directions and resumes Step 5. \\
+Exception Flows & 
+\textbf{E1: Hardware/Connection Failure:} The system detects a loss of connection or data timeout. If sensors fail, the system excludes those slots and resyncs data. If the entire system fails, signages fallback to error mode, guiding commuters to follow parking operators' instructions. The system triggers an alert to the IT Team via the Web App (UC 2.4). \\
+\end{longtblr}

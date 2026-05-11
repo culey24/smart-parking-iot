@@ -1,0 +1,111 @@
+\section{Requirements}
+\subsection{Functional Requirements}
+Interactive functional requirements includes: \\
+* For Students and Faculty Members/Staff:
+\begin{enumerate}
+    \item View real-time parking availability.
+    \item View personal parking and billing history.
+    \item Report payment issues.
+    \item View guiding signage.
+    \item Enter and exit parking with automatic authentication and ease of payment.
+\end{enumerate}
+* For Temporary visitors:
+\begin{enumerate}
+    \item Able to enter and exit parking without HCMUT IDs.
+    \item Report payment issues.
+    \item View guiding signage.
+    \item Rapid payment and easy to use.
+\end{enumerate}
+* For Parking Operators:
+\begin{enumerate}
+    \item Handle manual gateway control situations (When the system are down, or some functions are not working).
+    \item Resolve ID cards lost situations.
+    \item Notify commuters when the parking areas are full with no slot available.
+    \item View and manage parking availability.
+\end{enumerate}
+* For Admin/System Operators:
+\begin{enumerate}
+    \item Monitor real-time system statistics, user lists, and active parking sessions.
+    \item Configure policy settings and system settings.
+    \item Audit system logs for security and troubleshooting.
+    \item Manage roles.
+\end{enumerate}
+* For Finance Office (Manage finance aspects of the parking zone):
+\begin{enumerate}
+    \item View and export overall financial reports for a specified time period.
+    \item Configure billing settings and policies.
+\end{enumerate}
+* For HCMUT Leaders and Managers:
+\begin{enumerate}
+    \item View overall financial reports.
+    \item View parking system and usage reports.
+\end{enumerate}
+Non-interactive functional requirements includes:
+\begin{enumerate}
+    \item Automated User Data Synchronization.
+    \begin{itemize}
+        \item The system will automatically synchronize personal and role related information from the university database. This must be done as a read-only manner to ensure data consistency and system security.
+        \item Frequency: daily
+    \end{itemize}
+    \item Periodic Billing.
+    \begin{itemize}
+        \item For the university members group, the system will accumulate parking sessions over a predefined period. The system shall automatically compute the parking fees for each kind of users based on the policies and initiate payment requests using BKPAY.
+        \item Frequency: Periodically based on config.
+    \end{itemize}
+    \item Temporary Local Storage \& Auto Sync.
+    \begin{itemize}
+        \item If the central system goes down or network failure, the IoTs will automatically switch to offline mode, parking data will be saved into local storage. Once the problem is solved, the local data will be synchronized with the central database.
+        \item Frequency: Event-driven (Triggered by network disconnection and subsequent restoration).
+    \end{itemize}
+    \item Guidance Sign Adjustment.
+    \begin{itemize}
+        \item The system continuously receives signals from parking sensors. When a vehicle parks or leaves, the system automatically calculates the available spots and updates the signage immediately.
+        \item Frequency: Event-driven (Triggered when a sensor's status changes).
+    \end{itemize}
+    \item Automated License Plate Recognition.
+    \begin{itemize}
+        \item When a vehicle stops at the entry or exit gateway, the camera captures an image. The system then automatically runs an image processing algorithm to read the license plate text and saves it to the database to match the vehicle when it exits.
+        \item Frequency: Event-driven (Triggered when a car arrives at the gateway).
+    \end{itemize}
+\end{enumerate}
+
+Base on the functional requirements, we divide the system's use cases into 4 modules:
+\begin{enumerate}
+    \item Module 1: Access control.
+    \item Module 2: Monitoring and guidance.
+    \item Module 3: Billing and Payment.
+    \item Module 4: System and Administration.
+\end{enumerate}
+\subsection{Non-Functional Requirements}
+\noindent Type 1: Performance requirements.
+\begin{enumerate}
+    \item Gate access processing (RFID scan to barrier open) must complete in under 1.5 seconds to prevent congestion at entry and exit points.
+    \item The central system must support at least 500 concurrent requests per second without exceeding a 2-second response latency.
+    \item Financial reports, parking history lookups, system statistics must return results in under 5 seconds.
+    \item Payment through BKPAY API must be respond in less than 3 seconds.
+\end{enumerate}
+Type 2: Reliability requirements.
+\begin{enumerate}
+    \item The system must identify and flag disconnected sensors or gateways in 60 seconds of signal loss.
+    \item IoT gateways must be capable of local data buffering and basic access control for at least 24 hours during server down time.
+\end{enumerate}
+Type 3: Security requirements
+\begin{enumerate}
+    \item All university members must authenticate via HCMUT\_SSO for Web App access.
+    \item Information synchronized from HCMUT\_DATACORE must be handled in a read-only mode to prevent insecure modifications.
+    \item Role-Based Access Control (RBAC) must strictly isolate functions between actors.
+    \item All financial transactions, administrative actions must be logged and retained for a minimum of 12 months.
+\end{enumerate}
+Type 4: Availability requirements
+\begin{enumerate}
+    \item The system must maintain a minimum availability of 99.9\% during the university's primary operational hours.
+    \item Electronic signages must update the parking status (Available, Nearly Full, Full) within 3 seconds of a state change detected by local sensors.
+    \item Downtime during operational hours must be less than 45 minutes per month, with no incident lasting longer than 10 minutes.
+    \item Scheduled maintenance and downtime during non-operational hours must be limited to a maximum of 10 hours per week and must be announced 24 hours in advance.
+\end{enumerate}
+Type 5: Compatibility requirements
+\begin{enumerate}
+    \item The system must provide automated billing requests compatible with the BKPAY API at the end of each configured period.
+    \item Data transmission between IoT devices and the central server must be consistent and utilize standard communication protocols.
+    \item User data must synchronize with HCMUT\_DATACORE at least once every 24 hours to ensure the validity of parking privileges.
+\end{enumerate}

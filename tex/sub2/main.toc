@@ -1,0 +1,83 @@
+\contentsline {section}{\numberline {1}Activity Diagram}{5}{section.1}%
+\contentsline {subsection}{\numberline {1.1}UC 1.1 - Enter Parking (Learners/Faculty)}{5}{subsection.1.1}%
+\contentsline {subsection}{\numberline {1.2}UC 1.2 - Enter Parking (Temporary Visitors)}{6}{subsection.1.2}%
+\contentsline {subsection}{\numberline {1.3}UC 1.3 - Exit Parking (Learners/Faculty)}{6}{subsection.1.3}%
+\contentsline {subsection}{\numberline {1.4}UC 1.4 - Exit Parking (Temporary Visitors)}{7}{subsection.1.4}%
+\contentsline {subsection}{\numberline {1.5}UC 1.5 - Manual Barrier Control}{7}{subsection.1.5}%
+\contentsline {subsection}{\numberline {1.6}UC 1.6 - Handle Lost Temporary Card}{8}{subsection.1.6}%
+\contentsline {subsection}{\numberline {1.7}UC 1.7 - Handle Lost Main User Card}{8}{subsection.1.7}%
+\contentsline {subsection}{\numberline {1.8}UC 1.8 - Handle Parking Full State}{9}{subsection.1.8}%
+\contentsline {subsection}{\numberline {1.9}UC 2.1 - Parking with Signage Guidance}{10}{subsection.1.9}%
+\contentsline {subsection}{\numberline {1.10}UC 2.2 - View \& Manage Parking Availability}{11}{subsection.1.10}%
+\contentsline {subsection}{\numberline {1.11}UC 2.3 - IoT Device \& Layout Mapping}{13}{subsection.1.11}%
+\contentsline {subsection}{\numberline {1.12}UC 2.4 - Infrastructure Alert Handling}{14}{subsection.1.12}%
+\contentsline {subsection}{\numberline {1.13}UC 2.5 - Personal Info \& Parking History}{15}{subsection.1.13}%
+\contentsline {subsection}{\numberline {1.14}UC 3.1 - Periodic Parking Fee Payment}{16}{subsection.1.14}%
+\contentsline {subsection}{\numberline {1.15}UC 3.2 - Temporary Visitor Fee Payment}{16}{subsection.1.15}%
+\contentsline {subsection}{\numberline {1.16}UC 3.3 - Pricing Policy Configuration}{17}{subsection.1.16}%
+\contentsline {subsection}{\numberline {1.17}UC 3.4 - View Billing History}{17}{subsection.1.17}%
+\contentsline {subsection}{\numberline {1.18}UC 3.5 - Overall Financial Reporting}{18}{subsection.1.18}%
+\contentsline {subsection}{\numberline {1.19}UC 3.6 - Payment Issue Reporting}{18}{subsection.1.19}%
+\contentsline {subsection}{\numberline {1.20}UC 3.7 - Financial Data Reconciliation}{19}{subsection.1.20}%
+\contentsline {subsection}{\numberline {1.21}UC 4.1 - Web Authentication (SSO)}{21}{subsection.1.21}%
+\contentsline {subsection}{\numberline {1.22}UC 4.2 - User \& Session Management}{23}{subsection.1.22}%
+\contentsline {subsection}{\numberline {1.23}UC 4.3 - Role-Based Access Control (RBAC)}{25}{subsection.1.23}%
+\contentsline {subsection}{\numberline {1.24}UC 4.4 - System Audit Logging}{27}{subsection.1.24}%
+\contentsline {subsection}{\numberline {1.25}UC 4.5 - System Statistics Monitoring}{29}{subsection.1.25}%
+\contentsline {subsection}{\numberline {1.26}UC 4.6 - IoT Device List Management}{31}{subsection.1.26}%
+\contentsline {subsection}{\numberline {1.27}UC 4.7 - System Settings Configuration}{33}{subsection.1.27}%
+\contentsline {section}{\numberline {2}Sequence Diagram}{34}{section.2}%
+\contentsline {subsection}{\numberline {2.1}UC 1.1 - Enter Parking (Learners/Faculty)}{34}{subsection.2.1}%
+\contentsline {subsection}{\numberline {2.2}UC 1.2 - Enter Parking (Temporary Visitors)}{35}{subsection.2.2}%
+\contentsline {subsection}{\numberline {2.3}UC 1.3 - Exit Parking (Learners/Faculty)}{36}{subsection.2.3}%
+\contentsline {subsection}{\numberline {2.4}UC 1.4 - Exit Parking (Temporary Visitors)}{37}{subsection.2.4}%
+\contentsline {subsection}{\numberline {2.5}UC 1.5 - Manual Barrier Control}{38}{subsection.2.5}%
+\contentsline {subsection}{\numberline {2.6}UC 1.6 - Handle Lost Temporary Card}{39}{subsection.2.6}%
+\contentsline {subsection}{\numberline {2.7}UC 1.7 - Handle Lost Main User Card}{40}{subsection.2.7}%
+\contentsline {subsection}{\numberline {2.8}UC 1.8 - Handle Parking Full State}{41}{subsection.2.8}%
+\contentsline {subsection}{\numberline {2.9}UC 2.1 - Parking with Signage Guidance}{42}{subsection.2.9}%
+\contentsline {subsection}{\numberline {2.10}UC 2.2 - View \& Manage Parking Availability}{43}{subsection.2.10}%
+\contentsline {subsection}{\numberline {2.11}UC 2.3 - IoT Device \& Layout Mapping}{44}{subsection.2.11}%
+\contentsline {subsection}{\numberline {2.12}UC 2.4 - Infrastructure Alert Handling}{45}{subsection.2.12}%
+\contentsline {subsection}{\numberline {2.13}UC 2.5 - Personal Info \& Parking History}{46}{subsection.2.13}%
+\contentsline {subsection}{\numberline {2.14}UC 3.1 - Periodic Parking Fee Payment}{48}{subsection.2.14}%
+\contentsline {subsection}{\numberline {2.15}UC 3.2 - Temporary Visitor Fee Payment}{49}{subsection.2.15}%
+\contentsline {subsection}{\numberline {2.16}UC 3.3 - Pricing Policy Configuration}{51}{subsection.2.16}%
+\contentsline {subsection}{\numberline {2.17}UC 3.4 - View Billing History}{52}{subsection.2.17}%
+\contentsline {subsection}{\numberline {2.18}UC 3.5 - Overall Financial Reporting}{53}{subsection.2.18}%
+\contentsline {subsection}{\numberline {2.19}UC 3.6 - Payment Issue Reporting}{54}{subsection.2.19}%
+\contentsline {subsection}{\numberline {2.20}UC 3.7 - Financial Data Reconciliation}{55}{subsection.2.20}%
+\contentsline {subsection}{\numberline {2.21}UC 4.1 - Web Authentication (SSO)}{56}{subsection.2.21}%
+\contentsline {subsection}{\numberline {2.22}UC 4.2 - User \& Session Management}{57}{subsection.2.22}%
+\contentsline {subsection}{\numberline {2.23}UC 4.3 - Role-Based Access Control (RBAC)}{58}{subsection.2.23}%
+\contentsline {subsection}{\numberline {2.24}UC 4.4 - System Audit Logging}{59}{subsection.2.24}%
+\contentsline {subsection}{\numberline {2.25}UC 4.5 - System Statistics Monitoring}{60}{subsection.2.25}%
+\contentsline {subsection}{\numberline {2.26}UC 4.6 - IoT Device List Management}{61}{subsection.2.26}%
+\contentsline {subsection}{\numberline {2.27}UC 4.7 - System Settings Configuration}{62}{subsection.2.27}%
+\contentsline {section}{\numberline {3}State-chart Diagram}{63}{section.3}%
+\contentsline {subsection}{\numberline {3.1}Gateway State Diagram}{63}{subsection.3.1}%
+\contentsline {subsection}{\numberline {3.2}Parking Session State Diagram}{64}{subsection.3.2}%
+\contentsline {subsection}{\numberline {3.3}Parking Slot State Diagram}{64}{subsection.3.3}%
+\contentsline {subsection}{\numberline {3.4}IoT Device State Diagram}{65}{subsection.3.4}%
+\contentsline {subsection}{\numberline {3.5}Temporary Card State Diagram}{66}{subsection.3.5}%
+\contentsline {section}{\numberline {4}UI Mockup}{67}{section.4}%
+\contentsline {subsection}{\numberline {4.1}Login Screen}{67}{subsection.4.1}%
+\contentsline {subsection}{\numberline {4.2}Main User Dashboard}{67}{subsection.4.2}%
+\contentsline {subsection}{\numberline {4.3}Parking History}{68}{subsection.4.3}%
+\contentsline {subsection}{\numberline {4.4}Billing History}{68}{subsection.4.4}%
+\contentsline {subsection}{\numberline {4.5}Personal Info}{69}{subsection.4.5}%
+\contentsline {subsection}{\numberline {4.6}Live Parking Monitoring}{69}{subsection.4.6}%
+\contentsline {subsection}{\numberline {4.7}Gateway Dashboard}{70}{subsection.4.7}%
+\contentsline {subsection}{\numberline {4.8}Gateway Entry Screen}{70}{subsection.4.8}%
+\contentsline {subsection}{\numberline {4.9}Gateway Exit Screen}{71}{subsection.4.9}%
+\contentsline {subsection}{\numberline {4.10}Card Processing}{71}{subsection.4.10}%
+\contentsline {subsection}{\numberline {4.11}Financial Analysis}{72}{subsection.4.11}%
+\contentsline {subsection}{\numberline {4.12}System Statistics}{72}{subsection.4.12}%
+\contentsline {subsection}{\numberline {4.13}Pricing Policy Configuration}{73}{subsection.4.13}%
+\contentsline {subsection}{\numberline {4.14}Financial Reconciliation Screen}{73}{subsection.4.14}%
+\contentsline {subsection}{\numberline {4.15}Admin Dashboard}{74}{subsection.4.15}%
+\contentsline {subsection}{\numberline {4.16}Layout Mapping}{74}{subsection.4.16}%
+\contentsline {subsection}{\numberline {4.17}IoT Devices List}{75}{subsection.4.17}%
+\contentsline {subsection}{\numberline {4.18}User Management \& Permissions}{75}{subsection.4.18}%
+\contentsline {subsection}{\numberline {4.19}Audit Log}{76}{subsection.4.19}%
+\contentsline {subsection}{\numberline {4.20}System Configuration}{76}{subsection.4.20}%

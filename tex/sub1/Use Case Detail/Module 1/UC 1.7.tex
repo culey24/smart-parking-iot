@@ -1,0 +1,26 @@
+\begin{longtblr}[
+  caption = {UC 1.7: Main User Card Lost},
+]{
+  colspec = {Q[l, 3.5cm] Q[l, 11cm]}, 
+  hlines, vlines,
+  row{1} = {bg=gray9, font=\bfseries}, 
+  rowhead = 0, 
+}
+Field & Details \\
+Use Case ID & 1.7 \\
+Use Case Name & Main User Card Lost \\
+Actors & Primary: Parking Operators. \par Supporting: Learners, Faculty Members \& Staff. \\
+Description & Manages the situation where a university member loses their official ID card while parked inside the campus. The operator assists in verifying their identity, invalidating the old card, and clearing the session. \\
+Pre-conditions & A member arrives at the exit without their ID card. The flow is transferred from UC 1.3. \\
+Post-conditions & The lost ID card is deactivated in the parking system, the fee is linked to BKPAY, and the user is allowed to exit. \\
+Main Flow & 
+1. The university member notifies the Parking Operator that they lost their ID card inside the campus. \par
+2. The Operator looks up the member's active parking session using their vehicle's license plate or their student/staff ID number. \par
+3. The Operator verifies the member's identity against the system data (read-only data synced from HCMUT\_DATACORE, such as checking their profile picture). \par
+4. The system calculates the parking fee and adds it to the user's BKPAY billing cycle as usual. \par
+5. The Operator marks the lost ID card as ``Invalid/Lost'' in the system to prevent unauthorized access if someone else finds it. \par
+6. The system closes the active parking session. \par
+7. The Operator manually triggers the barrier to let the member exit. \\
+Exception Flows & 
+\textbf{E1: Identity Verification Fails:} The driver does not match the profile picture or information associated with the student/staff ID in the system. The Operator refuses exit and contacts campus security for suspected vehicle theft. \\
+\end{longtblr}

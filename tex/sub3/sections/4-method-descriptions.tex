@@ -5,11 +5,13 @@ This section provides detailed descriptions of all methods in the class diagram,
 \subsection{Domain Model Methods}
 
 \subsubsection{User Class}
+The \texttt{User} class represents a system user, containing identity information and providing methods for secure password authentication.
+
 \begin{table}[H]
 \centering
 \small
 \renewcommand{\arraystretch}{1.3}
-\begin{tabularx}{\textwidth}{|>{\raggedright\arraybackslash}p{2.5cm}|>{\raggedright\arraybackslash}p{2.5cm}|>{\raggedright\arraybackslash}p{2.5cm}|>{\raggedright\arraybackslash}X|}
+\begin{tabularx}{\textwidth}{|>{\RaggedRight\arraybackslash}p{2.5cm}|>{\RaggedRight\arraybackslash}p{2.5cm}|>{\RaggedRight\arraybackslash}p{2.5cm}|>{\RaggedRight\arraybackslash}X|}
 \hline
 \textbf{Method} & \textbf{Parameters} & \textbf{Return Type} & \textbf{Description} \\
 \hline
@@ -35,15 +37,17 @@ No public methods defined - data container classes with device-specific attribut
 \subsection{Service Layer Methods}
 
 \subsubsection{AuthService Class}
+The \texttt{AuthService} manages the core authentication logic, including integration with external SSO systems and JWT token generation.
+
 \begin{table}[H]
 \centering
 \small
 \renewcommand{\arraystretch}{1.3}
-\begin{tabularx}{\textwidth}{|>{\raggedright\arraybackslash}p{2.5cm}|>{\raggedright\arraybackslash}p{2.5cm}|>{\raggedright\arraybackslash}p{2.5cm}|>{\raggedright\arraybackslash}X|}
+\begin{tabularx}{\textwidth}{|>{\RaggedRight\arraybackslash}p{2.5cm}|>{\RaggedRight\arraybackslash}p{2.5cm}|>{\RaggedRight\arraybackslash}p{2.5cm}|>{\RaggedRight\arraybackslash}X|}
 \hline
 \textbf{Method} & \textbf{Parameters} & \textbf{Return Type} & \textbf{Description} \\
 \hline
-login & cardId: string, password: string & Promise<\{token: string, user: User\}> & Authenticates user via HCMUT SSO and returns JWT token with user data \\
+login & cardId: string, password: string & \texttt{Promise<\{token: string, user: User\}>} & Authenticates user via HCMUT SSO and returns JWT token with user data \\
 \hline
 \end{tabularx}
 \caption{AuthService Class Methods}
@@ -51,11 +55,13 @@ login & cardId: string, password: string & Promise<\{token: string, user: User\}
 \end{table}
 
 \subsubsection{BillingService Class}
+The \texttt{BillingService} is responsible for calculating parking fees based on various policies, durations, and user types.
+
 \begin{table}[H]
 \centering
 \small
 \renewcommand{\arraystretch}{1.3}
-\begin{tabularx}{\textwidth}{|>{\raggedright\arraybackslash}p{2.5cm}|>{\raggedright\arraybackslash}p{2.5cm}|>{\raggedright\arraybackslash}p{2.5cm}|>{\raggedright\arraybackslash}X|}
+\begin{tabularx}{\textwidth}{|>{\RaggedRight\arraybackslash}p{2.5cm}|>{\RaggedRight\arraybackslash}p{2.5cm}|>{\RaggedRight\arraybackslash}p{2.5cm}|>{\RaggedRight\arraybackslash}X|}
 \hline
 \textbf{Method} & \textbf{Parameters} & \textbf{Return Type} & \textbf{Description} \\
 \hline
@@ -69,17 +75,19 @@ calculateCycleFee & sessions: ParkingSession[] & Promise<number> & Calculates to
 \end{table}
 
 \subsubsection{NavigationService Class}
+The \texttt{NavigationService} provides real-time data about parking zone utilization and system-wide statistics to guide users.
+
 \begin{table}[H]
 \centering
 \small
 \renewcommand{\arraystretch}{1.3}
-\begin{tabularx}{\textwidth}{|>{\raggedright\arraybackslash}p{2.5cm}|>{\raggedright\arraybackslash}p{2.5cm}|>{\raggedright\arraybackslash}p{2.5cm}|>{\raggedright\arraybackslash}X|}
+\begin{tabularx}{\textwidth}{|>{\RaggedRight\arraybackslash}p{2.5cm}|>{\RaggedRight\arraybackslash}p{2.5cm}|>{\RaggedRight\arraybackslash}p{2.5cm}|>{\RaggedRight\arraybackslash}X|}
 \hline
 \textbf{Method} & \textbf{Parameters} & \textbf{Return Type} & \textbf{Description} \\
 \hline
 getZonesByUsage & - & Promise<Zone[]> & Retrieves zones sorted by current utilization rate \\
 \hline
-getStats & - & Promise<\{totalCapacity: number, totalUsage: number, utilizationRate: number\}> & Returns system-wide parking statistics and utilization metrics \\
+getStats & - & \texttt{Promise<\{totalCapacity: number, totalUsage: number, utilizationRate: number\}>} & Returns system-wide parking statistics and utilization metrics \\
 \hline
 \end{tabularx}
 \caption{NavigationService Class Methods}
@@ -87,17 +95,19 @@ getStats & - & Promise<\{totalCapacity: number, totalUsage: number, utilizationR
 \end{table}
 
 \subsubsection{ReportService Class}
+The \texttt{ReportService} generates business intelligence reports, including revenue trends and system health patterns.
+
 \begin{table}[H]
 \centering
 \small
 \renewcommand{\arraystretch}{1.3}
-\begin{tabularx}{\textwidth}{|>{\raggedright\arraybackslash}p{2.5cm}|>{\raggedright\arraybackslash}p{2.5cm}|>{\raggedright\arraybackslash}p{2.5cm}|>{\raggedright\arraybackslash}X|}
+\begin{tabularx}{\textwidth}{|>{\RaggedRight\arraybackslash}p{2.5cm}|>{\RaggedRight\arraybackslash}p{2.5cm}|>{\RaggedRight\arraybackslash}p{2.5cm}|>{\RaggedRight\arraybackslash}X|}
 \hline
 \textbf{Method} & \textbf{Parameters} & \textbf{Return Type} & \textbf{Description} \\
 \hline
 getDailyRevenue & startDate: Date, endDate: Date & Promise<DailyRevenueReport[]> & Generates daily revenue reports for specified date range \\
 \hline
-getActivityStats & - & Promise<\{usageByHour: number[], avgOccupancyRate: number, deviceErrors: number\}> & Provides hourly usage patterns and system health metrics \\
+getActivityStats & - & \texttt{Promise<\{usageByHour: number[], avgOccupancyRate: number, deviceErrors: number\}>} & Provides hourly usage patterns and system health metrics \\
 \hline
 \end{tabularx}
 \caption{ReportService Class Methods}
@@ -105,11 +115,13 @@ getActivityStats & - & Promise<\{usageByHour: number[], avgOccupancyRate: number
 \end{table}
 
 \subsubsection{SystemAdminService Class}
+The \texttt{SystemAdminService} provides administrative functions for configuring the system and viewing security audit logs.
+
 \begin{table}[H]
 \centering
 \small
 \renewcommand{\arraystretch}{1.3}
-\begin{tabularx}{\textwidth}{|>{\raggedright\arraybackslash}p{2.5cm}|>{\raggedright\arraybackslash}p{2.5cm}|>{\raggedright\arraybackslash}p{2.5cm}|>{\raggedright\arraybackslash}X|}
+\begin{tabularx}{\textwidth}{|>{\RaggedRight\arraybackslash}p{2.5cm}|>{\RaggedRight\arraybackslash}p{2.5cm}|>{\RaggedRight\arraybackslash}p{2.5cm}|>{\RaggedRight\arraybackslash}X|}
 \hline
 \textbf{Method} & \textbf{Parameters} & \textbf{Return Type} & \textbf{Description} \\
 \hline
@@ -129,11 +141,13 @@ getAuditLogs & filter: AuditFilter & Promise<AuditLog[]> & Returns audit logs ba
 \end{table}
 
 \subsubsection{SystemLogService Class}
+The \texttt{SystemLogService} handles operational logging across the platform, supporting real-time event monitoring.
+
 \begin{table}[H]
 \centering
 \small
 \renewcommand{\arraystretch}{1.3}
-\begin{tabularx}{\textwidth}{|>{\raggedright\arraybackslash}p{2.5cm}|>{\raggedright\arraybackslash}p{2.5cm}|>{\raggedright\arraybackslash}p{2.5cm}|>{\raggedright\arraybackslash}X|}
+\begin{tabularx}{\textwidth}{|>{\RaggedRight\arraybackslash}p{2.5cm}|>{\RaggedRight\arraybackslash}p{2.5cm}|>{\RaggedRight\arraybackslash}p{2.5cm}|>{\RaggedRight\arraybackslash}X|}
 \hline
 \textbf{Method} & \textbf{Parameters} & \textbf{Return Type} & \textbf{Description} \\
 \hline
@@ -149,11 +163,13 @@ getRecent & limit: number & Promise<SystemLog[]> & Retrieves most recent log ent
 \subsection{Controller Layer Methods}
 
 \subsubsection{EntryExitController Class}
+The \texttt{EntryExitController} orchestrates the physical entry and exit of vehicles by validating permissions and creating sessions.
+
 \begin{table}[H]
 \centering
 \small
 \renewcommand{\arraystretch}{1.3}
-\begin{tabularx}{\textwidth}{|>{\raggedright\arraybackslash}p{2.5cm}|>{\raggedright\arraybackslash}p{2.5cm}|>{\raggedright\arraybackslash}p{2.5cm}|>{\raggedright\arraybackslash}X|}
+\begin{tabularx}{\textwidth}{|>{\RaggedRight\arraybackslash}p{2.5cm}|>{\RaggedRight\arraybackslash}p{2.5cm}|>{\RaggedRight\arraybackslash}p{2.5cm}|>{\RaggedRight\arraybackslash}X|}
 \hline
 \textbf{Method} & \textbf{Parameters} & \textbf{Return Type} & \textbf{Description} \\
 \hline
@@ -169,11 +185,13 @@ openGate & req: Request, res: Response & Promise<Response> & Controls physical g
 \end{table}
 
 \subsubsection{PaymentController Class}
+The \texttt{PaymentController} handles financial interactions, including billing cycles and debt retrieval for users.
+
 \begin{table}[H]
 \centering
 \small
 \renewcommand{\arraystretch}{1.3}
-\begin{tabularx}{\textwidth}{|>{\raggedright\arraybackslash}p{2.5cm}|>{\raggedright\arraybackslash}p{2.5cm}|>{\raggedright\arraybackslash}p{2.5cm}|>{\raggedright\arraybackslash}X|}
+\begin{tabularx}{\textwidth}{|>{\RaggedRight\arraybackslash}p{2.5cm}|>{\RaggedRight\arraybackslash}p{2.5cm}|>{\RaggedRight\arraybackslash}p{2.5cm}|>{\RaggedRight\arraybackslash}X|}
 \hline
 \textbf{Method} & \textbf{Parameters} & \textbf{Return Type} & \textbf{Description} \\
 \hline
@@ -193,11 +211,13 @@ getDebt & req: Request, res: Response & Promise<Response> & Retrieves outstandin
 \end{table}
 
 \subsubsection{SessionController Class}
+The \texttt{SessionController} provides endpoints for managing and retrieving parking session data.
+
 \begin{table}[H]
 \centering
 \small
 \renewcommand{\arraystretch}{1.3}
-\begin{tabularx}{\textwidth}{|>{\raggedright\arraybackslash}p{2.5cm}|>{\raggedright\arraybackslash}p{2.5cm}|>{\raggedright\arraybackslash}p{2.5cm}|>{\raggedright\arraybackslash}X|}
+\begin{tabularx}{\textwidth}{|>{\RaggedRight\arraybackslash}p{2.5cm}|>{\RaggedRight\arraybackslash}p{2.5cm}|>{\RaggedRight\arraybackslash}p{2.5cm}|>{\RaggedRight\arraybackslash}X|}
 \hline
 \textbf{Method} & \textbf{Parameters} & \textbf{Return Type} & \textbf{Description} \\
 \hline

@@ -1,0 +1,164 @@
+\documentclass[12pt]{article}
+\renewcommand{\refname}{}
+% --- Encoding & fonts ---
+\usepackage[T5]{fontenc}
+\usepackage{lmodern}        % Latin Modern fonts
+\usepackage{tikz}
+\usepackage{eso-pic}
+\usetikzlibrary{positioning,arrows.meta}
+% --- Hyperlinks ---
+\usepackage{hyperref}
+
+% --- Page geometry & headers/footers ---
+\usepackage{geometry}
+\usepackage{lastpage}
+\usepackage{fancyhdr}
+\setlength{\headheight}{30pt}
+\pagestyle{fancy}
+\fancyhead{} 
+\fancyhead[L]{%
+  \begin{tabular}{rl}
+    \raisebox{-3pt}{\includegraphics[height=8mm]{assets/hcmut.png}} &
+    \begin{tabular}{l}
+      \bfseries Ho Chi Minh City University of Technology
+    \end{tabular}
+  \end{tabular}
+}
+\fancyfoot{}
+\fancyfoot[R]{\scriptsize\ttfamily Page \thepage/\pageref{LastPage}}
+\renewcommand{\headrulewidth}{0.3pt}
+\renewcommand{\footrulewidth}{0.3pt}
+
+% --- Graphics & TikZ & plots ---HCMUT
+\usepackage{graphicx}
+\usepackage{tikz}
+\usepackage{amsfonts}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.18}
+
+% --- Tables & floats ---
+\usepackage{booktabs}
+\usepackage{tabularray}
+\UseTblrLibrary{booktabs}
+\usepackage{float}
+
+% --- Math & lists ---
+\usepackage{amsmath}
+\usepackage{enumitem}
+\usepackage{indentfirst}
+
+% --- Code listings ---
+\usepackage{listings}
+\usepackage{xcolor}
+
+% --- Cấu hình hiển thị Code R ---
+\lstset{
+  language=R,
+  basicstyle=\ttfamily\small, % Font chữ code
+  commentstyle=\color{green!60!black}, % Màu comment
+  keywordstyle=\color{blue},           % Màu từ khóa (if, else, function...)
+  stringstyle=\color{purple},          % Màu chuỗi ký tự
+  numbers=left,               % Đánh số dòng bên trái
+  numberstyle=\tiny\color{gray}, 
+  stepnumber=1, 
+  numbersep=10pt, 
+  frame=single,               % Khung viền quanh code
+  rulecolor=\color{black},
+  breaklines=true,            % Tự động xuống dòng nếu quá dài
+  showstringspaces=false,
+  captionpos=b                % Chú thích nằm dưới
+}
+
+% --- Misc ---
+\usepackage{indentfirst}
+
+% --- textcomp ---
+\usepackage{textcomp}
+
+% --- multirow ---\
+\usepackage{multirow}
+
+%---- tabularx -----
+\usepackage{longtable}
+\usepackage{tabularx}
+
+
+% pseudocode
+\usepackage[ruled,vlined]{algorithm2e}
+
+\begin{document}
+
+\begin{titlepage}
+      \begin{tikzpicture}[remember picture,overlay,inner sep=0,outer sep=0]
+     \draw[blue!70!black,line width=4pt] ([xshift=-1.5cm,yshift=-2cm]current page.north east) coordinate (A)--([xshift=1.5cm,yshift=-2cm]current page.north west) coordinate(B)--([xshift=1.5cm,yshift=2cm]current page.south west) coordinate (C)--([xshift=-1.5cm,yshift=2cm]current page.south east) coordinate(D)--cycle;
+
+     \draw ([yshift=0.5cm,xshift=-0.3cm]A)-- ([yshift=0.5cm,xshift=0.5cm]B)--
+     ([yshift=-0.5cm,xshift=0.5cm]B) --([yshift=-0.5cm,xshift=-0.5cm]B)--([yshift=0.5cm,xshift=-0.5cm]C)--([yshift=0.5cm,xshift=0.5cm]C)--([yshift=-0.5cm,xshift=0.5cm]C)-- ([yshift=-0.5cm,xshift=-0.5cm]D)--([yshift=0.5cm,xshift=-0.5cm]D)--([yshift=0.5cm,xshift=0.5cm]D)--([yshift=-0.5cm,xshift=0.5cm]A)--([yshift=-0.5cm,xshift=-0.5cm]A)--([yshift=0.5cm,xshift=-0.5cm]A);
+
+     \draw ([yshift=-0.3cm,xshift=0.3cm]A)-- ([yshift=-0.3cm,xshift=-0.3cm]B)--
+     ([yshift=0.3cm,xshift=-0.3cm]B) --([yshift=0.3cm,xshift=0.3cm]B)--
+     ([yshift=-0.3cm,xshift=0.3cm]C)--([yshift=-0.3cm,xshift=-0.3cm]C)--([yshift=0.3cm,xshift=-0.3cm]C)-- ([yshift=0.3cm,xshift=0.3cm]D)--([yshift=-0.3cm,xshift=0.3cm]D)--([yshift=-0.3cm,xshift=-0.3cm]D)--([yshift=0.3cm,xshift=-0.3cm]A)--([yshift=0.3cm,xshift=0.3cm]A)--([yshift=-0.3cm,xshift=0.3cm]A);
+   \end{tikzpicture}
+
+
+  \centering
+  {\bfseries\normalsize VIETNAM NATIONAL UNIVERSITY HO CHI MINH CITY \\[0.2em]
+    HO CHI MINH CITY UNIVERSITY OF TECHNOLOGY\\[0.5em]\par}
+   \vspace{1em}
+  \includegraphics[width=9cm]{assets/hcmut.png}\par
+  {\Large\textbf{Submission 1}}\par
+  \vspace{2em}
+  
+  {\LARGE\textbf{Smart Parking System for University Campus}}\par
+
+  \large {
+  \begin{align*}
+        \textbf{INSTRUCTOR:}  \quad &\text{Phan Trung Hieu} \\
+        \textbf{CLASS:}  \quad           & \text{CC02}
+  \end{align*}
+  }
+  \vfill
+
+
+
+\begin{table}[h!]
+  \centering
+  \begin{tabular}{ll}
+    \hline
+    \textbf{Full Name} & \textbf{Student ID} \\
+    \hline
+    QUACH GIA BAO      & 2452141 \\
+    DIEC TUAN CHI     & 2452169 \\
+    TO QUOC TAI   & 2453141\\
+    LY TRIEU PHONG & 2452958\\
+    THOAI HAO & 2452305\\
+    DOAN QUANG DANG & 2352249\\
+    NGO QUANG HUNG & 2352431\\
+    DANG TRAN THAI BAO & 2452120\\
+    \hline
+  \end{tabular}
+  \label{tab:students}
+\end{table}
+  {\footnotesize Ho Chi Minh City, March 1, 2026}
+\end{titlepage}
+
+
+\newpage
+\input{sections/contribution}
+\newpage
+\tableofcontents
+
+\newpage
+\input{sections/1-overview}
+\input{sections/2-requirements}
+\input{sections/3-usecase}
+
+\newpage
+%\section*{References}
+%\begin{thebibliography}{00}
+%    \item Haykin, S. (2002). Adaptive Filter Theory (4th ed.). Pearson Education.
+%    \item Patterson, D. A., \& Hennessy, J. L. (2017). Computer Organization and Design: The %Hardware/Software Interface (6th ed.). Morgan Kaufmann.
+%    \item Phạm, Q. C. (2017). Kiến trúc máy tính. Đại học Quốc gia TP. Hồ Chí Minh.
+%    \item Voss, K. O. (2010). MARS: MIPS Assembly and Runtime Simulator User Manual. Central %Michigan University.
+%end{thebibliography}
+\end{document}

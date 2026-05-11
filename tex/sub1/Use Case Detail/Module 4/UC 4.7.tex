@@ -1,0 +1,27 @@
+\begin{longtblr}[
+  caption = {UC 4.7: Configure System settings},
+]{
+  colspec = {Q[l, 3.5cm] Q[l, 11cm]}, 
+  hlines, vlines,
+  row{1} = {bg=gray9, font=\bfseries}, 
+  rowhead = 0, 
+}
+Field & Details \\
+Use Case ID & 4.7 \\
+Use Case Name & Configure System settings \\
+Actors & Primary: System Admin. \\
+Description & This process allows the authorized System Administrator to adjust global parameters and operational thresholds that govern system behavior. \\
+Trigger & The Administrator navigates to the ``System Configuration \& Settings'' portal. \\
+Pre-conditions & System Administrator has successfully authenticated via HCMUT\_SSO. \\
+Post-conditions & 1. New parameters are applied system-wide in near real-time. \par 2. Changes are recorded in the audit logs for traceability. \par 3. Connected IoT devices (like signage) update their logic based on the new thresholds. \\
+Main Flow & 
+1. Administrator navigates to the ``System Configuration \& Settings'' portal. \par
+2. System displays a menu of adjustable parameters. \par
+3. Administrator inputs new values or selects options from a dropdown menu. \par
+4. Administrator clicks ``Apply \& Save.'' \\
+Exception Flows & 
+\textbf{E1: Invalid Parameter Input:} Administrator enters a non-logical value. System displays an error message: ``Invalid Input: Please enter a value between 0-100.'' \par \vspace{0.5em}
+\textbf{E2: Unauthorized Access:} A user with lower-level permissions (Like IT Team) attempts to access the page. System prevents access and displays: ``Access Denied: Administrative Clearance Required''. The attempt is logged in the Audit Logs. \par \vspace{0.5em}
+\textbf{E3: Connection to authentication module is lost:} Display failsafe page indicating the connection lost to authentication pipeline. Actor refreshes page to check connection status. \par \vspace{0.5em}
+\textbf{E4: Connection to host is lost:} Display failsafe page indicating the connection lost to the host. Actor refreshes page to check connection status. \\
+\end{longtblr}

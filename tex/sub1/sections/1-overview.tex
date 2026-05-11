@@ -1,0 +1,84 @@
+\section{Overview}
+\subsection{Project Description}
+The Smart Parking Management System (IoT-SPMS) is a technological solution designed to optimize vehicle parking activities for the community at Ho Chi Minh City University of Technology (HCMUT). The system serves a wide range of users, including undergraduate and graduate students, faculty members, staff, and external visitors. Currently, the increasing density of vehicles combined with limited parking capacity at the university has led to several significant challenges:
+\begin{itemize}
+    \item Frequent congestion occurs at entry and exit points due to manual or fragmented processes.
+    \item Users face difficulties finding available spots because there is no real-time visibility into parking occupancy.
+    \item Inefficient management leads to poor utilization of existing parking spaces.
+    \item Parking fee collection and billing are currently fragmented and lack synchronization
+\end{itemize}
+
+To solve these issues, our team is developing an IoT-based management platform that uses modern software engineering principles. Combining with occupancy sensors, local IoT gateway, and the university’s existing infrastructure (such as HCMUT\_SSO and BKPay), the system aims to automate access control when entry and exit, provide the parking slot guidance, billing system, ensure the stability of the system even during sensors malfunctions or bad connectivity. This system not only creates a more organized and modern campus environment but also significantly enhances the daily experience for all members of the HCMUT community.
+\subsection{Stakeholders}
+\begin{itemize}
+    \item Learners (undergraduate, graduate students, doctoral,...): entry/exit using official IDs, easy payment via BKPay.
+    \item Faculty Members and Staffs (lecturers, officers,...): entry/exit using offical IDs, easy payment via BKPay.
+    \item Temporary visitors (external guests without official ID): Obtain temporary ticket or card at the gate, also pay directly at the gate.
+    \item Parking operator: manages parking area, real-time visibility of parking occupancy and tools to manage exceptions or sensors malfunction.
+    \item System Administrators (Technical staff managing the system): configure user roles, pricing policies.
+    \item HCMUT management : data consistency via HCMUT\_DATACORE, traceability for financial.
+
+
+\end{itemize}
+\subsection{Objective \& Scope}
+\subsubsection{Objective}
+The main goal of this project is to reduce the time and effort of the parking process for the end users by reducing congestion at entry and improving navigation flow, and for the operators by automating tedious and repetitive work. On the client's side, the system will aid with data consistency by integrating with existing systems and aid in clarity and accountability when digitally logging records.
+
+The primary objectives of the project are:
+\begin{itemize}
+    \item Operational:
+    \begin{itemize}
+        \item Better utilization of available parking spaces.
+        \item Reduce congestion at hotspots through better navigation flow.
+        \item Reduce congestion at entrances by automating the entry process.
+        \item Reduce manual effort by automating guest's entry.
+        \item Increase system consistency by integrating with existing infrastructure (BKPay, HCMUT\_SSO, etc.).
+    \end{itemize}
+    \item User experience:
+    \begin{itemize}
+        \item Faster and smoother check in/out process.
+        \item Guaranteed to find location of an available spot through the navigation system unless lot is full.
+        \item Better navigation when utilizing the signage system.
+        \item Guaranteed fair pricing through the fee policy.
+        \item Seemless payment with BKPay. 
+    \end{itemize}
+    \item Administrative:
+    \begin{itemize}
+        \item Convenient and flexible system configuration.
+        \item Maintain complete, auditable logs of activities and transactions for compliance.
+        \item Clearer transparency and accountability by activity logging.
+        \item Streamlined exception and error control through access to log pool and central control hub.
+        \item Convenient interface for monitoring activities. 
+    \end{itemize}
+    \item Technical:
+    \begin{itemize}
+        \item Guaranteed resilience with failsafe and fallback measures.
+        \item Able to handle high traffic at multiple entryways and intersection at the same time while integrating with other systems.
+        \item Deliver real-time occupancy updates from sensors to signage with minimal delay.
+        \item Prioritizing user's privacy and security through encryption and secure protocols.
+        \item Ensure smooth integration with existing systems such as HCMUT\_SSO or BKPay.
+        \item Modular design allowing for easy debugging and addition of new systems.
+        \item Ensure the system scales well with a growing number of users and parking lots.
+    \end{itemize}
+\end{itemize}
+\subsubsection{Scope}
+\begin{itemize}
+    \item Management of parking slot sensors, local IoT gateway
+    \item User management
+    \item System integration (integration with HCMUT\_SSO)
+    \item Exceptional handling
+\end{itemize}
+\subsection{User Stories}
+\begin{itemize}
+    \item As a university member (Learner/Faculty/Staff), I want to use my official ID card to enter and exit the parking lot automatically.
+    \item As a user, I want to see the real-time occupancy status (Available, Nearly Full, Full) on electronic signs so that I can decide where to park.
+    \item As a Learner, I want the system to automatically track my parking sessions and calculate my fees at the end of the billing period.
+    \item As a Learner, I want to pay my parking fees easily through the BKPay platform.
+    \item As a Faculty or Staff member, I want to enjoy specific parking privileges and pricing according to my role and institutional regulations.
+    \item As a Visitor or a user without an ID card, I want to be able to request a temporary access ticket at the entry gate to use the parking facility.
+    \item As a Parking Operator, I want to monitor the status of all parking slots in near real-time to manage the facility efficiently.
+    \item As a System Administrator, I want to configure the parking privileges and pricing policies for different user groups as regulations change.
+    \item As a System Administrator, I want to access detailed logs of all parking activities and financial transactions for auditing and reporting purposes.
+    \item As a System Administrator, I want to manage different user responsibilities through role-based access control.
+\end{itemize}
+

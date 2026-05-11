@@ -1,0 +1,33 @@
+\begin{longtblr}[
+  caption = {UC 3.3: Configure Pricing Policy},
+]{
+  colspec = {Q[l, 3.5cm] Q[l, 11cm]}, 
+  hlines, vlines,
+  row{1} = {bg=gray9, font=\bfseries}, 
+  rowhead = 0, 
+}
+Field & Details \\
+Use Case ID & 3.3 \\
+Use Case Name & Configure Pricing Policy \\
+Actors & Primary: HCMUT Finance Office. \par Supporting: None. \\
+Description & This use case allows authorized staff from the HCMUT Finance Office to manage, configure, and update the dynamic pricing policies for different user categories and vehicle types. \\
+Trigger & The Finance Officer navigates to the ``Pricing Configuration'' module on the web app and clicks ``Create'' or ``Edit'' on a pricing policy. \\
+Pre-conditions & 1. The user has successfully logged into the web application via HCMUT\_SSO. \par 2. The user's role is strictly verified via RBAC as authorized for financial configurations (e.g., Finance Admin). \\
+Post-conditions & 1. The new or updated pricing policy is successfully saved. \par 2. The system applies the new policy for all subsequent calculations. \par 3. The action is recorded in the system's Audit Trail. \\
+Main Flow & 
+1. The user accesses the ``Pricing Configuration'' module on the web application. \par
+2. The system retrieves and displays current pricing policies categorized by user roles and vehicle types. \par
+3. The user selects an existing policy to modify or clicks ``Create New Policy''. \par
+4. The system displays the policy configuration form. \par
+5. The user inputs or adjusts pricing parameters (base fee, billing cycle, free quotas, block-rate pricing, etc.). \par
+6. The user clicks the ``Save Policy'' button. \par
+7. The system validates the input parameters (checking for negative values, overlapping blocks, etc.). \par
+8. The system updates the pricing policy records in the database. \par
+9. The system logs the event into the Audit Trail (User ID, timestamp, before/after values). \par
+10. The system redirects to the list view and displays a success message. \\
+Alternate Flows & 
+\textbf{A1 - Cancel Configuration:} At step 5, the user decides not to proceed and clicks ``Cancel''. The system discards all unsaved changes and redirects to the policy list view. \\
+Exception Flows & 
+\textbf{E1 - Invalid Input Parameters:} At step 7, the system detects logical errors. It prevents saving, highlights erroneous fields in red, and displays: ``Invalid configuration detected. Please correct the highlighted fields and try again.'' \par \vspace{0.5em}
+\textbf{E2 - Unauthorized Access Attempt:} If a user without the ``Finance Admin'' role attempts to access this module, the system denies access immediately, logs the security warning, and redirects the user with an ``Access Denied'' message. \\
+\end{longtblr}
