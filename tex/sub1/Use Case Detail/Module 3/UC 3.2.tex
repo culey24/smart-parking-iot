@@ -1,19 +1,24 @@
-\begin{longtblr}[
-  caption = {UC 3.2: Pay temporary visitor fee},
-]{
-  colspec = {Q[l, 3.5cm] Q[l, 11cm]}, 
-  hlines, vlines,
-  row{1} = {bg=gray9, font=\bfseries}, 
-  rowhead = 0, 
-}
-Field & Details \\
+\begin{table}[H]
+\small
+\renewcommand{\arraystretch}{1.4}
+\begin{tabularx}{\textwidth}{|>{\raggedright\arraybackslash}p{3.5cm}|>{\RaggedRight\arraybackslash}X|}
+\hline
+\rowcolor{gray!20} \textbf{Field} & \textbf{Details} \\
+\hline
 Use Case ID & 3.2 \\
+\hline
 Use Case Name & Pay temporary visitor fee \\
+\hline
 Actors & Primary: Temporary Visitors. \par Supporting: Parking Operators, BKPAY (Payment Gateway). \\
+\hline
 Description & This use case allows temporary visitors to pay their parking fees when exiting the campus via a dynamic BKPAY QR code or cash. \\
+\hline
 Trigger & The Temporary Visitor arrives at the exit gate and presents their temporary parking card. \\
+\hline
 Pre-conditions & 1. Valid ongoing parking session exists. \par 2. Visitor is physically present at the exit gate. \par 3. Fee is calculated based on duration and visitor pricing policy. \\
+\hline
 Post-conditions & 1. Fee is successfully paid and session is closed. \par 2. Transaction is saved in the database. \par 3. Exit barrier opens (Triggers UC 1.4). \\
+\hline
 Main Flow & 
 1. The Temporary Visitor presents the temporary parking card at the exit gate. \par
 2. The Parking Operator scans the card (or the visitor scans it at the automated terminal). \par
@@ -22,14 +27,21 @@ Main Flow &
 5. Upon successful payment, the system updates the status to ``Paid''. \par
 6. The system saves the transaction details into the database. \par
 7. The system displays a success message and triggers the barrier to open. \\
+\hline
 Sub-flows & 
 \textbf{Sub-flow A: Pay via Dynamic QR Code (BKPAY)} \par
 The visitor chooses bank transfer. The system displays a dynamic VietQR code. The visitor scans via a mobile banking app and authorizes the transfer. BKPAY sends a confirmation to the parking system. \par \vspace{0.5em}
 \textbf{Sub-flow B: Pay via Cash} \par
 The visitor hands cash to the Parking Operator. The Operator returns change if necessary and manually confirms the receipt by clicking ``Confirm Cash Payment'' on the system interface. \\
+\hline
 Alternate Flows & 
 \textbf{A1 - Change Payment Method:} At step 4, the visitor decides to switch methods (e.g., from QR to Cash). The Operator cancels the QR generation and selects the Cash option, proceeding to Sub-flow B. \\
+\hline
 Exception Flows & 
 \textbf{E1 - Card Lost/Unreadable:} The system cannot automatically calculate the fee. The flow transfers to UC 1.6 (Handle temporary card lost) for manual penalty processing. \par \vspace{0.5em}
 \textbf{E2 - BKPAY Webhook Delay/Network Issue:} If the transfer is successful on the visitor's phone but the system doesn't receive the webhook, the Operator visually verifies the transaction and uses the ``Manually Override - Force Paid'' function with a recorded note. \\
-\end{longtblr}
+\hline
+\end{tabularx}
+\caption{UC 3.2: Pay temporary visitor fee}
+\label{tab:uc3.2}
+\end{table}

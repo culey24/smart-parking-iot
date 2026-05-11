@@ -1,19 +1,24 @@
-\begin{longtblr}[
-  caption = {UC 3.1: Pay periodic parking fee},
-]{
-  colspec = {Q[l, 3.5cm] Q[l, 11cm]}, 
-  hlines, vlines,
-  row{1} = {bg=gray9, font=\bfseries}, 
-  rowhead = 0, 
-}
-Field & Details \\
+\begin{table}[H]
+\small
+\renewcommand{\arraystretch}{1.4}
+\begin{tabularx}{\textwidth}{|>{\raggedright\arraybackslash}p{3.5cm}|>{\RaggedRight\arraybackslash}X|}
+\hline
+\rowcolor{gray!20} \textbf{Field} & \textbf{Details} \\
+\hline
 Use Case ID & 3.1 \\
+\hline
 Use Case Name & Pay periodic parking fee \\
+\hline
 Actors & Primary: Learners, Faculty Members \& Staff. \par Supporting: BKPAY. \\
+\hline
 Description & This use case allows registered users to pay their periodic parking fees via the BKPAY system using a linked OCB account or a dynamic QR code. \\
+\hline
 Trigger & The user navigates to the ``Billing \& Payment'' section on the web app and clicks ``Pay Fee.'' \\
+\hline
 Pre-conditions & 1. User is authenticated via HCMUT\_SSO. \par 2. Profile is synchronized from HCMUT\_DATACORE. \par 3. Outstanding fee is calculated based on institutional pricing policy. \\
+\hline
 Post-conditions & 1. Fee is successfully paid and balance is cleared. \par 2. Transaction is saved in the Billing History. \\
+\hline
 Main Flow & 
 1. The user accesses the ``Billing \& Payment'' module. \par
 2. The system retrieves and displays the current outstanding periodic parking fee. \par
@@ -23,14 +28,21 @@ Main Flow &
 6. BKPAY sends a success confirmation back to the parking system. \par
 7. The system updates the fee status to ``Paid'' and clears the balance. \par
 8. The system saves transaction details and redirects to a success page. \\
+\hline
 Sub-flows & 
 \textbf{Sub-flow A: Linked OCB account} \par
 The user selects OCB method. BKPAY displays fee details. The user confirms, and the system automatically deducts the amount from the linked account. \par \vspace{0.5em}
 \textbf{Sub-flow B: Dynamic QR Code} \par
 The user selects QR method. BKPAY generates a VietQR code. The user scans via banking app and authorizes the transfer. BKPAY receives the notification. \\
+\hline
 Alternate Flows & 
 \textbf{A1 - User cancels payment:} At step 5, the user chooses to cancel. BKPAY redirects back with a ``Cancelled'' status. The system displays a cancellation message and the fee remains unpaid. \\
+\hline
 Exception Flows & 
 \textbf{E1 - Payment failed/Declined:} BKPAY declines the transaction (insufficient funds, wrong OTP). The system displays: ``Payment failed. Please check details or try another method.'' \par \vspace{0.5em}
 \textbf{E2 - BKPAY Gateway Timeout:} The system fails to connect to BKPAY. The system logs the error and displays: ``Payment gateway is currently unavailable. Please try again later.'' \\
-\end{longtblr}
+\hline
+\end{tabularx}
+\caption{UC 3.1: Pay periodic parking fee}
+\label{tab:uc3.1}
+\end{table}

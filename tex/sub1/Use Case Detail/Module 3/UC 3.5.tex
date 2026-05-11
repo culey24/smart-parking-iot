@@ -1,19 +1,24 @@
-\begin{longtblr}[
-  caption = {UC 3.5: View Overall Finance Report},
-]{
-  colspec = {Q[l, 3.5cm] Q[l, 11cm]}, 
-  hlines, vlines,
-  row{1} = {bg=gray9, font=\bfseries}, 
-  rowhead = 0, 
-}
-Field & Details \\
+\begin{table}[H]
+\small
+\renewcommand{\arraystretch}{1.4}
+\begin{tabularx}{\textwidth}{|>{\raggedright\arraybackslash}p{3.5cm}|>{\RaggedRight\arraybackslash}X|}
+\hline
+\rowcolor{gray!20} \textbf{Field} & \textbf{Details} \\
+\hline
 Use Case ID & 3.5 \\
+\hline
 Use Case Name & View Overall Finance Report \\
+\hline
 Actors & Primary: HCMUT Finance Office, HCMUT Leaders \& Managers. \par Supporting: None. \\
+\hline
 Description & This use case allows authorized financial staff and university management to view, analyze, and export aggregated financial data from the smart parking system through strategic dashboards and detailed reports. \\
+\hline
 Trigger & The user navigates to the ``Financial Reports'' or ``Management Dashboard'' module on the web application. \\
+\hline
 Pre-conditions & 1. The user has successfully authenticated and logged in via HCMUT\_SSO. \par 2. The user's role is strictly verified via RBAC as either ``Finance Admin'' or ``University Management.'' \\
+\hline
 Post-conditions & The system successfully presents the aggregated financial data without modifying any underlying transaction records (Read-only operation). \\
+\hline
 Main Flow & 
 1. The user selects the ``Financial Reports'' module from the navigation menu. \par
 2. The system queries the database to aggregate revenue data across all parking sessions and payment methods (BKPAY periodic, BKPAY dynamic QR, and Cash). \par
@@ -23,8 +28,14 @@ Main Flow &
 6. The user clicks the ``Export Financial Report'' button to download the data. \par
 7. The system generates a formal report (PDF or Excel) containing both the high-level summary and detailed transaction logs. \par
 8. The system initiates the file download to the user's device. \\
+\hline
 Alternate Flows & 
 \textbf{A1 - No Financial Data for Selected Period:} At step 5, if no transactions match the selected filters, the system displays empty charts and a message: ``No financial data available for the selected period.'' \\
+\hline
 Exception Flows & 
 \textbf{E1 - Data Retrieval Timeout (Large Data Volume):} At step 2 or 5, if a query causes a timeout, the system safely aborts the process and displays: ``The requested report is too large and timed out. Please select a narrower time range (e.g., up to 6 months) and try again.'' \\
-\end{longtblr}
+\hline
+\end{tabularx}
+\caption{UC 3.5: View Overall Finance Report}
+\label{tab:uc3.5}
+\end{table}

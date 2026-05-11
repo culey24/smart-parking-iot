@@ -1,19 +1,24 @@
-\begin{longtblr}[
-  caption = {UC 2.3: Map IoT devices and layout},
-]{
-  colspec = {Q[l, 3.5cm] Q[l, 11cm]}, 
-  hlines, vlines,
-  row{1} = {bg=gray9, font=\bfseries}, 
-  rowhead = 0, 
-}
-Field & Details \\
+\begin{table}[H]
+\small
+\renewcommand{\arraystretch}{1.4}
+\begin{tabularx}{\textwidth}{|>{\raggedright\arraybackslash}p{3.5cm}|>{\RaggedRight\arraybackslash}X|}
+\hline
+\rowcolor{gray!20} \textbf{Field} & \textbf{Details} \\
+\hline
 Use Case ID & 2.3 \\
+\hline
 Use Case Name & Map IoT devices and layout \\
+\hline
 Actors & Primary: IT Team. \par Supporting: Gateway, Sensors, Signages. \\
+\hline
 Description & The IT Team opens a mapping session by accessing the ``Device Configuration \& Layout Mapping'' interface on the Web App. \\
+\hline
 Trigger & New sensors are installed, replaced, or the layout of the parking lot changes. \\
+\hline
 Pre-conditions & 1. The IT Team is authenticated via UC 4.1. \par 2. IoT devices are powered on and connected to the network. \par 3. The digital layout/blueprint of the parking lot has been uploaded to the system. \\
+\hline
 Post-conditions & IoT device IDs are successfully linked to physical slot coordinates in the database. \\
+\hline
 Main Flow & 
 1. IT Team accesses the ``Layout Mapping \& Configuration'' interface. \par
 2. System retrieves and lists all detected but unassigned Device IDs. \par
@@ -21,9 +26,15 @@ Main Flow &
 4. The IT Team identifies and clicks on the corresponding physical slot or signage location on the digital map. \par
 5. The system validates the pairing, saves the mapping to the database, and sends signals to test connection. \par
 6. The IT Team verifies the changes. \\
+\hline
 Alternate Flows & 
 \textbf{A1: Device replacement (at step 1):} The IT Team selects a slot with an assigned Device ID on the digital map. The IT Team chooses the ``Replace Device'' option with an unassigned Device ID from the unassigned list. The system unbinds the old ID and assigns the new ID to the slot coordinates. Resumes at step 5. \par \vspace{0.5em}
 \textbf{A2: Signage mapping (at step 3):} The IT Team selects a Device ID with ``Signage'' type and clicks on the intersection/entrance location on the map. The system prompts the IT Team to select which ``Zones'' or ``Areas'' this signage should display data for. The IT Team confirms the selection and the system pushes the configuration. Resumes at step 5. \\
+\hline
 Exception Flows & 
 \textbf{E1: New device ID Not Detected (at step 2):} A physically installed sensor does not appear in the ``Unassigned'' list. The IT Team must physically troubleshoot the problem by either replacing the device or manually resetting it. The IT Team clicks refresh list and resumes at step 3. \\
-\end{longtblr}
+\hline
+\end{tabularx}
+\caption{UC 2.3: Map IoT devices and layout}
+\label{tab:uc2.3}
+\end{table}

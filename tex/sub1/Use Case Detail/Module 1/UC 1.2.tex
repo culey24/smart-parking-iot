@@ -1,18 +1,22 @@
-\begin{longtblr}[
-  caption = {UC 1.2: Enter Parking for Temporary Visitors},
-]{
-  colspec = {Q[l, 3.5cm] Q[l, 11cm]}, 
-  hlines, vlines,
-  row{1} = {bg=gray9, font=\bfseries}, 
-  rowhead = 0, 
-}
-Field & Details \\
+\begin{table}[H]
+\small
+\renewcommand{\arraystretch}{1.4}
+\begin{tabularx}{\textwidth}{|>{\raggedright\arraybackslash}p{3.5cm}|>{\RaggedRight\arraybackslash}X|}
+\hline
+\rowcolor{gray!20} \textbf{Field} & \textbf{Details} \\
+\hline
 Use Case ID & 1.2 \\
+\hline
 Use Case Name & Enter Parking for Temporary Visitors \\
+\hline
 Actors & Primary: Temporary Visitors.\par Supporting: Gateway, Camera, Sensors. \\
+\hline
 Description & The entry process for guests who do not have a university ID, using a temporary card mechanism independent of the centralized SSO. \\
+\hline
 Pre-conditions & The card dispenser is functional and stocked with cards. \\
+\hline
 Post-conditions & An independent guest session is created. The barrier opens. \\
+\hline
 Main Flow & 
 1. The visitor drives to the entry gate and presses the button on the card dispenser. \par
 2. The dispenser issues a temporary parking card. \par
@@ -20,7 +24,12 @@ Main Flow &
 4. The system creates a new ``Guest Parking Session'' linked to the temporary card ID and the captured plate. \par
 5. The system opens the barrier. \par
 6. The barrier closes after the vehicle passes. \\
+\hline
 Alternate Flows & 
 \textbf{E1: Parking Lot is Full:} The system transfers to UC 1.8 (Handle Parking Full State). The card dispenser is disabled, preventing new cards from being issued. \par \vspace{0.5em}
 \textbf{E2: Dispenser Empty or Hardware Failure:} If the card machine runs out of cards or malfunctions, the flow transfers to UC 1.5 (Manual Controlling) for the Parking Operator to manually process the entry. \\
-\end{longtblr}
+\hline
+\end{tabularx}
+\caption{UC 1.2: Enter Parking for Temporary Visitors}
+\label{tab:uc1.2}
+\end{table}

@@ -1,18 +1,22 @@
-\begin{longtblr}[
-  caption = {UC 1.6: Temporary Card Lost},
-]{
-  colspec = {Q[l, 3.5cm] Q[l, 11cm]}, 
-  hlines, vlines,
-  row{1} = {bg=gray9, font=\bfseries}, 
-  rowhead = 0, 
-}
-Field & Details \\
+\begin{table}[H]
+\small
+\renewcommand{\arraystretch}{1.4}
+\begin{tabularx}{\textwidth}{|>{\raggedright\arraybackslash}p{3.5cm}|>{\RaggedRight\arraybackslash}X|}
+\hline
+\rowcolor{gray!20} \textbf{Field} & \textbf{Details} \\
+\hline
 Use Case ID & 1.6 \\
+\hline
 Use Case Name & Temporary Card Lost \\
+\hline
 Actors & Primary: Parking Operators. \par Supporting: Temporary Visitors. \\
+\hline
 Description & Handles the scenario where a temporary visitor loses their parking card before exiting. The system calculates the fee and invalidates the lost card to prevent unauthorized use. \\
+\hline
 Pre-conditions & The visitor arrives at the exit gate without their temporary card. The flow is transferred from UC 1.4. \\
+\hline
 Post-conditions & The lost card is temporarily invalidated, the penalty/parking fee is collected, and the guest session is closed. \\
+\hline
 Main Flow & 
 1. The Temporary Visitor informs the Parking Operator about the lost card. \par
 2. The Operator uses the system's search function, entering the vehicle's license plate captured by the exit camera. \par
@@ -22,6 +26,11 @@ Main Flow &
 6. The Operator collects the total fee via cash or QR code. \par
 7. The system temporarily marks the lost temporary card ID as ``Invalid'' to prevent it from being used by someone else later. \par
 8. The system closes the session and triggers the barrier to open for exit. \\
+\hline
 Exception Flows & 
 \textbf{E1: License Plate Not Found:} The system cannot find an entry record matching the license plate. The Operator must manually search the database by estimated entry time or vehicle description to locate the session. \\
-\end{longtblr}
+\hline
+\end{tabularx}
+\caption{UC 1.6: Temporary Card Lost}
+\label{tab:uc1.6}
+\end{table}

@@ -1,27 +1,38 @@
-\begin{longtblr}[
-  caption = {UC 2.2: View and manage parking availability},
-]{
-  colspec = {Q[l, 3.5cm] Q[l, 11cm]}, 
-  hlines, vlines,
-  row{1} = {bg=gray9, font=\bfseries}, 
-  rowhead = 0, 
-}
-Field & Details \\
+\begin{table}[H]
+\small
+\renewcommand{\arraystretch}{1.4}
+\begin{tabularx}{\textwidth}{|>{\raggedright\arraybackslash}p{3.5cm}|>{\RaggedRight\arraybackslash}X|}
+\hline
+\rowcolor{gray!20} \textbf{Field} & \textbf{Details} \\
+\hline
 Use Case ID & 2.2 \\
+\hline
 Use Case Name & View and manage parking availability \\
+\hline
 Actors & Primary: Parking Operators. \par Supporting actors: Gateways, Sensors, Signages. \\
+\hline
 Description & Monitor security, coordinate the parking lot, and inspect detailed slot data (time in/out, duration) and specific errors. \\
+\hline
 Trigger & Parking operator accesses the monitor or an error occurs. \\
+\hline
 Pre-conditions & 1. The parking operator is authenticated via UC 4.1. \par 2. The system has an active connection to the IoT network. \\
+\hline
 Post-conditions & 1. Operators maintain the facility. \par 2. Any detected errors are flagged for maintenance. \\
+\hline
 Main Flow & 
 1. The Parking Operators are successfully logged into the Web Management System. \par
 2. The operator accesses the ``Real-time Occupancy Map'' on the Web App. \par
 3. The system retrieves data via connections with sensors, signages and gateway to display real-time slot maps and individual slot details. \par
 4. The operator selects a specific slot to view detailed metadata (e.g., Plate ID, Entry Time, Current Duration). \par
 5. The operator monitors high-traffic zones to coordinate manual guidance if necessary. \\
+\hline
 Alternate Flows & 
 \textbf{A1: Search with filter for specific data (at step 4):} The operator uses the filter tool to view only overstayed vehicles (e.g., cars parked >24 hours). The system highlights the filtered slots on the map, and the operator exports the list for security verification. \\
+\hline
 Exception Flows & 
 \textbf{A1: Sensors disconnection (at step 3):} The system detects lost connection or timeout from a specific IoT device. The status is updated to ``OFFLINE/UNKNOWN''. The system and/or Operators notify the IT team and System Admin. The system generates a maintenance ticket in the Error log. \\
-\end{longtblr}
+\hline
+\end{tabularx}
+\caption{UC 2.2: View and manage parking availability}
+\label{tab:uc2.2}
+\end{table}

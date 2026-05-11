@@ -1,18 +1,24 @@
-\begin{longtblr}[
-  caption = {UC 4.4: Audit system logs},
-]{
-  colspec = {Q[l, 3.5cm] Q[l, 11cm]}, 
-  hlines, vlines,
-  row{1} = {bg=gray9, font=\bfseries}, 
-  rowhead = 0, 
-}
-Field & Details \\
+\begin{table}[H]
+\small
+\renewcommand{\arraystretch}{1.4}
+\begin{tabularx}{\textwidth}{|>{\raggedright\arraybackslash}p{3.5cm}|>{\RaggedRight\arraybackslash}X|}
+\hline
+\rowcolor{gray!20} \textbf{Field} & \textbf{Details} \\
+\hline
 Use Case ID & 4.4 \\
+\hline
 Use Case Name & Audit system logs \\
+\hline
 Actors & Primary: System Admin, IT Team. \\
+\hline
 Description & Oversight of activity loggings and system logging to ensure transparency and track operational/technical issues. \\
+\hline
+Trigger & Administrators need to review system activities or troubleshoot issues. \\
+\hline
 Pre-conditions & Actor passes authentication check (UC 4.1). \\
+\hline
 Post-conditions & Actor gains oversight over reports and loggings of system and onsite activities. \\
+\hline
 Main Flow & 
 1. After passing authentication, the actor navigates to the system log sector. \par
 2. The system fetches logs from the central database and displays them in categorized lists: \par
@@ -23,8 +29,12 @@ Main Flow &
 \hspace{1em} - \textbf{System Error Report:} Captures backend/software failures. \par
 3. The actor may search for specific entries using keys (Name, ID, Time, Keywords). \par
 4. The actor may filter through the lists using the filter feature to narrow down results. \\
-Alternate Flows & None. \\
+\hline
 Exception Flows & 
 \textbf{E1 - Connection to Authentication/Host Lost:} Displays a failsafe page. The actor must refresh to check the connection status. \par \vspace{0.5em}
 \textbf{E2 - Connection to Central Database Lost:} Displays a connection lost message and returns empty lists for the affected categories. \\
-\end{longtblr}
+\hline
+\end{tabularx}
+\caption{UC 4.4: Audit system logs}
+\label{tab:uc4.4}
+\end{table}

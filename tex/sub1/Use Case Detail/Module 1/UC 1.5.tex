@@ -1,18 +1,22 @@
-\begin{longtblr}[
-  caption = {UC 1.5: Manual Controlling},
-]{
-  colspec = {Q[l, 3.5cm] Q[l, 11cm]}, 
-  hlines, vlines,
-  row{1} = {bg=gray9, font=\bfseries}, 
-  rowhead = 0, 
-}
-Field & Details \\
+\begin{table}[H]
+\small
+\renewcommand{\arraystretch}{1.4}
+\begin{tabularx}{\textwidth}{|>{\raggedright\arraybackslash}p{3.5cm}|>{\RaggedRight\arraybackslash}X|}
+\hline
+\rowcolor{gray!20} \textbf{Field} & \textbf{Details} \\
+\hline
 Use Case ID & 1.5 \\
+\hline
 Use Case Name & Manual Controlling \\
+\hline
 Actors & Primary: Parking Operators. \par Supporting: Gateway. \\
+\hline
 Description & Allows the Parking Operator to manually control the barrier gate via the software interface during emergencies, sensor failures, or non-standard entry/exit exceptions. \\
+\hline
 Pre-conditions & A hardware failure, unreadable plate, or emergency has occurred (Flow transferred from 1.1, 1.2, 1.3, or 1.4). The operator is logged into the system dashboard. \\
+\hline
 Post-conditions & The barrier state is manually changed (opened/closed), and the manual override event is securely logged for auditing. \\
+\hline
 Main Flow & 
 1. The system alerts the Operator of a manual intervention request (e.g., license plate mismatch, hardware failure). \par
 2. The Operator verifies the physical situation (e.g., visually checks the vehicle's actual license plate or identifies an emergency vehicle). \par
@@ -21,6 +25,11 @@ Main Flow &
 5. The system logs the manual override event, including the timestamp, Operator ID, and selected reason. \par
 6. The system sends an execution command to the Gateway. \par
 7. The Gateway physically triggers the barrier to open, allowing the vehicle to pass. \\
+\hline
 Exception Flows & 
 \textbf{E1: Gateway Connection Lost:} The software cannot communicate with the physical Gateway due to a network or power failure. The system displays a connection error. The Operator must leave the booth and use a physical mechanical key to lift the barrier. \\
-\end{longtblr}
+\hline
+\end{tabularx}
+\caption{UC 1.5: Manual Controlling}
+\label{tab:uc1.5}
+\end{table}

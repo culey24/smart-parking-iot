@@ -1,18 +1,22 @@
-\begin{longtblr}[
-  caption = {UC 1.8: Handle Parking Full State},
-]{
-  colspec = {Q[l, 3.5cm] Q[l, 11cm]}, 
-  hlines, vlines,
-  row{1} = {bg=gray9, font=\bfseries}, 
-  rowhead = 0, 
-}
-Field & Details \\
+\begin{table}[H]
+\small
+\renewcommand{\arraystretch}{1.4}
+\begin{tabularx}{\textwidth}{|>{\raggedright\arraybackslash}p{3.5cm}|>{\RaggedRight\arraybackslash}X|}
+\hline
+\rowcolor{gray!20} \textbf{Field} & \textbf{Details} \\
+\hline
 Use Case ID & 1.8 \\
+\hline
 Use Case Name & Handle Parking Full State \\
+\hline
 Actors & Primary: Parking Operators. \par Supporting: Sensors, Gateway. \\
+\hline
 Description & Triggers when the parking lot reaches maximum capacity. The system automatically updates signage, halts new entries, and alerts the operator. \\
+\hline
 Pre-conditions & The system's capacity counter (based on IoT sensors and active sessions) reaches the predefined maximum limit. Flow transferred from UC 1.1 or 1.2. \\
+\hline
 Post-conditions & The entry gateway is temporarily closed to new incoming traffic, and users are notified. \\
+\hline
 Main Flow & 
 1. The IoT Sensors and system database confirm that all parking slots are currently occupied. \par
 2. The system automatically updates the external electronic signage to display ``FULL''. \par
@@ -20,6 +24,11 @@ Main Flow &
 4. The system sends an alert to the Parking Operator's dashboard indicating the lot has reached full capacity. \par
 5. Participants arriving at the gate are notified by the signage (or the operator) to use alternative parking zones. \par
 6. The state remains active until a vehicle exits, freeing up a space, at which point the system automatically reverts the gateway and signage to the ``Available'' state. \\
+\hline
 Exception Flows & 
 \textbf{E1: Sensor Miscalibration (False Full State):} The system reports ``FULL,'' but the Operator sees empty spaces physically available. The Operator uses a manual override function to correct the slot count and forcefully re-enable the entry gateway. \\
-\end{longtblr}
+\hline
+\end{tabularx}
+\caption{UC 1.8: Handle Parking Full State}
+\label{tab:uc1.8}
+\end{table}

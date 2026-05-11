@@ -63,20 +63,20 @@
 \contentsline {section}{\numberline {4}Method Descriptions}{20}{section.4}%
 \contentsline {subsection}{\numberline {4.1}Domain Model Methods}{20}{subsection.4.1}%
 \contentsline {subsubsection}{\numberline {4.1.1}User Class}{20}{subsubsection.4.1.1}%
-\contentsline {subsubsection}{\numberline {4.1.2}ParkingSession Class}{20}{subsubsection.4.1.2}%
+\contentsline {subsubsection}{\numberline {4.1.2}ParkingSession Class}{21}{subsubsection.4.1.2}%
 \contentsline {subsubsection}{\numberline {4.1.3}Zone Class}{21}{subsubsection.4.1.3}%
 \contentsline {subsubsection}{\numberline {4.1.4}ParkingSlot Class}{21}{subsubsection.4.1.4}%
 \contentsline {subsubsection}{\numberline {4.1.5}IoTDevice Classes}{21}{subsubsection.4.1.5}%
 \contentsline {subsection}{\numberline {4.2}Service Layer Methods}{21}{subsection.4.2}%
 \contentsline {subsubsection}{\numberline {4.2.1}AuthService Class}{21}{subsubsection.4.2.1}%
-\contentsline {subsubsection}{\numberline {4.2.2}BillingService Class}{22}{subsubsection.4.2.2}%
+\contentsline {subsubsection}{\numberline {4.2.2}BillingService Class}{21}{subsubsection.4.2.2}%
 \contentsline {subsubsection}{\numberline {4.2.3}NavigationService Class}{22}{subsubsection.4.2.3}%
-\contentsline {subsubsection}{\numberline {4.2.4}ReportService Class}{23}{subsubsection.4.2.4}%
+\contentsline {subsubsection}{\numberline {4.2.4}ReportService Class}{22}{subsubsection.4.2.4}%
 \contentsline {subsubsection}{\numberline {4.2.5}SystemAdminService Class}{23}{subsubsection.4.2.5}%
-\contentsline {subsubsection}{\numberline {4.2.6}SystemLogService Class}{24}{subsubsection.4.2.6}%
+\contentsline {subsubsection}{\numberline {4.2.6}SystemLogService Class}{23}{subsubsection.4.2.6}%
 \contentsline {subsection}{\numberline {4.3}Controller Layer Methods}{24}{subsection.4.3}%
 \contentsline {subsubsection}{\numberline {4.3.1}EntryExitController Class}{24}{subsubsection.4.3.1}%
-\contentsline {subsubsection}{\numberline {4.3.2}PaymentController Class}{25}{subsubsection.4.3.2}%
+\contentsline {subsubsection}{\numberline {4.3.2}PaymentController Class}{24}{subsubsection.4.3.2}%
 \contentsline {subsubsection}{\numberline {4.3.3}SessionController Class}{25}{subsubsection.4.3.3}%
 \contentsline {subsection}{\numberline {4.4}Frontend Component Methods}{25}{subsection.4.4}%
 \contentsline {subsubsection}{\numberline {4.4.1}PlacedDevice Class}{25}{subsubsection.4.4.1}%
@@ -100,3 +100,17 @@
 \contentsline {subsection}{\numberline {5.2}Frontend Unit Tests}{29}{subsection.5.2}%
 \contentsline {subsubsection}{\numberline {5.2.1}API Service Tests}{29}{subsubsection.5.2.1}%
 \contentsline {subsubsection}{\numberline {5.2.2}Monitoring Service Tests}{29}{subsubsection.5.2.2}%
+\contentsline {subsubsection}{\numberline {5.2.3}Pricing Policy Service Tests}{30}{subsubsection.5.2.3}%
+\contentsline {subsection}{\numberline {5.3}Integration Test Scenarios}{30}{subsection.5.3}%
+\contentsline {subsubsection}{\numberline {5.3.1}Authentication Flow Integration}{30}{subsubsection.5.3.1}%
+\contentsline {subsubsection}{\numberline {5.3.2}Parking Session Flow Integration}{31}{subsubsection.5.3.2}%
+\contentsline {subsubsection}{\numberline {5.3.3}Payment Flow Integration}{31}{subsubsection.5.3.3}%
+\contentsline {subsection}{\numberline {5.4}Test Coverage Metrics}{32}{subsection.5.4}%
+\contentsline {subsubsection}{\numberline {5.4.1}Backend Test Coverage}{32}{subsubsection.5.4.1}%
+\contentsline {subsubsection}{\numberline {5.4.2}Frontend Test Coverage}{32}{subsubsection.5.4.2}%
+\contentsline {subsection}{\numberline {5.5}Test Execution Results}{32}{subsection.5.5}%
+\contentsline {subsubsection}{\numberline {5.5.1}Automated Test Suite}{32}{subsubsection.5.5.1}%
+\contentsline {subsubsection}{\numberline {5.5.2}Performance Benchmarks}{33}{subsubsection.5.5.2}%
+\contentsline {subsection}{\numberline {5.6}Quality Assurance Process}{33}{subsection.5.6}%
+\contentsline {subsubsection}{\numberline {5.6.1}Code Quality Gates}{33}{subsubsection.5.6.1}%
+\contentsline {subsubsection}{\numberline {5.6.2}Continuous Integration Pipeline}{33}{subsubsection.5.6.2}%

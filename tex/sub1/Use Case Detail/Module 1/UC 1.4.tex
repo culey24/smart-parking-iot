@@ -1,18 +1,22 @@
-\begin{longtblr}[
-  caption = {UC 1.4: Exit Parking for Temporary Visitors},
-]{
-  colspec = {Q[l, 3.5cm] Q[l, 11cm]}, 
-  hlines, vlines,
-  row{1} = {bg=gray9, font=\bfseries}, 
-  rowhead = 0, 
-}
-Field & Details \\
+\begin{table}[H]
+\small
+\renewcommand{\arraystretch}{1.4}
+\begin{tabularx}{\textwidth}{|>{\raggedright\arraybackslash}p{3.5cm}|>{\RaggedRight\arraybackslash}X|}
+\hline
+\rowcolor{gray!20} \textbf{Field} & \textbf{Details} \\
+\hline
 Use Case ID & 1.4 \\
+\hline
 Use Case Name & Exit Parking for Temporary Visitors \\
+\hline
 Actors & Primary: Temporary Visitors. \par Supporting: Gateway, BKPAY. \\
+\hline
 Description & The exit process for guests, requiring a one-time immediate payment verification (via QR code transfer or cash) before exit. \\
+\hline
 Pre-conditions & The visitor has their temporary card. \\
+\hline
 Post-conditions & The fee is collected, the session is closed, and the vehicle exits. \\
+\hline
 Main Flow & 
 1. The visitor hands the temporary card to the Guard or scans it at the exit terminal. \par
 2. The camera captures the license plate to match with the entry record. \par
@@ -20,7 +24,12 @@ Main Flow &
 4. The visitor pays the fee using cash or by scanning a banking QR (from BKPAY). \par
 5. The Parking Operators confirms the receipt of payment in the system (or the system auto-detects the QR transfer). \par
 6. The system closes the guest session and opens the barrier. \\
+\hline
 Exception Flows & 
 \textbf{E1: Temporary Card Lost:} If the visitor loses their temporary card, the flow transfers to UC 1.6 (Temporary Card Lost). The operator verifies information, searches for the entry record via the license plate, invalidates the card, and calculates the fee/surcharge. \par \vspace{0.5em}
 \textbf{E2: Non-standard Exit (Payment Gateway Down or Barrier Error):} If the QR payment system is down or the barrier fails to lift, the flow transfers to UC 1.5 (Manual Controlling) for the Parking Operator to manually open the gate. \\
-\end{longtblr}
+\hline
+\end{tabularx}
+\caption{UC 1.4: Exit Parking for Temporary Visitors}
+\label{tab:uc1.4}
+\end{table}

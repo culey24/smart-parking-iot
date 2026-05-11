@@ -1,28 +1,39 @@
-\begin{longtblr}[
-  caption = {UC 4.5: Monitor system statistics},
-]{
-  colspec = {Q[l, 3.5cm] Q[l, 11cm]}, 
-  hlines, vlines,
-  row{1} = {bg=gray9, font=\bfseries}, 
-  rowhead = 0, 
-}
-Field & Details \\
+\begin{table}[H]
+\small
+\renewcommand{\arraystretch}{1.4}
+\begin{tabularx}{\textwidth}{|>{\raggedright\arraybackslash}p{3.5cm}|>{\RaggedRight\arraybackslash}X|}
+\hline
+\rowcolor{gray!20} \textbf{Field} & \textbf{Details} \\
+\hline
 Use Case ID & 4.5 \\
+\hline
 Use Case Name & Monitor system statistics \\
+\hline
 Actors & Primary: System Administrator, IT Team, HCMUT leaders \& managers. \\
+\hline
 Description & This process allows authorized users to view and analyze real-time and historical performance data of the parking facility, including occupancy rates, device health, and usage patterns. \\
+\hline
+Trigger & Administrators or managers need to review parking performance or device health. \\
+\hline
 Pre-conditions & 1. User has successfully authenticated via HCMUT\_SSO. \par 2. User has the appropriate role-based access permissions (Admin, IT, or Management). \par 3. The system is receiving data from the IoT gateways and sensors. \\
+\hline
 Post-conditions & 1. The system generates and displays visual reports (charts/graphs) of the requested statistics. \par 2. All data access is logged for traceability. \\
+\hline
 Main Flow & 
 1. Actor navigates to the ``System Statistics \& Dashboard'' section of the Web application. \par
 2. System fetches near real-time occupancy data and historical logs. \par
 3. Actor selects the desired reporting cycle (daily, weekly, monthly). \par
 4. System processes the raw data and renders visual statistics on the dashboard. \par
 5. Actor reviews the statistics and may export the report for further auditing or management review. \\
+\hline
 Exception Flows & 
 \textbf{E1: Sensor or Gateway Disconnection:} System detects ``intermittent connectivity'' or ``gateway disconnection.'' Dashboard displays a warning indicator and uses the last known state. \par \vspace{0.5em}
 \textbf{E2: Data Inconsistency/Sensor Malfunction:} System identifies conflicting data and marks the specific parking slot as ``Sensor Malfunction'' in the statistics view. \par \vspace{0.5em}
 \textbf{E3: Connection to authentication module is lost:} Display failsafe page indicating the connection lost to authentication pipeline. Actor refreshes page to check connection status. \par \vspace{0.5em}
 \textbf{E4: Connection to Central Database is lost:} Display message indicating the connection lost to Central Database. Returns empty lists on affected information. \par \vspace{0.5em}
 \textbf{E5: Connection to host is lost:} Display failsafe page indicating the connection lost to the host. Actor refreshes page to check connection status. \\
-\end{longtblr}
+\hline
+\end{tabularx}
+\caption{UC 4.5: Monitor system statistics}
+\label{tab:uc4.5}
+\end{table}

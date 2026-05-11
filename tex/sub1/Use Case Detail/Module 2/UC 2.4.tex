@@ -1,19 +1,24 @@
-\begin{longtblr}[
-  caption = {UC 2.4: Receive \& Handle Infrastructure Alerts},
-]{
-  colspec = {Q[l, 3.5cm] Q[l, 11cm]}, 
-  hlines, vlines,
-  row{1} = {bg=gray9, font=\bfseries}, 
-  rowhead = 0, 
-}
-Field & Details \\
+\begin{table}[H]
+\small
+\renewcommand{\arraystretch}{1.4}
+\begin{tabularx}{\textwidth}{|>{\raggedright\arraybackslash}p{3.5cm}|>{\RaggedRight\arraybackslash}X|}
+\hline
+\rowcolor{gray!20} \textbf{Field} & \textbf{Details} \\
+\hline
 Use Case ID & 2.4 \\
+\hline
 Use Case Name & Receive \& Handle Infrastructure Alerts \\
+\hline
 Actors & Primary: Parking Operators, IT Team, System Admin. \par Supporting: Gateway, Sensors, Signages. \\
+\hline
 Description & The system monitors the health of all hardware components. When a failure is detected, an alert is pushed to the Web App for the management team to identify and resolve. \\
+\hline
 Trigger & The system detects a hardware issue from the IoT devices. \\
+\hline
 Pre-conditions & 1. Actors are logged into the Web App with active notification permissions. \par 2. All IoT devices have been successfully registered and mapped. \par 3. The system monitoring service is active. \\
+\hline
 Post-conditions & 1. The failed device is identified and logged. \par 2. Maintenance individuals are notified for physical inspection. \\
+\hline
 Main Flow & 
 1. The system continuously monitors signals from all IoT devices. \par
 2. The system detects a device failure, triggers an alert on the web app for all related actors, and flags the device location. \par
@@ -21,8 +26,14 @@ Main Flow &
 4. The system displays the exact location, Device ID, and error type on the digital map. \par
 5. The IT Team acknowledges the alert and dispatches personnel for on-site troubleshooting. \par
 6. The system records the incident in the system log. \\
+\hline
 Alternate Flows & 
 \textbf{A1: Remote device reboot (at step 5):} If the device is rebootable, the IT Team attempts a remote reboot via the Web App. If the device comes back online, the system clears the alert automatically and returns the status to normal. If the reboot fails, the flow resumes at step 5 (dispatching personnel). \\
+\hline
 Exception Flows & 
 None. \\
-\end{longtblr}
+\hline
+\end{tabularx}
+\caption{UC 2.4: Receive \& Handle Infrastructure Alerts}
+\label{tab:uc2.4}
+\end{table}

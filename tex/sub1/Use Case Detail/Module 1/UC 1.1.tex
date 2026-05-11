@@ -1,18 +1,22 @@
-\begin{longtblr}[
-  caption = {UC 1.1. Enter Parking for Learners/Faculty Members},
-]{
-  colspec = {Q[l, 3.5cm] Q[l, 11cm]}, % Cột 1 rộng 3.5cm, Cột 2 rộng 11cm, căn lề trái
-  hlines, vlines,
-  row{1} = {bg=gray9, font=\bfseries}, % Dòng đầu tiên có nền xám và chữ đậm
-  rowhead = 0, % Không lặp lại header ở trang sau theo yêu cầu của bạn
-}
-Field & Details \\
+\begin{table}[H]
+\small
+\renewcommand{\arraystretch}{1.4}
+\begin{tabularx}{\textwidth}{|>{\raggedright\arraybackslash}p{3.5cm}|>{\RaggedRight\arraybackslash}X|}
+\hline
+\rowcolor{gray!20} \textbf{Field} & \textbf{Details} \\
+\hline
 Use Case ID & 1.1 \\
+\hline
 Use Case Name & Enter Parking for Learners/Faculty Members \\
+\hline
 Actors & Primary: Learners, Faculty Members \& Staff. \par Supporting: Gateway, Camera, Sensors, HCMUT\_SSO. \\
+\hline
 Description & The automatic entry process for university members who possess a registered official ID card integrated with the SSO system. \\
+\hline
 Pre-conditions & The entry hardware is online. The barrier is closed. \\
+\hline
 Post-conditions & A new parking session is recorded. The barrier opens. \\
+\hline
 Main Flow & 
 1. The user drives to the entry gate and taps their official ID card on the reader. \par
 2. The camera captures the vehicle's license plate. \par
@@ -21,9 +25,14 @@ Main Flow &
 5. The system creates a new ``Member Parking Session'' containing the timestamp, card ID, and license plate. \par
 6. The system opens the barrier. \par
 7. Once the vehicle passes the loop detector, the barrier closes. \\
+\hline
 Alternate Flows & 
 \textbf{E1: Parking Lot is Full:} If the system detects that the parking area has reached maximum capacity, the flow is transferred to UC 1.8 (Handle Parking Full State). The system will close the gateway and notify participants. The card tap is rejected. \par \vspace{0.5em}
 \textbf{E2: Sensor/Camera Error or Unrecognized Plate:} If the hardware fails to read the license plate or the automatic flow is interrupted, the system alerts the Parking Operator. The flow transfers to UC 1.5 (Manual Controlling). \par \vspace{0.5em}
 \textbf{E3: Forgot/Lost ID Card at Entry Gate:} If a member arrives without a card, the user presses the button on the card dispenser to take a temporary card. The process immediately transfers to UC 1.2 (Enter Parking for Temporary Visitors). \par \vspace{0.5em}
 \textbf{E4: Invalid/Inactive Card:} The SSO system returns an invalid status (e.g., account suspended, unpaid fees). The barrier remains closed, and an error message is displayed. The user can opt to take a temporary card (transfer to UC 1.2). \\
-\end{longtblr}
+\hline
+\end{tabularx}
+\caption{UC 1.1: Enter Parking for Learners/Faculty Members}
+\label{tab:uc1.1}
+\end{table}

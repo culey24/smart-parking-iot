@@ -1,19 +1,24 @@
-\begin{longtblr}[
-  caption = {UC 3.4: View Billing History},
-]{
-  colspec = {Q[l, 3.5cm] Q[l, 11cm]}, 
-  hlines, vlines,
-  row{1} = {bg=gray9, font=\bfseries}, 
-  rowhead = 0, 
-}
-Field & Details \\
+\begin{table}[H]
+\small
+\renewcommand{\arraystretch}{1.4}
+\begin{tabularx}{\textwidth}{|>{\raggedright\arraybackslash}p{3.5cm}|>{\RaggedRight\arraybackslash}X|}
+\hline
+\rowcolor{gray!20} \textbf{Field} & \textbf{Details} \\
+\hline
 Use Case ID & 3.4 \\
+\hline
 Use Case Name & View Billing History \\
+\hline
 Actors & Primary: Learners, Faculty Members \& Staff. \par Supporting: None. \\
+\hline
 Description & This use case allows authenticated university members to review their past parking sessions, accumulated fees, and payment statuses (Paid, Unpaid, Cancelled) over specified billing cycles. \\
+\hline
 Trigger & The user navigates to the ``Billing History'' or ``My Parking'' section on the web application. \\
+\hline
 Pre-conditions & 1. The user has successfully authenticated and logged in via HCMUT\_SSO. \par 2. The user's profile and role information are correctly synchronized from HCMUT\_DATACORE. \\
+\hline
 Post-conditions & 1. The system successfully retrieves and displays the user's historical billing and parking data. \par 2. No data in the system is modified (Read-only operation). \\
+\hline
 Main Flow & 
 1. The user selects the ``Billing History'' tab on their personal dashboard. \par
 2. The system retrieves the user's parking sessions and transaction records from the database, defaulting to the current or most recent billing cycle. \par
@@ -22,9 +27,15 @@ Main Flow &
 5. The system dynamically updates the displayed list based on the user's selected filters. \par
 6. The user clicks on a specific ``Paid'' transaction to view its details. \par
 7. The system displays an electronic receipt detailing the Transaction ID, Date of Payment, and the Payment Method used. \\
+\hline
 Alternate Flows & 
 \textbf{A1 - Export Billing History:} At step 5, the user clicks the ``Export'' button. The system generates and downloads a formatted PDF or Excel report of the currently filtered billing history. \par \vspace{0.5em}
 \textbf{A2 - No Records Found:} At step 2 or 5, if no activity is found, the system displays an empty state with the message: ``No parking history found for the selected period.'' \\
+\hline
 Exception Flows & 
 \textbf{E1 - Database Connection Timeout / Retrieval Error:} At step 2 or 5, the system fails to connect or the query times out. The system safely aborts the loading process and displays: ``Unable to retrieve billing history at this time. Please check your connection or try refreshing the page.'' \\
-\end{longtblr}
+\hline
+\end{tabularx}
+\caption{UC 3.4: View Billing History}
+\label{tab:uc3.4}
+\end{table}

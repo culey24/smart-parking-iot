@@ -1,28 +1,36 @@
-\begin{longtblr}[
-  caption = {UC 2.5: View Personal Information \& Parking History},
-]{
-  colspec = {Q[l, 3.5cm] Q[l, 11cm]}, 
-  hlines, vlines,
-  row{1} = {bg=gray9, font=\bfseries}, 
-  rowhead = 0, 
-}
-Field & Details \\
+\begin{table}[H]
+\small
+\renewcommand{\arraystretch}{1.4}
+\begin{tabularx}{\textwidth}{|>{\raggedright\arraybackslash}p{3.5cm}|>{\RaggedRight\arraybackslash}X|}
+\hline
+\rowcolor{gray!20} \textbf{Field} & \textbf{Details} \\
+\hline
 Use Case ID & 2.5 \\
+\hline
 Use Case Name & View Personal Information \& Parking History \\
+\hline
 Actors & Primary: Learners, Faculty Members \& Staff. \par Supporting: HCMUT\_DATACORE. \\
+\hline
 Description & Allow users to view their parking sessions (time in/out, license plate, calculated fees) and personal info on the WEB APP via a read-only API from HCMUT\_DATACORE. \\
+\hline
 Trigger & User navigates to their personal profile/parking history page on the WEB APP. \\
+\hline
 Pre-conditions & User is authenticated via HCMUT\_SSO (UC 4.1). \\
+\hline
 Post-conditions & User successfully views their data, and accurate fees are displayed based on logged sessions. \\
+\hline
 Main Flow & 
 1. The user logs into the WEB APP. \par
 2. The system calls a read-only API to HCMUT\_DATACORE for information. \par
 3. The system retrieves the list of parking sessions from the database. \par
 4. The system calculates total unpaid fees from previous sessions. \par
 5. The system displays the combined personal information and parking history. \\
-Alternate Flows & 
-None. \\
+\hline
 Exception Flows & 
 \textbf{E1: HCMUT\_DATACORE unresponsive:} The system cannot communicate with the server (bad gateway/error). The app displays cached history and an error message: ``Personal profile information currently unavailable.'' The IT Team is alerted (UC 2.4). \par \vspace{0.5em}
 \textbf{E2: Local IoT gateway problem:} If data from sensors is lost, the WEB APP displays ``Active parking currently unavailable'' and triggers an alert to the IT Team (UC 2.4). \\
-\end{longtblr}
+\hline
+\end{tabularx}
+\caption{UC 2.5: View Personal Information \& Parking History}
+\label{tab:uc2.5}
+\end{table}

@@ -1,19 +1,24 @@
-\begin{longtblr}[
-  caption = {UC 3.7: Reconcile Financial Data},
-]{
-  colspec = {Q[l, 3.5cm] Q[l, 11cm]}, 
-  hlines, vlines,
-  row{1} = {bg=gray9, font=\bfseries}, 
-  rowhead = 0, 
-}
-Field & Details \\
+\begin{table}[H]
+\small
+\renewcommand{\arraystretch}{1.4}
+\begin{tabularx}{\textwidth}{|>{\raggedright\arraybackslash}p{3.5cm}|>{\RaggedRight\arraybackslash}X|}
+\hline
+\rowcolor{gray!20} \textbf{Field} & \textbf{Details} \\
+\hline
 Use Case ID & 3.7 \\
+\hline
 Use Case Name & Reconcile Financial Data \\
+\hline
 Actors & Primary: HCMUT Finance Office. \par Supporting: BKPAY. \\
+\hline
 Description & This use case allows the Finance Office to cross-check records in the Smart Parking System against BKPAY settlement data to identify and resolve financial discrepancies. \\
+\hline
 Trigger & The Finance Officer initiates a manual sync via the ``Reconciliation'' module, or the system triggers an automated background reconciliation. \\
+\hline
 Pre-conditions & 1. User is authenticated via HCMUT\_SSO. \par 2. User possesses the ``Finance Admin'' role. \par 3. BKPAY APIs or settlement files are accessible. \\
+\hline
 Post-conditions & 1. Discrepancies are identified and resolved. \par 2. Relevant support tickets from UC 3.6 are updated. \par 3. Reconciliation report is logged in the Audit Trail. \\
+\hline
 Main Flow & 
 1. The user accesses the ``Reconciliation'' module on the web application. \par
 2. The user selects a date range and clicks ``Run Reconciliation.'' \par
@@ -26,9 +31,15 @@ Main Flow &
 9. The user clicks ``Force Sync - Mark as Paid.'' \par
 10. The system updates the local status to ``Paid,'' clears debt, and logs the manual override. \par
 11. If linked to a UC 3.6 ticket, the system marks it as ``Resolved'' and notifies the user. \\
+\hline
 Alternate Flows & 
 \textbf{A1 - 100\% Match (No Discrepancies):} If all records match, the system displays a ``Perfect Match'' green banner. The user clicks ``Approve \& Close Cycle.'' \par \vspace{0.5em}
 \textbf{A2 - Initiate Refund:} If an overcharge is detected, the Finance Officer clicks ``Initiate Refund.'' The system sends a request to BKPAY and sets the status to ``Refund Pending.'' \\
+\hline
 Exception Flows & 
 \textbf{E1 - BKPAY API Connection Failure:} The system fails to connect or the API key is expired. The system halts the process and displays: ``Unable to connect to BKPAY settlement server. Please check configuration or upload a manual file.'' \par \vspace{0.5em}
-\end{longtblr}
+\hline
+\end{tabularx}
+\caption{UC 3.7: Reconcile Financial Data}
+\label{tab:uc3.7}
+\end{table}
