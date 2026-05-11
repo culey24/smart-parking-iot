@@ -317,7 +317,11 @@ export function MonitoringPage() {
         ? startAnimationWithDeviceId(checkinRes.data.sessionId, plateNumber, "#2563eb", serverDeviceId)
         : startAnimation(checkinRes.data.sessionId, plateNumber, "#2563eb", "gate", "sensor");
       if (targetDeviceId) {
-        setSimStatus("idle");
+        // Wait for animation to finish, then trigger SSE refresh so sensor turns green on arrival
+        setTimeout(async () => {
+          await apiCall("POST", "/api/monitoring/refresh").catch(() => {});
+          setSimStatus("idle");
+        }, ANIM_DURATION + 300);
       } else if (returnPath) {
         showToast(`🚫 ${plateNumber} (${vehicleType}) — lot full, turned away`);
         setTimeout(async () => {
@@ -353,7 +357,11 @@ export function MonitoringPage() {
 
       if (targetDeviceId) {
         showToast(`✅ ${plateNumber} (${vehicleType}) entered as visitor`);
-        setSimStatus("idle");
+        // Wait for animation to finish, then trigger SSE refresh so sensor turns green on arrival
+        setTimeout(async () => {
+          await apiCall("POST", "/api/monitoring/refresh").catch(() => {});
+          setSimStatus("idle");
+        }, ANIM_DURATION + 300);
       } else if (returnPath) {
         showToast(`🚫 ${plateNumber} (${vehicleType}) — lot full, turned away`);
         setTimeout(async () => {
@@ -439,6 +447,7 @@ export function MonitoringPage() {
         if (targetDeviceId) {
           showToast(`⚡ Fast #${i + 1}: ${plateNumber} (${vehicleType}) entered`);
           await new Promise(r => setTimeout(r, FAST_DURATION + 400));
+          await apiCall("POST", "/api/monitoring/refresh").catch(() => {});
           fastEnterInflight.current.delete(sessionId);
         } else if (returnPath) {
           showToast(`🚫 Fast #${i + 1}: ${plateNumber} — lot full, turned away`);

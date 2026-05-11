@@ -24,4 +24,7 @@ router.get('/logs', async (req, res) => {
 // Bind a session to a sensor device
 router.post('/bind', MonitoringSSEController.bindSensor);
 
+// Trigger SSE snapshot refresh (called by frontend after animation completes)
+router.post('/refresh', MonitoringSSEController.refreshSnapshot);
+
 export default router;

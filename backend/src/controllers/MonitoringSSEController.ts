@@ -174,5 +174,11 @@ export const MonitoringSSEController = {
     } catch (err: any) {
       res.status(500).json({ success: false, message: err.message });
     }
-  }
+  },
+
+  /** POST /api/monitoring/refresh - Trigger SSE snapshot broadcast (called by frontend after animation) */
+  refreshSnapshot: async (_req: Request, res: Response): Promise<void> => {
+    eventBus.emit('monitoring:snapshot');
+    res.json({ success: true });
+  },
 };

@@ -81,7 +81,8 @@ export class EntryExitController {
         await SystemLogService.log('WARNING', 'SESSION', `Session ${sessionId} started — ${plateNumber.toUpperCase()} entered at ${new Date().toLocaleTimeString('en-GB')}, NO SENSOR AVAILABLE`, { sessionId });
       }
       await SystemLogService.log('INFO', 'GATE', `Barrier lifted — vehicle ${plateNumber.toUpperCase()} admitted into facility`);
-      eventBus.emit('monitoring:snapshot');
+      // NOTE: SSE snapshot is NOT emitted here. Frontend calls POST /api/monitoring/refresh
+      // after the vehicle animation completes so sensor only turns green when vehicle arrives.
 
       res.json({ success: true, data: { ...session.toObject(), deviceId: (availableSensor as any)?.deviceId || null }, message: 'Check-in successful' });
     } catch (error: any) {

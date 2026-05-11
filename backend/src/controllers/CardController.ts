@@ -113,8 +113,8 @@ export class CardController {
       }
       await SystemLogService.log('INFO', 'GATE', `Barrier lifted — visitor ${plateNumber.toUpperCase()} entered facility`);
 
-      // Broadcast SSE snapshot so monitoring UI updates immediately
-      eventBus.emit('monitoring:snapshot');
+      // NOTE: SSE snapshot is NOT emitted here. Frontend calls POST /api/monitoring/refresh
+      // after the vehicle animation completes so sensor only turns green when vehicle arrives.
 
       res.json({
         success: true,
